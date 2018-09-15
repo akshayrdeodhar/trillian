@@ -1,0 +1,20 @@
+git@gitlab.com:Bri9k/chess.git
+
+Chess Program
+Akshay Deodhar
+111703013
+
+Tasks:
+Design a data structure to store the state of the game at any point in the
+game
+
+Using this data structure:
+Write functions which will accept and interprete user moves -> in proper chess
+OR some simplified notation
+Write function(s) that will validate user moves
+Write function(s) to check whether a player has won
+
+Write functions to enumerate all possible valid moves which white or black can
+do
+At least: Write function(s) that randomly selects a valid move.
+
