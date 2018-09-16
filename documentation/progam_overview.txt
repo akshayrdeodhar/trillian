@@ -1,0 +1,53 @@
+Program will use two main data structures: 
+sturct-> co-ordinates
+enum -> piece_type
+struct-> all metadata
+A matrix which will represent the board
+A data structure for every piece, and all the valied squares it can go to.
+An array / structure of pieces for the pieces of each player.
+
+Interface;
+Text based OR ncurses based
+Should recognise commands -> move notation, quit, white-black
+Should print valied errors
+A way to input a board position directly (for testing correctness) -> Idea:
+piece-coordinate pairs, metadata -> text file
+
+Files:
+A format (mostly text-based to store the position of the board in)
+Along with metadata like number of moves without a pawn move, and draw by
+repetition
+
+Functions:
+display(board) -> flip board after move of one player
+enumerate_moves(pieces, board)
+update_possible_moves(&piece) -> large amount of work
+select_move(possible_moves_array)
+
+
+Considerations:
+Normal pieces cannot go through other pieces
+Knight can jump over pieces
+All possible piece moves
+The board is only 8X8 large
+Promotion of pawn
+En-passe -> need flag
+Castling
+Other pieces cannot move when the king is in check
+Draw by repetition -> need to track previous 6 board positions
+Castling: need to track whether king or rook has previously moved, whether
+there are pieces in the middle, whether there are enemy pieces controlling
+squares which the king is supposed to move through
+Pawn capture move and movement are different
+
+
+Further exploration: 
+A heuristic with a board evaluation function -> will have another board and
+another set of pieces. Will build a tree position evaluation values, and then
+apply fancy stuff like minimax and alpha-beta pruning on it (whatever that
+means)then apply fancy stuff like minimax and alpha-beta pruning on it
+(whatever thameans)then apply fancy stuff like minimax and alpha-beta pruning
+on it (whatever thameans)then apply fancy stuff like minimax and alpha-beta
+pruning on it (whatever that means)
+Graphics for board -> SDL or ncurses
+PGN format recognition?

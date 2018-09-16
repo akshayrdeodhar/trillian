@@ -1,0 +1,3 @@
+A format for storing the board position in
+A data structure for storing board position in
+A function which will read format to that data structure

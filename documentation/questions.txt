@@ -1,0 +1,57 @@
+Q1:Will I need to update a board and then check whether move is valid?
+A1: Not if I track all pins, and all attackes squares
+
+Q2:How do I track draw by repetition?
+
+When I have promoted a pawn, how will I track 3 bishops? -> data structure
+cannot be rigid
+
+Q3:How do I track the king ? I have problems with check, with castling
+A1: Refer to Q1A1
+
+
+Q4:CHECK: The problem of king movement
+QA:No other move is possible when king is in check. How do I implement this?
+Check_flag ? 
+Move only the king if in check will not succeed. Need to implement a mechanism
+for 'piece madhe ghalne' -> function to handle checks, a structure for the
+squares through which check comes. Simply piece movement check is not the only
+way to give check.
+Need to update board after each possible move and check 
+bool kingincheck_(player, board, opponent_pieces) {
+	update_pieces()
+	while () {                                                                                                                                                    
+		search(king_square, piece_possible_moves, (for all enemy pieces);
+		threat_square_struct
+	}
+	
+}
+
+Multiple pieces can check the king at the same time!
+
+Q5:Should I use bit-boards?
+A1:It may become complicated. However, will be very useful when tracking
+attacked squares.
+But, when I want to count controlled squares, or supported pieces, the bitwise
+operations to be done will become more complicated.
+More important, I have not designed bitboards myself, and probably should use
+a structure I have created
+
+Q6: Should I actually track all possible moves of each piece in some
+structure? 
+A1:Then it will need to be updated every turn when the piece is not moving, and rebuilt every
+turn when the piece moves.
+
+Q6b. Why not check individually everytime? Morever, I don't need to check all
+pieces if I check individualy?
+A1: But that is only when I want to validate player moves. When I want to
+generate moves, I will have to track all possible moves anyway (for atleast
+one player.
+Calculation: 8 * 8 bits for the 8 directions (safe to use even if 4 directions
+used) 
+0th bit for "direction enable"
+An 8 bit register for meta-bits? Pinned->direction
+An 8 bit register for knight moves
+An 8 bit register for king or pawn ENABLE
+
+Q7: How do I show the board?
