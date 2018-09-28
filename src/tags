@@ -1,0 +1,24 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+brd	board.h	/^	char brd[8][8]; \/* contains characters in SAN notation which represent pieces *\/$/;"	m	struct:__anon2
+castling	board.h	/^	usint castling; \/* X X X X B-queenside B-kingside W-kingside W-queenside *\/$/;"	m	struct:__anon2
+chessboard	board.h	/^}chessboard;$/;"	t	typeref:struct:__anon2
+display	display.c	/^void display(chessboard board) {$/;"	f
+enpass_target	board.h	/^	square enpass_target; \/* the square to which enpass is allowed (there is only one) *\/$/;"	m	struct:__anon2
+fenstring_to_board	board.c	/^int fenstring_to_board(chessboard *board, char fenstring[]) {$/;"	f
+fullmoves	board.h	/^	usint fullmoves; \/* number of black moves *\/$/;"	m	struct:__anon2
+halfmoves	board.h	/^	usint halfmoves; \/* number of non-pawn and non capture moves (for 50 move rule) *\/$/;"	m	struct:__anon2
+main	main.c	/^int main(void) {$/;"	f
+player	board.h	/^	char player; \/* 'w' white 'b' black to move *\/$/;"	m	struct:__anon2
+square	board.h	/^}square;$/;"	t	typeref:struct:__anon1
+std	Makefile	/^	gcc -c board.c -Wall -std=c89$/;"	m
+std	Makefile	/^	gcc -c display.c -Wall -std=c89$/;"	m
+std	Makefile	/^	gcc -c main.c -Wall -std=c89$/;"	m
+std	Makefile	/^	gcc main.o board.o display.o -Wall -std=c89 -o try$/;"	m
+usint	defs.h	/^typedef unsigned char usint;$/;"	t
+x	board.h	/^	usint x, y;$/;"	m	struct:__anon1
+y	board.h	/^	usint x, y;$/;"	m	struct:__anon1
