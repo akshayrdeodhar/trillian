@@ -55,3 +55,21 @@ An 8 bit register for knight moves
 An 8 bit register for king or pawn ENABLE
 
 Q7: How do I show the board?
+
+Q8: How do I handle pins and king movement when piece movement and king
+movement  are interwined with moves of the opponent (and one side's moves must
+	be calculated before the other) ?
+A1: The problem is that one requires the legal moves of the other player
+
+A tentative solution is (assuming black to move (do not know significance of
+		who is to move, just assuming it)
+unplayer_moves()
+player_moves()
+unplayer_pins() /* assuming pins do not affect unplayer_moves */
+player_pins()
+unplayer_king()
+player_king()
+
+What is proposed is thus: we calculate all psuedocorrect moves (which we have
+	to track anyway)
+Then we generate the pin bits
