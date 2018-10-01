@@ -1,6 +1,60 @@
 #include "board.h"
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define FEN_TOKENS 6
+#define valid_enpass_square(square_string) ((square_string[0] >= 'a' && square_string[0] <= 'z') && (square_string[1] == '3' || square_string[1] == '6'))
+
+/* get next token from the 'fen' string
+ * read current token and skip a space
+ * more than one space-> format improper
+ * Returns number of characters read
+ * Returns -1 if more than one space
+ * */
+int get_fentok(char tok[], char str[], int reset) {
+	static unsigned index = 0;
+	static unsigned token_no = 0;
+	int i = 0;
+
+	if (reset) {
+		index = 0;
+		token_no = 0;
+	}
+
+	while(str[index] != '\0' && str[index] != ' ') {
+		tok[i++] = str[index++];
+	}
+	tok[i] = '\0';
+	/* assert: str[index] == '\0' OR str[index] == ' ' */
+	/* note: a valid 'fen' string has 6 tokens in all */
+	if (str[index] == ' ') {
+		index++;
+	}
+
+	if (str[index] == '\0' && token_no != 5) {
+		return 0;
+	}
+
+	token_no++;
+	return i;
+}
+
+int safe_atoi(char string[]) {
+	int n = 0;
+	int i = 0;
+	while(isdigit(string[i])) {
+		n += string[i] - '0';
+		++i;
+	}
+
+	if (string[i] != '\0') {
+		return -1;
+	}
+
+	return n;
+}
 
 /* Specification: http://www.thechessdrum.net/PGN_Reference.txt
  *
@@ -33,19 +87,24 @@
 int fenstring_to_board(chessboard *board, char fenstring[]) {
 	usint rank = 7;
 	usint file = 0;
-	int i = 0;
-	int j;
+	int length;
+	int i, j = 0;
 	int n;
 	int number = 0;
 
-	printf("%s\n", fenstring);
+	char *current = (char *)malloc(sizeof(char) * (strlen(fenstring) + 1));
 
-	while(fenstring[i] != '\0' && fenstring[i] != ' ') {
-		switch(fenstring[i]) {
+	length = get_fentok(current, fenstring, 1);
+
+	if (!length) {
+		return 0;
+	}
+
+	for (j = 0; j < length; ++j) {
+		switch(current[j]) {
 			case '/':
-				printf("Slash File: %d Rank: %d\n", file, rank);
 				if (file != 8) {
-					printf("Leroy Brown\n");
+					fprintf(stderr, "invalid fen string: invalid number of squares in row %d\n", rank + 1);
 					return 0;
 				}
 				--rank;
@@ -57,53 +116,56 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 			case 'N': case 'B': case 'P':
 			case 'k': case 'q': case 'r': 
 			case 'n': case 'b': case 'p':
-				printf("Alphabet: %c\n", fenstring[i]);
-				board->brd[rank][file++] = fenstring[i];
+				board->brd[rank][file++] = current[j];
 				break;
 
 			case '1': case '2': case '3': case '4':
 			case '5': case '6': case '7': case '8':
-				printf("Digit %c\n", fenstring[i]);
-				n = fenstring[i] - '0';
+				n = current[j] - '0';
 				if (n == 0 || n == 9) {
-					printf("Leroy Brown\n");
+					fprintf(stderr, "invalid fen string: invalid number of blank squares in row %d\n", rank + 1);
 					return 0;
 				}
-				for (j = 0; j < n; ++j) {
+				for (i = 0; i < n; ++i) {
 					board->brd[rank][file++] = (char)0;
 				}
 				break;
 
 			default:
-				printf("Leroy Brown\n");
+				fprintf(stderr, "invalid fen string: character not recognised\n");
 				/* not in notation, exit */
 				return 0;
 				break;
 		}
-		i++;
 	}
-	if (rank != 0 || fenstring[i] == '\0') {
-		printf("Leroy Brown\n");
+	if (rank != 0) {
+		fprintf(stderr, "invalid fen string: invalid number of rows (%d)\n", rank + 1);
 		return 0;
 	}
-	i++;
 
-	printf("I survived\n");
+	length = get_fentok(current, fenstring, 0);
 
-	if (fenstring[i] == 'w' || fenstring[i] == 'b') {
-		board->player = fenstring[i];
+	if (!length) {
+		return 0;
+	}
+
+	if (current[0] == 'w' || current[i] == '0') {
+		board->player = current[i];
 	}
 	else {
 		return 0;
 	}
 
-	i++;
-	j = 0;
-	while(fenstring[i] != '\0' && fenstring[i] != ' ') {
-		switch(fenstring[i]) {
+	length = get_fentok(current, fenstring, 0);
+
+	if (!length) {
+		return 0;
+	}
+
+	for (j = 0; j < length; ++j) {
+		switch(current[j]) {
 			case '-':
-				i++;
-				if (board->castling != 0 || fenstring[i] != ' ') {
+				if (board->castling != 0 || current[j] != ' ') {
 					return 0;
 				}
 				board->castling = 0;
@@ -125,64 +187,51 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 				return 0;
 				break;
 		}
-		i++;
-		++j;
 	}
 	if (j > 4) {
 		return 0;
 	}
-	i++;
 
-	if (fenstring[i] != '-' || !(fenstring[i] <= 'h' && fenstring[i] >= 'a')) {
+	length = get_fentok(current, fenstring, 0);
+
+	if ((length == 2 && valid_enpass_square(current)) || (length == 1 && current[0] == '-')) {
+		board->enpass_target.y = current[i] - 'a';
+		board->enpass_target.x = current[i] - '0';
+	}
+	else {
 		return 0;
 	}
-	board->enpass_target.y = fenstring[i] - 'a';
+
+
+	length = get_fentok(current, fenstring, 0);
+
+	if (!length) {
+		return 0;
+	}
 	
-	i++;
-	if (!(fenstring[i] >= '1' && fenstring[i] <= '8')) {
+	if ((number = atoi(current)) > -1) {
+		board->halfmoves = (usint)number;
+	}
+	else {
 		return 0;
 	}
-	board->enpass_target.x = fenstring[i] - '0';
+
+
+	length = get_fentok(current, fenstring, 0);
+
+	if (!length) {
+		return 0;
+	}
 	
-	i++;
-	if (fenstring[i] != ' ') {
+	if ((number = atoi(current)) > -1) {
+		board->fullmoves = (usint)number;
+	}
+	else {
 		return 0;
 	}
-	
-	i++;
 
-	j = 0;
-	while(fenstring[i] != '\0' && fenstring[i] != ' ') {
-		if (isdigit(fenstring[i])) {
-			number = number * 10 + fenstring[i] - '0';
-		}
-		else {
-			return 0;
-		}
-		i++;
-		++j;
-	}
-	if (fenstring[i] == '\0' || j == 0) {
-		return 0;
-	}
-	board->halfmoves = (usint)number;
-	i++;
-
-	j = 0;
-	while(fenstring[i] != '\0' && fenstring[i] != ' ') {
-		if (isdigit(fenstring[i])) {
-			number = number * 10 + fenstring[i] - '0';
-		}
-		else {
-			return 0;
-		}
-		i++;
-		++j;
-	}
-	if (j == 0) {
-		return 0;
-	}
-	board->fullmoves = (usint)number;
-
+	free(current);
 	return 1;
 }
+
+
