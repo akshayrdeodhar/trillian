@@ -209,7 +209,7 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 		return 0;
 	}
 	
-	if ((number = atoi(current)) > -1) {
+	if ((number = safe_atoi(current)) > -1) {
 		board->halfmoves = (usint)number;
 	}
 	else {
@@ -223,7 +223,7 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 		return 0;
 	}
 	
-	if ((number = atoi(current)) > -1) {
+	if ((number = safe_atoi(current)) > -1) {
 		board->fullmoves = (usint)number;
 	}
 	else {
