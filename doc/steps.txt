@@ -1,0 +1,4 @@
+Way to read a board position (important for testing)
+Way to convert board position to a pieces state (again, important for testing)
+This will need finalisation of the pieces data structure. Array seems okay,
+but this will prove troublesome for when pieces are killed)
