@@ -4,21 +4,57 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+FEN_TOKENS	board.c	7;"	d	file:
 brd	board.h	/^	char brd[8][8]; \/* contains characters in SAN notation which represent pieces *\/$/;"	m	struct:__anon2
+calculate	pieces.c	/^void calculate(piece *p, chessboard ch) {$/;"	f
+can_move	pieces.c	/^int can_move(piece p, square sq, chessboard ch) {$/;"	f
+can_slide	pieces.c	11;"	d	file:
 castling	board.h	/^	usint castling; \/* X X X X B-queenside B-kingside W-kingside W-queenside *\/$/;"	m	struct:__anon2
 chessboard	board.h	/^}chessboard;$/;"	t	typeref:struct:__anon2
+dir_incr	pieces.h	/^	usint dir_start, dir_incr; \/*Q-> 0, 1. R-> 0, 2. B-> 1, 2 *\/$/;"	m	struct:__anon3
+dir_start	pieces.h	/^	usint dir_start, dir_incr; \/*Q-> 0, 1. R-> 0, 2. B-> 1, 2 *\/$/;"	m	struct:__anon3
+dirs	pieces.h	/^	usint dirs[8]; \/* w, nw, n, ne, e, se, s, sw *\/$/;"	m	struct:__anon3
 display	display.c	/^void display(chessboard board) {$/;"	f
+dx	pieces.h	/^	usint dx, dy;$/;"	m	struct:__anon4
+dy	pieces.h	/^	usint dx, dy;$/;"	m	struct:__anon4
 enpass_target	board.h	/^	square enpass_target; \/* the square to which enpass is allowed (there is only one) *\/$/;"	m	struct:__anon2
 fenstring_to_board	board.c	/^int fenstring_to_board(chessboard *board, char fenstring[]) {$/;"	f
+fin	pieces.h	/^	square fin;$/;"	m	struct:__anon5
+find_dir	pieces.c	/^usint find_dir(movement sl) {$/;"	f
+find_movement	pieces.c	/^movement find_movement(move mv) {$/;"	f
 fullmoves	board.h	/^	usint fullmoves; \/* number of black moves *\/$/;"	m	struct:__anon2
+get_fentok	board.c	/^int get_fentok(char tok[], char str[], int reset) {$/;"	f
 halfmoves	board.h	/^	usint halfmoves; \/* number of non-pawn and non capture moves (for 50 move rule) *\/$/;"	m	struct:__anon2
+ini	pieces.h	/^	square ini;$/;"	m	struct:__anon5
+isBlack	pieces.c	6;"	d	file:
+isDifferent	pieces.c	8;"	d	file:
+isSame	pieces.c	7;"	d	file:
+isWhite	pieces.c	5;"	d	file:
+knight_move	pieces.c	/^int knight_move(piece q, square sq){$/;"	f
 main	main.c	/^int main(void) {$/;"	f
+move	pieces.h	/^}move;$/;"	t	typeref:struct:__anon5
+movement	pieces.h	/^}movement;$/;"	t	typeref:struct:__anon4
+pawn_move	pieces.c	/^int pawn_move(piece q, square sq) {$/;"	f
+piece	pieces.h	/^	char piece;$/;"	m	struct:__anon3
+piece	pieces.h	/^}piece;$/;"	t	typeref:struct:__anon3
+piece_can_slide	pieces.c	/^int piece_can_slide(piece p, square sq) {$/;"	f
+pin_dir	pieces.h	/^	usint pin_dir;$/;"	m	struct:__anon3
 player	board.h	/^	char player; \/* 'w' white 'b' black to move *\/$/;"	m	struct:__anon2
+safe_atoi	board.c	/^int safe_atoi(char string[]) {$/;"	f
+slide_distance	pieces.c	/^usint slide_distance(usint direction) {$/;"	f
+slide_update	pieces.c	10;"	d	file:
+sq	pieces.h	/^	square sq;$/;"	m	struct:__anon3
 square	board.h	/^}square;$/;"	t	typeref:struct:__anon1
+ssint	defs.h	/^typedef char ssint;$/;"	t
 std	Makefile	/^	gcc -c board.c -Wall -std=c89$/;"	m
 std	Makefile	/^	gcc -c display.c -Wall -std=c89$/;"	m
 std	Makefile	/^	gcc -c main.c -Wall -std=c89$/;"	m
+std	Makefile	/^	gcc -c pieces.c -Wall -std=c89 $/;"	m
 std	Makefile	/^	gcc main.o board.o display.o -Wall -std=c89 -o try$/;"	m
+update_slide	pieces.c	/^void update_slide(piece *p, chessboard ch, usint direction) {$/;"	f
 usint	defs.h	/^typedef unsigned char usint;$/;"	t
+valid_enpass_square	board.c	8;"	d	file:
 x	board.h	/^	usint x, y;$/;"	m	struct:__anon1
+xincr	pieces.c	/^ssint xincr(usint direction) {$/;"	f
 y	board.h	/^	usint x, y;$/;"	m	struct:__anon1
+yincr	pieces.c	/^ssint yincr(usint direction) {$/;"	f

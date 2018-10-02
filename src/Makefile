@@ -10,5 +10,8 @@ board.o: board.c board.h defs.h
 display.o: display.c display.h board.h defs.h
 	gcc -c display.c -Wall -std=c89
 
+pieces.o: pieces.c pieces.h board.h defs.h
+	gcc -c pieces.c -Wall -std=c89 
+
 clean:
 	rm *~ *.o try

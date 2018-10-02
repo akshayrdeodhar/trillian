@@ -17,6 +17,7 @@ int main(void) {
 	}
 	else {
 		display(board);
+		return 1;
 	}
 	return 0;
 }

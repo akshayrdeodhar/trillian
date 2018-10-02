@@ -235,3 +235,5 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 }
 
 
+
+
