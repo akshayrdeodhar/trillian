@@ -150,14 +150,16 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 	length = get_fentok(current, fenstring, 0);
 
 	if (!length) {
+		fprintf(stderr, "Too less tokens\n");
 		return 0;
 	}
 
-	if (current[0] == 'w' || current[i] == '0') {
-		board->player = current[i];
+	if ((current[0] == 'w' || current[0] == 'b') && length == 1) {
+		board->player = current[0];
 	}
 	else {
 		return 0;
+		fprintf(stderr, "Too less tokens\n");
 	}
 
 	length = get_fentok(current, fenstring, 0);
@@ -169,10 +171,13 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 	for (j = 0; j < length; ++j) {
 		switch(current[j]) {
 			case '-':
-				if (board->castling != 0 || current[j] != ' ') {
+				if (j == 0 && length == 1) {
+					board->castling = 0;
+				}
+				else {
+					fprintf(stderr, "invalid castling token\n");
 					return 0;
 				}
-				board->castling = 0;
 				break;
 
 			case 'K':
@@ -198,10 +203,15 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 
 	length = get_fentok(current, fenstring, 0);
 
+	fprintf(stderr, "En Passe: %s\n", current);
+
 	if ((length == 2 && valid_enpass_square(current)) || (length == 1 && current[0] == '-')) {
 		if (length == 2) {
 			board->enpass_target.file = current[0] - 'a';
 			board->enpass_target.rank = current[1] - '1';
+		}
+		else {
+			board->enpass_target.file = board->enpass_target.rank = NONE_CO_ORD;
 		}
 	}
 	else {

@@ -30,10 +30,10 @@ void interface_board_set(chessboard *board, chesset *set); /* sets 'indexes' in 
 
 /* assumption: no legal chess position can have more than 16 pieces of the same color */
 
-void set_piece(piece *p, char pc, int rank, int file);
+void set_piece(piece *p, char pc, int rank, int file); /* initialise piece pointed to by p to pc, with position rank, file. also initialise direction metadata */
 
-void show_set(chesset set);
+void show_set(chesset set); /* show piece, position*/
 
-void verify_interface(chessboard board, chesset set);
+void verify_interface(chessboard board, chesset set); /* check whether board[piece.rank][piece.file].index == piece.index */
 
 #endif

@@ -2,8 +2,10 @@
 #define BOARD_H
 
 #include "defs.h"
+#include <limits.h>
 
 #define NONE (-1)
+#define NONE_CO_ORD UCHAR_MAX
 
 /* origin at a1
  * (7, 7) at h8
