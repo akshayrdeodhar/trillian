@@ -1,8 +1,8 @@
-#include "board.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include "board.h"
 
 #define FEN_TOKENS 6
 #define valid_enpass_square(square_string) ((square_string[0] >= 'a' && square_string[0] <= 'z') && (square_string[1] == '3' || square_string[1] == '6'))
@@ -116,7 +116,9 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 			case 'N': case 'B': case 'P':
 			case 'k': case 'q': case 'r': 
 			case 'n': case 'b': case 'p':
-				board->brd[rank][file++] = current[j];
+				board->brd[rank][file].pc = current[j];
+				board->brd[rank][file].index = NONE;
+				file++;
 				break;
 
 			case '1': case '2': case '3': case '4':
@@ -127,7 +129,9 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 					return 0;
 				}
 				for (i = 0; i < n; ++i) {
-					board->brd[rank][file++] = (char)0;
+					board->brd[rank][file].pc = (char)0;
+					board->brd[rank][file].index = NONE;
+					file++;
 				}
 				break;
 
@@ -195,8 +199,10 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 	length = get_fentok(current, fenstring, 0);
 
 	if ((length == 2 && valid_enpass_square(current)) || (length == 1 && current[0] == '-')) {
-		board->enpass_target.y = current[i] - 'a';
-		board->enpass_target.x = current[i] - '0';
+		if (length == 2) {
+			board->enpass_target.file = current[0] - 'a';
+			board->enpass_target.rank = current[1] - '1';
+		}
 	}
 	else {
 		return 0;
@@ -208,7 +214,7 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 	if (!length) {
 		return 0;
 	}
-	
+
 	if ((number = safe_atoi(current)) > -1) {
 		board->halfmoves = (usint)number;
 	}
@@ -222,7 +228,7 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 	if (!length) {
 		return 0;
 	}
-	
+
 	if ((number = safe_atoi(current)) > -1) {
 		board->fullmoves = (usint)number;
 	}
@@ -232,6 +238,11 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 
 	free(current);
 	return 1;
+}
+
+
+square board_position(chessboard board, position p) {
+	return board.brd[p.rank][p.file];
 }
 
 

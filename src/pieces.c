@@ -1,140 +1,103 @@
 #include "pieces.h"
+#include "defs.h"
 #include <ctype.h>
-#include <limits.h>
+#include <stdio.h>
 
-#define isWhite(p) (isupper(p))
-#define isBlack(p) (islower(p))
-#define isSame(p, q) ((isWhite(p) && isWhite(q)) || (isBlack(p) && isblack(q)))
-#define isDifferent(p, q) (!(isSame(p, q))
-
-#define slide_update(word, moves) ((word) = ((1 << (moves)) - 1))
-#define can_slide(word, moves) ((word) & ((1) << ((moves) - 1)))
-
-/* origin at a1
- * (7, 7) at h8
- * */
-
-
-movement find_movement(move mv) {
-	movement sl;
-	sl.dx = mv.fin.x - mv.ini.x;
-	sl.dy = mv.fin.y - mv.ini.x;
-	return sl;
-}
-
-usint find_dir(movement sl) {
-	if (sl.dx < 0 && sl.dy == 0) {
-		return 0; /* w */
-	}
-	else if (sl.dx < 0 && sl.dy > 0) {
-		return 1; /* nw */
-	}
-	else if (sl.dx == 0 && sl.dy > 0) {
-		return 2; /* n */
-	}
-	else if (sl.dx > 0 && sl.dy > 0) {
-		return 3; /* ne */
-	}
-	else if (sl.dx > 0 && sl.dy == 0) {
-		return 4; /* e */
-	}
-	else if (sl.dx > 0 && sl.dy < 0) {
-		return 5; /* se */
-	}
-	else if (sl.dx == 0 && sl.dy < 0) {
-		return 6; /* s */
-	}
-	else if (sl.dx < 0 && sl.dy < 0) {
-		return 7; /* sw */
-	}
-	else {
-		return 8;
-	}
-}
-
-ssint xincr(usint direction) {
-	switch(direction) {
-		case 0:
-			return -1;
+void set_piece(piece *p, char pc, int rank, int file) {
+	switch(toupper(pc)) {
+		case 'Q':
+			p->dir_start = 0;
+			p->dir_incr = 1;
 			break;
-		case 1:
-			return -1;
+		case 'R':
+			p->dir_start = 0;
+			p->dir_incr = 2;
 			break;
-		case 2:
-			return 0;
-			break;
-		case 3:
-			return 1;
-			break;
-		case 4:
-			return 1;
-			break;
-		case 5:
-			return 1;
-			break;
-		case 6:
-			return 0;
-			break;
-		case 7:
-			return -1;
+		case 'B':
+			p->dir_start = 1;
+			p->dir_incr = 1;
 			break;
 		default:
-			return SCHAR_MIN;
 			break;
 	}
-	return SCHAR_MIN;
+
+	p->piece = pc;
+
+	position temp;
+	temp.file = file;
+	temp.rank = rank;
+	p->ps = temp;
 }
 
-ssint yincr(usint direction) {
-	switch(direction) {
-		case 0:
-			return 0;
-			break;
-		case 1:
-			return 1;
-			break;
-		case 2:
-			return 1;
-			break;
-		case 3:
-			return 1;
-			break;
-		case 4:
-			return 0;
-			break;
-		case 5:
-			return -1;
-			break;
-		case 6:
-			return -1;
-			break;
-		case 7:
-			return -1;
-			break;
-		default:
-			return SCHAR_MIN;
-			break;
+
+void interface_board_set(chessboard *board, chesset *set) {
+	int rank, file;
+	int w_index, b_index;
+
+	w_index = b_index = 0;
+
+	char rep;
+
+	for (rank = 0; rank < 8; ++rank) {
+		for (file = 0; file < 8; ++file) {
+			rep = board->brd[rank][file].pc;
+			if (isWhite(rep)) {
+				set_piece(&(set->whites[w_index]), rep, rank, file);
+				board->brd[rank][file].index = w_index;
+				w_index++;
+			}
+			else if (isBlack(rep)) {
+				set_piece(&(set->blacks[b_index]), rep, rank, file);
+				board->brd[rank][file].index = b_index;
+				b_index++;
+			}
+		}
 	}
-	return SCHAR_MIN;
+
+	set->n_white = w_index;
+	set->n_black = b_index;
 }
 
-int can_move(piece p, square sq, chessboard ch) {
+
+void show_set(chesset set) {
+	int i;
+	printf("\nWHITE\n");
+	for (i = 0; i < set.n_white; ++i) {
+		if (set.whites[i].piece) {
+			printf("\nPiece: %c\nPin_Status: %d\nDir_Start: %d\tDir_Incr = %d\nPosition: %c%c\n", set.whites[i].piece, set.whites[i].pin_dir, set.whites[i].dir_start, set.whites[i].dir_incr, set.whites[i].ps.file + 'a', set.whites[i].ps.rank + '1');
+		}
+	}
+	printf("\nBLACK\n");
+
+	for (i = 0; i < set.n_black; ++i) {
+		if (set.blacks[i].piece) {
+			printf("\nPiece: %c\nPin_Status: %d\nDir_Start: %d\tDir_Incr = %d\nPosition: %c%c\n", set.blacks[i].piece, set.blacks[i].pin_dir, set.blacks[i].dir_start, set.blacks[i].dir_incr, set.blacks[i].ps.file + 'a', set.blacks[i].ps.rank + '1');
+		}
+	}
+
+
 }
 
-usint slide_distance(usint direction) {
-}
+void verify_interface(chessboard board, chesset set) {
+	int i;	
+	square sq;
+	printf("\nWHITE\n");
+	for (i = 0; i < set.n_white; ++i) {
+		if (set.whites[i].piece) {
+			sq = board_position(board, set.whites[i].ps);
+			if (sq.index != i) {
+				printf("Problem at %c%c\n", set.whites[i].ps.file + 'a', set.whites[i].ps.rank + '1');
+			}
+		}
+	}
+	printf("\nBLACK\n");
 
-int piece_can_slide(piece p, square sq) {
-}
-
-int knight_move(piece q, square sq){
-}
-
-int pawn_move(piece q, square sq) {
-}
-
-void calculate(piece *p, chessboard ch) {
-}
-
-void update_slide(piece *p, chessboard ch, usint direction) {
+	for (i = 0; i < set.n_black; ++i) {
+		if (set.blacks[i].piece) {
+			sq = board_position(board, set.blacks[i].ps);
+			if (sq.index != i) {
+				printf("Problem at %c%c\n", set.blacks[i].ps.file + 'a', set.blacks[i].ps.rank + '1');
+			}
+		}
+	}
 }

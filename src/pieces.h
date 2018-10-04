@@ -1,11 +1,16 @@
+#ifndef PIECES_H
+#define PIECES_H
+
 #include "board.h"
-#include "defs.h"
+
+#define MAX_PIECES 16
+/* assumption: no legal chess position can have more than 16 pieces of the same color */
 
 typedef struct {
 	char piece;
 	usint pin_dir;
 	usint dir_start, dir_incr; /*Q-> 0, 1. R-> 0, 2. B-> 1, 2 */
-	square sq;
+	position ps;
 	usint dirs[8]; /* w, nw, n, ne, e, se, s, sw */
 }piece;
 
@@ -13,41 +18,22 @@ typedef struct {
 	usint dx, dy;
 }movement;
 
-/*
-   typedef struct {
-   piece white[16];
-   usint n_white;
-   piece black[16];
-   usint n_black;
-   }pieces;
-   */
-
 typedef struct {
-	square ini;
-	square fin;
-}move;
+	int n_white;
+	piece whites[MAX_PIECES];
 
-movement find_movement(move mv);
+	int n_black;
+	piece blacks[MAX_PIECES];
+}chesset;
 
-usint find_dir(movement sl); 
+void interface_board_set(chessboard *board, chesset *set); /* sets 'indexes' in board, initialize pieces in chesset */
 
-ssint xincr(usint direction);
+/* assumption: no legal chess position can have more than 16 pieces of the same color */
 
-ssint yincr(usint direction);
+void set_piece(piece *p, char pc, int rank, int file);
 
-int same_team(piece p, piece q);
+void show_set(chesset set);
 
-int can_move(piece p, square sq, chessboard ch);
+void verify_interface(chessboard board, chesset set);
 
-usint slide_distance(usint direction);
-
-int can_slide(piece p, square sq);
-
-int knight_move(piece q, square sq);
-
-int pawn_move(piece q, square sq);
-
-void calculate(piece *p, chessboard ch);
-
-void update_slide(piece *p, chessboard ch, usint direction);
-
+#endif

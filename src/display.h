@@ -1,5 +1,9 @@
+#ifndef DISPLAY_H
+#define DISPLAY_h
+
 #include "board.h"
-#include<stdio.h>
 
 void display(chessboard board);
+
+#endif
 
