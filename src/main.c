@@ -61,5 +61,9 @@ int main(int argc, char *argv[]) {
 
 	calculate_all(&set, board);
 
+	display(board, MOVES_MODE);
+
+	verify_calculation(set, board);
+
 	return 0;
 }

@@ -1,4 +1,4 @@
-FLAGS = -Wall -std=c89 -O3#-fsanitize=address
+FLAGS = -Wall -std=c89 -O3 -fsanitize=address
 
 try: main.o board.o display.o pieces.o moves.o
 	gcc main.o board.o display.o pieces.o moves.o $(FLAGS) -o try

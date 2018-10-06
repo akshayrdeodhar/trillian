@@ -48,4 +48,6 @@ void calculate_all(chesset *set, chessboard ch);
 
 void update_slide(piece *p, chessboard ch, usint direction);
 
+void verify_calculation(chesset set, chessboard board);
+
 #endif

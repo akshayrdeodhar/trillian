@@ -10,6 +10,8 @@
 
 #define DEBUG_CALCULATE 1
 
+#define SLIDE_KILL (1 << 7)
+
 #define isSame(p, q) ((isWhite(p) && isWhite(q)) || (isBlack(p) && isBlack(q)))
 #define isDifferent(p, q) (!(isSame(p, q)))
 
@@ -237,7 +239,7 @@ void update_slide(piece *p, chessboard ch, usint direction) {
 
 void calculate_all(chesset *set, chessboard board) {
 	int i;
-	
+
 	if (DEBUG_CALCULATE) {
 		printf("WHITE:\n");
 	}
@@ -252,5 +254,74 @@ void calculate_all(chesset *set, chessboard board) {
 
 	for (i = 0; i < set->n_black; ++i) {
 		calculate_piece(&(set->blacks[i]), board);
+	}
+}
+
+void verify_calculation(chesset set, chessboard board) {
+	chessboard moves;
+	int i, j, k;
+	ssint rankinc, fileinc;
+	usint rank, file;
+	for (i = 0; i < set.n_white; ++i) {
+		moves = board;
+		printf("%d: %c\n", i, set.whites[i].piece);
+
+		if (!slidingPiece(set.whites[i].piece)) {
+			printf("%c is not a sliding piece\n", set.whites[i].piece);
+			continue;
+		}
+
+		printf("%c is a sliding piece\n", set.whites[i].piece);
+
+		for(j = set.whites[i].dir_start; j < 8; j += set.whites[i].dir_incr) {
+			printf("%d: %d\n",j, set.whites[i].dirs[j]);
+			rankinc = rankincr(j);
+			fileinc = fileincr(j);
+			rank = set.whites[i].ps.rank + rankinc;
+			file = set.whites[i].ps.file + fileinc;
+			for(k = 1; k <= set.whites[i].dirs[j]; ++k) {
+				if (!inrange(rank, file)) {
+					printf("Error: %c: %d: %d %c%c\n", set.whites[i].piece, j, k, file + 'a', rank + '1');
+					break;
+				}
+				moves.brd[rank][file].pc = 'X';
+				rank += rankinc;
+				file += fileinc;
+				printf("k: %d\n", k);
+			}
+		}
+		display(board, MOVES_MODE);
+		display(moves, MOVES_MODE);
+	}
+	for (i = 0; i < set.n_black; ++i) {
+		moves = board;
+		printf("%d: %c\n", i, set.blacks[i].piece);
+
+		if (!slidingPiece(set.blacks[i].piece)) {
+			printf("%c is not a sliding piece\n", set.blacks[i].piece);
+			continue;
+		}
+
+		printf("%c is a sliding piece\n", set.blacks[i].piece);
+
+		for(j = set.blacks[i].dir_start; j < 8; j += set.blacks[i].dir_incr) {
+			printf("%d: %d\n",j, set.blacks[i].dirs[j]);
+			rankinc = rankincr(j);
+			fileinc = fileincr(j);
+			rank = set.blacks[i].ps.rank + rankinc;
+			file = set.blacks[i].ps.file + fileinc;
+			for(k = 1; k <= set.blacks[i].dirs[j]; ++k) {
+				printf("k: %d\n", k);
+				if (!inrange(rank, file)) {
+					printf("Error: %c: %d: %d %c%c\n", set.blacks[i].piece, j, k, file + 'a', rank + '1');
+					break;
+				}
+				moves.brd[rank][file].pc = 'X';
+				rank += rankinc;
+				file += fileinc;
+			}
+		}
+		display(board, MOVES_MODE);
+		display(moves, MOVES_MODE);
 	}
 }
