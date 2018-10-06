@@ -29,10 +29,10 @@ typedef struct {
 	usint fullmoves; /* number of black moves */
 }chessboard;
 
-int fenstring_to_board(chessboard *board, char fenstring[]);
+int fenstring_to_board(chessboard *board, char fenstring[]); /* converts a .fen string to corresponding board position */
 
 void board_to_fenstring(char fenstring[], chessboard board);
 
-square board_position(chessboard board, position p);
+square board_position(chessboard board, position p); /* returns square at position 'p' on the board */
 
 #endif
