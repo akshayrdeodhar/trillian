@@ -1,16 +1,20 @@
 Q1:Will I need to update a board and then check whether move is valid?
 A1: Not if I track all pins, and all attackes squares
 
+
 Q2:How do I track draw by repetition?
 
 When I have promoted a pawn, how will I track 3 bishops? -> data structure
 cannot be rigid
 
+
 Q3:How do I track the king ? I have problems with check, with castling
 A1: Refer to Q1A1
 
 
+
 Q4:CHECK: The problem of king movement
+
 QA:No other move is possible when king is in check. How do I implement this?
 Check_flag ? 
 Move only the king if in check will not succeed. Need to implement a mechanism
@@ -29,6 +33,7 @@ bool kingincheck_(player, board, opponent_pieces) {
 
 Multiple pieces can check the king at the same time!
 
+
 Q5:Should I use bit-boards?
 A1:It may become complicated. However, will be very useful when tracking
 attacked squares.
@@ -37,10 +42,12 @@ operations to be done will become more complicated.
 More important, I have not designed bitboards myself, and probably should use
 a structure I have created
 
+
 Q6: Should I actually track all possible moves of each piece in some
 structure? 
 A1:Then it will need to be updated every turn when the piece is not moving, and rebuilt every
 turn when the piece moves.
+
 
 Q6b. Why not check individually everytime? Morever, I don't need to check all
 pieces if I check individualy?
@@ -54,7 +61,9 @@ An 8 bit register for meta-bits? Pinned->direction
 An 8 bit register for knight moves
 An 8 bit register for king or pawn ENABLE
 
+
 Q7: How do I show the board?
+
 
 Q8: How do I handle pins and king movement when piece movement and king
 movement  are interwined with moves of the opponent (and one side's moves must
@@ -73,3 +82,72 @@ player_king()
 What is proposed is thus: we calculate all psuedocorrect moves (which we have
 	to track anyway)
 Then we generate the pin bits
+
+
+Q9: There are junctures where by passing pointers around, the size of the
+source code can be significantly reduced. (Invloving a function calling
+another function. What should be sacrificed? Pointer dereferencing or source
+code size?
+
+
+Q10: What is the best way to track pins?
+A1:
+Answer assumes 'calculate_all' has been run before calculate_pins
+Find whether king is in 'range' of sliding pieces
+	If yes, check whether the piece is making a 'kill'
+		If yes, check number of pieces between kill and king
+			If 0, then the attacked piece is pinned in the opposite of that particular
+	If No, then check difference between (distance between king and piece, max movement distance in direction)
+		If 1
+			King is under check from that direction
+
+
+Q11: How to handle correctness of move when king is under check?
+A1: First put the move through the piece-test
+Then, if the king is not under check:
+	The move is correct
+Otherwise:
+	If the king is under multiple checks:
+		the move is wrong
+	If the moves to: position s.t: attacking square <= position < king
+		the move is correct
+	
+	The move is wrong
+If the piece is the king itself: 
+If movement is along or opposite check direction, wrong move
+A1(B): While generating moves, generate all 
+
+
+Q12: How do I track all the attacks on the king?
+A1:In the pin_check_calc() function, I can build a list of attack on the king
+moves
+Now while generating moves, if I include the check thing in the function, then
+for sliding pieces, knight, pawn and king, procedure will be:
+loop:
+	Generate_next_legal_move(): 
+	if valid for saving king, store
+	else, go to next
+Note: It seems that slide direction numbers should pass through the enemy king
+
+So there will be a function with 4 different loops each containing check
+evasion logic
+
+Alternately, 
+loop: generate legal moves in a list
+
+then remove all illegal moves from the list. 
+This is looked upon badly
+
+Q13: Scared and King Moves Again:
+A1:
+Generation.
+For all squares surrounding the king:
+	Block squares which are along or opposite to check direction
+	If square is occupied by friendly piece, block square:
+	If any opponent piece can move to a particular square, block square
+remaining squares form legal moves
+
+Validation:
+	If occupied by friendly piece, along or opp check direction, opponent
+	piece can move / supported by opponent piece-> invalid
+	Else valid

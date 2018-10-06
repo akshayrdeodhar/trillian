@@ -2,3 +2,20 @@ Way to read a board position (important for testing)
 Way to convert board position to a pieces state (again, important for testing)
 This will need finalisation of the pieces data structure. Array seems okay,
 but this will prove troublesome for when pieces are killed)
+Way to generate sliding moves
+Way to take user move input-> build a 'game loop'
+Way to validate user moves
+Way to make move on board (must store latest move also)
+Way to update possible piece moves based on latest move that has happened
+
+
+
+___________Future
+Way to generate all possible legal moves for computer player
+Way to assign a 'goodness number' for a board position, and also one for a
+(move, final board) combination
+
+
+___________Horizon
+Way to detect checkmate
+Way to detect stalemate

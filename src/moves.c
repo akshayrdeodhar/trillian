@@ -8,7 +8,7 @@
 #include "defs.h"
 #include "display.h"
 
-#define DEBUG_CALCULATE 1
+#define DEBUG_CALCULATE 0
 
 #define SLIDE_KILL (1 << 7)
 
@@ -24,7 +24,13 @@
 
 #define oppKing(p) (isWhite(p) ? 'k' : 'K')
 
+#define deltarank(p) (isWhite(p) ? 1: -1)
+
+#define pawndir(p, dir) (isWhite(p) ? (dir == 1 || dir == 2 || dir || 3) : (dir == 5 || dir == 6 || dir == 7))
+
 #define DIR_NONE 8
+
+#define ALTERNATE_UPDATE 1
 
 /* origin at a1
  * (7, 7) at h8
@@ -138,19 +144,67 @@ int can_move(piece p, position sq, chessboard ch) {
 	return 0;
 }
 
-usint slide_distance(usint direction) {
+int piece_can_slide(piece p, position sq, chessboard ch) {
 	return 0;
 }
 
-int piece_can_slide(piece p, position sq) {
-	return 0;
+int knight_move(piece q, position sq, chessboard ch){
+	if (q.pin_dir != 8) {
+		return 0;
+	}
+	char piece;
+	usint ranksq, filesq;
+	move mv;
+	movement sl;
+	mv.ini = q.ps;
+	mv.fin = sq;
+	sl = find_movement(mv);
+
+	ranksq = sl.rank * sl.rank;
+	filesq = sl.file * sl.file;
+
+	piece = ch.brd[sq.rank][sq.file].pc;
+
+	if (inrange(sq.rank, sq.file) && ((ranksq + filesq) == 5) && ((ranksq == 4) || (filesq == 4)) && (!piece || isDifferent(q.piece, piece))) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
 }
 
-int knight_move(piece q, position sq){
-	return 0;
-}
+int pawn_move(piece q, position sq, chessboard ch) {
+	usint direction;
+	ssint val_drank;
+	char piece;
+	move mv;
+	movement sl;
+	mv.ini = q.ps;
+	mv.fin = sq;
+	sl = find_movement(mv);
+	piece = ch.brd[sq.file][sq.rank].pc;
+	val_drank = deltarank(q.piece);
+	direction = find_dir(sl);
+	/* pin */
+	if (q.pin_dir != 8 && q.pin_dir != direction) {
+		return 0;
+	}
 
-int pawn_move(piece q, position sq) {
+	/* single push */
+	if (sl.drank == val_drank && sl.dfile == 0 && !piece && direction == 2) {
+		return 1;
+	}
+	/* double push */
+	else if (q.ps.rank == homerank(q.piece) && sl.drank == val_drank * 2 && sl.dfile == 0 && !piece && !ch.brd[sq.rank - val_dran][sq.file] && direction == 2) {
+		return 1;
+	}
+	/* kill */
+	else if (sl.drank == val_drank && (sl.dfile * sl.dfile == 1) && isDifferent(q.piece, piece) && (direction == 1 || direction == 3)) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
 	return 0;
 }
 
@@ -172,6 +226,9 @@ void calculate_piece(piece *p, chessboard ch) {
 
 	for (i = p->dir_start; i < 8; i += p->dir_incr) {
 
+#if (ALTERNATE_UPDATE == 1)
+		update_slide(p, ch, i);
+#else
 		fileinc = fileincr(i);
 		rankinc = rankincr(i);
 		if (DEBUG_CALCULATE) {
@@ -205,9 +262,14 @@ void calculate_piece(piece *p, chessboard ch) {
 		if (DEBUG_CALCULATE) {
 			printf("%d: %d\n", i, j);
 		}
+#endif
 	}
-	display(ch, MOVES_MODE);
-	display(moves, MOVES_MODE);
+#if (ALTERNATE_UPDATE == 0)
+	if (DEBUG_CALCULATE) {
+		display(ch, MOVES_MODE);
+		display(moves, MOVES_MODE);
+	}
+#endif
 }
 
 void update_slide(piece *p, chessboard ch, usint direction) {
@@ -215,11 +277,11 @@ void update_slide(piece *p, chessboard ch, usint direction) {
 	int fileinc, rankinc;
 	int i;
 
-	rank = p->ps.rank;
-	file = p->ps.file;
-
 	rankinc = rankincr(direction);
 	fileinc = fileincr(direction);
+	
+	rank = p->ps.rank + rankinc;
+	file = p->ps.file + fileinc;
 
 	i = 1;
 	while(inrange(file, rank) && !ch.brd[rank][file].pc) {
@@ -228,7 +290,6 @@ void update_slide(piece *p, chessboard ch, usint direction) {
 		file += fileinc;
 	}
 	if (inrange(file, rank) && isDifferent(ch.brd[rank][file].pc, p->piece) && ch.brd[rank][file].pc != oppKing(p->piece)) {
-
 	}
 	else {
 		i--;
@@ -284,6 +345,7 @@ void verify_calculation(chesset set, chessboard board) {
 					printf("Error: %c: %d: %d %c%c\n", set.whites[i].piece, j, k, file + 'a', rank + '1');
 					break;
 				}
+				printf("SET\n");
 				moves.brd[rank][file].pc = 'X';
 				rank += rankinc;
 				file += fileinc;
