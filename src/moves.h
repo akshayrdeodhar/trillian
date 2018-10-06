@@ -5,7 +5,7 @@
 #include "pieces.h"
 
 typedef struct {
-	usint dx, dy;
+	usint dfile, drank;
 }movement;
 
 /*
@@ -18,31 +18,33 @@ typedef struct {
    */
 
 typedef struct {
-	square ini;
-	square fin;
+	position ini;
+	position fin;
 }move;
 
 movement find_movement(move mv);
 
 usint find_dir(movement sl); 
 
-ssint xincr(usint direction);
+ssint fileincr(usint direction);
 
-ssint yincr(usint direction);
+ssint rankincr(usint direction);
 
 int same_team(piece p, piece q);
 
-int can_move(piece p, square sq, chessboard ch);
+int can_move(piece p, position sq, chessboard ch);
 
 usint slide_distance(usint direction);
 
-int can_slide(piece p, square sq);
+int can_slide(piece p, position sq);
 
-int knight_move(piece q, square sq);
+int knight_move(piece q, position sq);
 
-int pawn_move(piece q, square sq);
+int pawn_move(piece q, position sq);
 
-void calculate(piece *p, chessboard ch);
+void calculate_piece(piece *p, chessboard ch);
+
+void calculate_all(chesset *set, chessboard ch);
 
 void update_slide(piece *p, chessboard ch, usint direction);
 

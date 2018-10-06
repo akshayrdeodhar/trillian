@@ -3,7 +3,10 @@
 
 #include "board.h"
 
-void display(chessboard board);
+#define READ_MODE 101
+#define MOVES_MODE 202
+
+void display(chessboard board, int mode);
 
 #endif
 

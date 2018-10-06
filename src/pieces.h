@@ -14,9 +14,6 @@ typedef struct {
 	usint dirs[8]; /* w, nw, n, ne, e, se, s, sw */
 }piece;
 
-typedef struct {
-	usint dx, dy;
-}movement;
 
 typedef struct {
 	int n_white;

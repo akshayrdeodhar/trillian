@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <stdio.h>
 
+
 void set_piece(piece *p, char pc, int rank, int file) {
 	switch(toupper(pc)) {
 		case 'Q':
@@ -15,7 +16,7 @@ void set_piece(piece *p, char pc, int rank, int file) {
 			break;
 		case 'B':
 			p->dir_start = 1;
-			p->dir_incr = 1;
+			p->dir_incr = 2;
 			break;
 		default:
 			break;
