@@ -37,6 +37,12 @@ void calculate_all(chesset *set, chessboard ch); /* calculates sliding movements
 
 void update_slide(piece *p, chessboard ch, usint direction); /* calculates sliding movement of piece in 'direction' */
 
+void update_set(chesset *set, chessboard ch, move latest); /* updates sliding moves based on latest move */
+
 void verify_calculation(chesset set, chessboard board); /* enumerate stored sliding moves for checking- not to be used in main() */
+
+void make_move(chessboard *board, chesset *set, move mv); /* make move, modify state of board, set metadata modify indexes in case of kill*/
+
+void menial_move(chessboard *board, chesset *set, move mv); /* simply move piece on board, set position in piece (called by make_move) */
 
 #endif

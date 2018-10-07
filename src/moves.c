@@ -26,8 +26,6 @@
 #define slide_update(word, moves) ((word) = ((1 << (moves)) - 1))
 #define can_slide(word, moves) ((word) & ((1) << ((moves) - 1)))
 
-#define inrange(x, y) ((x > -1) && (x < 8) && (y > -1) && (y < 8))
-
 #define oppKing(p) (isWhite(p) ? 'k' : 'K')
 
 #define deltarank(p) (isWhite(p) ? 1: -1)
@@ -184,7 +182,7 @@ int can_attack(piece p, position ps, chessboard ch) {
 			}
 			break;
 
-		/* distance is sqrt(5) and two squares movement in one direction */
+			/* distance is sqrt(5) and two squares movement in one direction */
 		case 'N':
 			ranksq = sl.drank * sl.drank;
 			filesq = sl.dfile * sl.dfile;
@@ -196,7 +194,7 @@ int can_attack(piece p, position ps, chessboard ch) {
 			}
 			break;
 
-		/* rank movement specific according to color, file movement 1 or -1 */
+			/* rank movement specific according to color, file movement 1 or -1 */
 		case 'P':
 			if ((sl.drank == deltarank(p.piece)) && (mkpositive(sl.dfile) == 1)) {
 				return 1;
@@ -206,7 +204,7 @@ int can_attack(piece p, position ps, chessboard ch) {
 			}
 			break;
 
-		/* move distance is 1, direction is one of the eight directions */
+			/* move distance is 1, direction is one of the eight directions */
 		case 'K':
 			if (direction == DIR_NONE || distance != 1) {
 				return 0;
@@ -224,7 +222,7 @@ int can_attack(piece p, position ps, chessboard ch) {
 	return 0;
 }
 
-			
+
 
 
 
@@ -246,8 +244,8 @@ int piece_can_slide(piece p, position sq, chessboard ch) {
 #if (SEPERATE_FUNCTIONS == 1)
 int knight_move(piece q, position sq, chessboard ch){
 	/*if (q.pin_dir != 8) {
-		return 0;
-	}*/
+	  return 0;
+	  }*/
 	char piece;
 	usint ranksq, filesq;
 	move mv;
@@ -283,8 +281,8 @@ int pawn_move(piece q, position sq, chessboard ch) {
 	direction = find_dir(sl);
 	/* pin */
 	/*if (q.pin_dir != 8 && q.pin_dir != direction) {
-		return 0;
-	}*/
+	  return 0;
+	  }*/
 
 	/* single push */
 	if (sl.drank == val_drank && sl.dfile == 0 && !piece && direction == 2) {
@@ -307,9 +305,11 @@ int pawn_move(piece q, position sq, chessboard ch) {
 
 void calculate_piece(piece *p, chessboard ch) {
 	usint i;
+#if (ALTERNATE_UPDATE != 1)
 	usint j;
 	ssint fileinc, rankinc;
 	usint rank, file;
+#endif
 	if (!slidingPiece(p->piece)) {
 		if (DEBUG_CALCULATE) {
 			printf("Not Sliding: %c\n", p->piece);
@@ -318,10 +318,11 @@ void calculate_piece(piece *p, chessboard ch) {
 	}
 
 	if (DEBUG_CALCULATE) {
-	printf("Piece: %c\n", p->piece);
+		printf("Piece: %c\n", p->piece);
 	}
-
+#if (ALTERNATE_UPDATE != 1)
 	chessboard moves = ch;
+#endif
 
 	for (i = p->dir_start; i < 8; i += p->dir_incr) {
 
@@ -378,7 +379,7 @@ void update_slide(piece *p, chessboard ch, usint direction) {
 
 	rankinc = rankincr(direction);
 	fileinc = fileincr(direction);
-	
+
 	rank = p->ps.rank + rankinc;
 	file = p->ps.file + fileinc;
 
@@ -484,5 +485,43 @@ void verify_calculation(chesset set, chessboard board) {
 		}
 		display(board, MOVES_MODE);
 		display(moves, MOVES_MODE);
+	}
+}
+
+/* the move given as input to make must be valid
+ * the function is not told explicitly the nature of the move
+ * it must deduce what kind of move it is based on the squares and pieces involves
+ * this requires it to make multiple changes to board when castling is taking place
+ * however, as it has a guarentee that the move is valid (note: piece_can_move() has a lot of work to do), it can simply act
+ * */
+void make_move(chessboard *board, chesset *set, move mv) {
+
+	square from = board->brd[mv.ini.rank][mv.ini.file];
+	square to = board->brd[mv.fin.rank][mv.fin.file];
+	square blank;
+	blank.pc = '\0';
+	blank.index = -1;
+
+	board->brd[mv.fin.rank][mv.fin.file] = from;
+
+	board->brd[mv.ini.rank][mv.ini.file] = blank;
+
+	board->player = (board->player == 'w') ? 'b' : 'w';
+
+	if (isWhite(from.pc)) {
+		set->whites[(usint)from.index].ps = mv.fin;
+	}
+	else {
+		board->fullmoves += 1;
+		set->blacks[(usint)from.index].ps = mv.fin;
+	}
+
+	if (to.pc) {
+		board->halfmoves = 0;
+		kill_piece(board, set, to);
+	}
+
+	if (toupper(from.pc) == 'P') {
+		board->halfmoves = 0;
 	}
 }

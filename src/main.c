@@ -6,16 +6,17 @@
 #include "pieces.h"
 #include "display.h"
 #include "moves.h"
+#include "input.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
 #define DEBUG (0)
 #define DEBUG_INTERFACE 1
 #define DEBUG_CALCULATE 2
 
-void interface_board_set(chessboard *board, chesset *set); /* sets 'indexes' in board, initialize pieces in chesset */
-
-
 int main(int argc, char *argv[]) {
+
+	char command[32];
+	move mv;
 
 	if (argc > 2) {
 		fprintf(stderr, "usage: ./chess <file.fen>\n");
@@ -73,6 +74,20 @@ int main(int argc, char *argv[]) {
 #if (DEBUG & DEBUG_CALCULATE)
 	verify_calculation(set, board);
 #endif
-
+	while(1) {
+		display(board, MOVES_MODE);
+		printf("COMMAND:");
+		readline(command, 32);
+		if (!(strcmp(command, "quit"))) {
+			return 0;
+		}
+		else {
+			mv = extract_move(command);
+			print_move(mv);
+			make_move(&board, &set, mv);
+			verify_interface(board, set);
+			show_set(set);
+		}
+	}
 	return 0;
 }

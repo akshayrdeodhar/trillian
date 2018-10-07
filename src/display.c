@@ -38,10 +38,6 @@ void display(chessboard board, int mode) {
 
 	if (mode == READ_MODE) {
 
-		printf("Move: %c\n", board.player);
-
-		printf("Enpass Target: %c%c\n", board.enpass_target.file + 'a', board.enpass_target.rank + '1');
-
-		printf("Halfmoves %d\nFullmoves %d\n", board.halfmoves, board.fullmoves);
+		printf("Meta:%c %c%c %d %d\n\n", board.player, board.enpass_target.file + 'a', board.enpass_target.rank + '1', board.halfmoves, board.fullmoves);
 	}
 }

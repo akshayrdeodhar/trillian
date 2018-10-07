@@ -15,6 +15,7 @@ typedef struct {
 }piece;
 
 
+/* king is always stored at index 0: this allows use of common functions, and still allows direct access to the king */
 typedef struct {
 	int n_white;
 	piece whites[MAX_PIECES];
@@ -32,5 +33,7 @@ void set_piece(piece *p, char pc, int rank, int file); /* initialise piece point
 void show_set(chesset set); /* show piece, position*/
 
 void verify_interface(chessboard board, chesset set); /* check whether board[piece.rank][piece.file].index == piece.index */
+
+void kill_piece(chessboard *board, chesset *set, square sq); /* remove the piece which occupies 'sq' on board from set, adjust indexes in board */
 
 #endif

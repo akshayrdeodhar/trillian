@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "board.h"
+#include "pieces.h"
 
 #define FEN_TOKENS 6
 #define valid_enpass_square(square_string) ((square_string[0] >= 'a' && square_string[0] <= 'z') && (square_string[1] == '3' || square_string[1] == '6'))
@@ -91,6 +92,10 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 	int i, j = 0;
 	int n;
 	int number = 0;
+	int kwf, kbf;
+
+	/* king flag. board must have both kings */
+	kwf = kbf = 0;
 
 	char *current = (char *)malloc(sizeof(char) * (strlen(fenstring) + 1));
 
@@ -111,7 +116,6 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 				file = 0;
 				break;
 
-
 			case 'K': case 'Q': case 'R': 
 			case 'N': case 'B': case 'P':
 			case 'k': case 'q': case 'r': 
@@ -119,6 +123,12 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 				board->brd[rank][file].pc = current[j];
 				board->brd[rank][file].index = NONE;
 				file++;
+				if (current[j] == 'K') {
+					kwf = 1;
+				}
+				else if (current[j] == 'k') {
+					kbf = 1;
+				}
 				break;
 
 			case '1': case '2': case '3': case '4':
@@ -141,6 +151,10 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 				return 0;
 				break;
 		}
+	}
+	if (!(kwf && kbf)) {
+		fprintf(stderr, "invalid fen string: board must have both white and black king\n");
+		return 0;
 	}
 	if (rank != 0) {
 		fprintf(stderr, "invalid fen string: invalid number of rows (%d)\n", rank + 1);
@@ -254,7 +268,5 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 square board_position(chessboard board, position p) {
 	return board.brd[p.rank][p.file];
 }
-
-
 
 

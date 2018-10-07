@@ -1,7 +1,7 @@
-FLAGS = -Wall -std=c89 -O3 #-fsanitize=address
+FLAGS = -Wall -std=c89 -O3 -fsanitize=address
 
-try: main.o board.o display.o pieces.o moves.o
-	gcc main.o board.o display.o pieces.o moves.o $(FLAGS) -o try
+try: main.o board.o display.o pieces.o moves.o input.o
+	gcc main.o board.o display.o pieces.o moves.o input.o $(FLAGS) -o try
 
 main.o: main.c #board.h pieces.h display.h moves.h
 	gcc -c main.c $(FLAGS)
@@ -17,6 +17,9 @@ pieces.o: pieces.c #pieces.h board.h defs.h
 
 moves.o: moves.c #moves.h pieces.h board.h defs.h display.h
 	gcc -c moves.c $(FLAGS)
+
+input.o: input.c
+	gcc -c input.c $(FLAGS)
 
 clean:
 	rm *~ *.o try
