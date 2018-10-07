@@ -18,30 +18,30 @@
 /* piece movement macros */
 #define SLIDE_KILL (1 << 7)
 
-#define isSame(p, q) ((isWhite(p) && isWhite(q)) || (isBlack(p) && isBlack(q)))
-#define isDifferent(p, q) (!(isSame(p, q)))
+#define isSame(p, q) ((isWhite(p) && isWhite(q)) || (isBlack(p) && isBlack(q))) /* p, q SAN chars */
+#define isDifferent(p, q) (!(isSame(p, q))) /* p, q SAN chars */
 
-#define slidingPiece(p) ((toupper(p) == 'R') || (toupper(p) == 'Q') || (toupper(p) == 'B'))
+#define slidingPiece(p) ((toupper(p) == 'R') || (toupper(p) == 'Q') || (toupper(p) == 'B')) /* p SAN char */
 
-#define slide_update(word, moves) ((word) = ((1 << (moves)) - 1))
-#define can_slide(word, moves) ((word) & ((1) << ((moves) - 1)))
+#define slide_update(word, moves) ((word) = ((1 << (moves)) - 1)) /* word direction register, moves maximum distance of move in direction */
+#define can_slide(word, moves) ((word) & ((1) << ((moves) - 1))) /* word direction register, moves maximum distance of move in direction */
 
-#define oppKing(p) (isWhite(p) ? 'k' : 'K')
+#define oppKing(p) (isWhite(p) ? 'k' : 'K') /* p SAN char */
 
-#define deltarank(p) (isWhite(p) ? 1: -1)
+#define deltarank(p) (isWhite(p) ? 1: -1) /* p SAN char */
 
-#define pawndir(p, dir) (isWhite(p) ? (dir == 1 || dir == 2 || dir || 3) : (dir == 5 || dir == 6 || dir == 7))
+#define pawndir(p, dir) (isWhite(p) ? (dir == 1 || dir == 2 || dir || 3) : (dir == 5 || dir == 6 || dir == 7)) /* p SAN char -> pawn, dir directoin (as defined in xincr, yincr */
 
-#define mkpositive(u) (u > 0 ? u : (-u))
+#define mkpositive(u) (u > 0 ? u : (-u)) /* u is any number */
 
-#define dist(sl) mkpositive((sl.drank != 0 ? sl.drank : sl.dfile))
+#define dist(sl) mkpositive((sl.drank != 0 ? sl.drank : sl.dfile)) /* slide_distance in direction. sl is movement (i.e slope-like quantity */
 
 /* direction macros */
 #define DIR_NONE 8
 
-#define oppDir(d) ((d + 4) & 7)
+#define oppDir(d) ((d + 4) & 7) /* d is direction as defined */
 
-#define MASK_BLACK_CASTLE (3 << 0)
+#define MASK_BLACK_CASTLE (3 << 0) /* q k Q K  are the 4 castling bits in an unsigned number */
 #define MASK_WHITE_CASTLE (3 << 2)
 
 
@@ -523,7 +523,8 @@ void make_move(chessboard *board, chesset *set, move mv) {
 	 * Should I instead use a seperate function handle_castle() ? TODO
 	 * */
 	if (toupper(from.pc) == 'K' && (mv.fin.file == ('g' - 'a') || mv.fin.file == ('c' - 'a'))) {
-		printf("Castling is Happening\n");
+		/*printf("Castling is Happening\n");*/
+		/* TODO TODO TODO: king must be in home square for move to be detected as a castling move, otherwise, king could have been in f1 for all we know */
 		castle_rook.ini.rank = castle_rook.fin.rank = mv.ini.rank;
 		if (mv.fin.file == ('g' - 'a')) {
 			castle_rook.ini.file = 'h' - 'a';
