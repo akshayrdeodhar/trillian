@@ -4,15 +4,16 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-ALTERNATE_UPDATE	moves.c	29;"	d	file:
+ALTERNATE_UPDATE	moves.c	39;"	d	file:
 BOARD_H	board.h	2;"	d
 DEBUG_CALCULATE	moves.c	11;"	d	file:
 DEFAULT_PATH	main.c	10;"	d	file:
 DEFS_H	defs.h	2;"	d
-DIR_NONE	moves.c	27;"	d	file:
+DIR_NONE	moves.c	37;"	d	file:
 DISPLAY_h	display.h	2;"	d
 FEN_TOKENS	board.c	7;"	d	file:
 FLAGS	Makefile	/^FLAGS = -Wall -std=c89 -O3 #-fsanitize=address$/;"	m
+FlagsForFile	.ycm_extra_conf.py	/^def FlagsForFile( filename, **kwargs ):$/;"	f
 MAX_PIECES	pieces.h	6;"	d
 MOVES_H	moves.h	2;"	d
 MOVES_MODE	display.h	7;"	d
@@ -20,7 +21,8 @@ NONE	board.h	7;"	d
 NONE_CO_ORD	board.h	8;"	d
 PIECES_H	pieces.h	2;"	d
 READ_MODE	display.h	6;"	d
-SLIDE_KILL	moves.c	13;"	d	file:
+SEPERATE_FUNCTIONS	moves.c	13;"	d	file:
+SLIDE_KILL	moves.c	15;"	d	file:
 blacks	moves.new.c	/^	piece blacks[16];$/;"	m	struct:__anon12	file:
 blacks	pieces.h	/^	piece blacks[MAX_PIECES];$/;"	m	struct:__anon5
 board_position	board.c	/^square board_position(chessboard board, position p) {$/;"	f
@@ -30,15 +32,17 @@ calculate_all	moves.c	/^void calculate_all(chesset *set, chessboard board) {$/;"
 calculate_all	moves.new.c	/^void calculate_all(chesset *set, chessboard board) {$/;"	f
 calculate_piece	moves.c	/^void calculate_piece(piece *p, chessboard ch) {$/;"	f
 calculate_piece	moves.new.c	/^void calculate_piece(piece *p, chessboard ch) {$/;"	f
+can_attack	moves.c	/^int can_attack(piece p, position ps, chessboard ch) {$/;"	f
 can_move	moves.c	/^int can_move(piece p, position sq, chessboard ch) {$/;"	f
 can_move	moves.new.c	/^int can_move(piece p, position sq, chessboard ch) {$/;"	f
-can_slide	moves.c	21;"	d	file:
+can_slide	moves.c	23;"	d	file:
 castling	board.h	/^	usint castling; \/* X X X X B-queenside B-kingside W-kingside W-queenside *\/$/;"	m	struct:__anon3
 castling	moves.new.c	/^	usint castling;$/;"	m	struct:__anon10	file:
 chessboard	board.h	/^}chessboard;$/;"	t	typeref:struct:__anon3
 chessboard	moves.new.c	/^}chessboard;$/;"	t	typeref:struct:__anon10	file:
 chesset	moves.new.c	/^}chesset;$/;"	t	typeref:struct:__anon12	file:
 chesset	pieces.h	/^}chesset;$/;"	t	typeref:struct:__anon5
+deltarank	moves.c	29;"	d	file:
 dfile	moves.h	/^	usint dfile, drank;$/;"	m	struct:__anon6
 dfile	moves.new.c	/^	usint dfile, drank;$/;"	m	struct:__anon13	file:
 dir_incr	moves.new.c	/^	usint dir_start, dir_incr;$/;"	m	struct:__anon11	file:
@@ -48,6 +52,7 @@ dir_start	pieces.h	/^	usint dir_start, dir_incr; \/*Q-> 0, 1. R-> 0, 2. B-> 1, 2
 dirs	moves.new.c	/^	usint dirs[8];$/;"	m	struct:__anon11	file:
 dirs	pieces.h	/^	usint dirs[8]; \/* w, nw, n, ne, e, se, s, sw *\/$/;"	m	struct:__anon4
 display	display.c	/^void display(chessboard board, int mode) {$/;"	f
+dist	moves.c	35;"	d	file:
 drank	moves.h	/^	usint dfile, drank;$/;"	m	struct:__anon6
 drank	moves.new.c	/^	usint dfile, drank;$/;"	m	struct:__anon13	file:
 enpass_target	board.h	/^	position enpass_target; \/* the square to which enpass is allowed (there is only one) *\/$/;"	m	struct:__anon3
@@ -72,15 +77,16 @@ index	board.h	/^	ssint index; \/* index in piece array in set *\/$/;"	m	struct:_
 index	moves.new.c	/^	ssint index;$/;"	m	struct:__anon8	file:
 ini	moves.h	/^	position ini;$/;"	m	struct:__anon7
 ini	moves.new.c	/^	position ini;$/;"	m	struct:__anon14	file:
-inrange	moves.c	23;"	d	file:
+inrange	moves.c	25;"	d	file:
 interface_board_set	pieces.c	/^void interface_board_set(chessboard *board, chesset *set) {$/;"	f
 isBlack	defs.h	8;"	d
-isDifferent	moves.c	16;"	d	file:
-isSame	moves.c	15;"	d	file:
+isDifferent	moves.c	18;"	d	file:
+isSame	moves.c	17;"	d	file:
 isWhite	defs.h	7;"	d
-knight_move	moves.c	/^int knight_move(piece q, position sq){$/;"	f
+knight_move	moves.c	/^int knight_move(piece q, position sq, chessboard ch){$/;"	f
 knight_move	moves.new.c	/^int knight_move(piece q, position sq){$/;"	f
 main	main.c	/^int main(int argc, char *argv[]) {$/;"	f
+mkpositive	moves.c	33;"	d	file:
 move	moves.h	/^}move;$/;"	t	typeref:struct:__anon7
 move	moves.new.c	/^}move;$/;"	t	typeref:struct:__anon14	file:
 movement	moves.h	/^}movement;$/;"	t	typeref:struct:__anon6
@@ -89,16 +95,17 @@ n_black	moves.new.c	/^	int n_black;$/;"	m	struct:__anon12	file:
 n_black	pieces.h	/^	int n_black;$/;"	m	struct:__anon5
 n_white	moves.new.c	/^	int n_white;$/;"	m	struct:__anon12	file:
 n_white	pieces.h	/^	int n_white;$/;"	m	struct:__anon5
-oppKing	moves.c	25;"	d	file:
-pawn_move	moves.c	/^int pawn_move(piece q, position sq) {$/;"	f
+oppKing	moves.c	27;"	d	file:
+pawn_move	moves.c	/^int pawn_move(piece q, position sq, chessboard ch) {$/;"	f
 pawn_move	moves.new.c	/^int pawn_move(piece q, position sq) {$/;"	f
+pawndir	moves.c	31;"	d	file:
 pc	board.h	/^	char pc; \/* representation of piece *\/$/;"	m	struct:__anon1
 pc	moves.new.c	/^	char pc;$/;"	m	struct:__anon8	file:
 piece	moves.new.c	/^	char piece;$/;"	m	struct:__anon11	file:
 piece	moves.new.c	/^}piece;$/;"	t	typeref:struct:__anon11	file:
 piece	pieces.h	/^	char piece;$/;"	m	struct:__anon4
 piece	pieces.h	/^}piece;$/;"	t	typeref:struct:__anon4
-piece_can_slide	moves.c	/^int piece_can_slide(piece p, position sq) {$/;"	f
+piece_can_slide	moves.c	/^int piece_can_slide(piece p, position sq, chessboard ch) {$/;"	f
 piece_can_slide	moves.new.c	/^int piece_can_slide(piece p, position sq) {$/;"	f
 pin_dir	moves.new.c	/^	usint pin_dir;$/;"	m	struct:__anon11	file:
 pin_dir	pieces.h	/^	usint pin_dir;$/;"	m	struct:__anon4
@@ -115,10 +122,9 @@ rankincr	moves.new.c	/^ssint rankincr(usint direction) {$/;"	f
 safe_atoi	board.c	/^int safe_atoi(char string[]) {$/;"	f
 set_piece	pieces.c	/^void set_piece(piece *p, char pc, int rank, int file) {$/;"	f
 show_set	pieces.c	/^void show_set(chesset set) {$/;"	f
-slide_distance	moves.c	/^usint slide_distance(usint direction) {$/;"	f
 slide_distance	moves.new.c	/^usint slide_distance(usint direction) {$/;"	f
-slide_update	moves.c	20;"	d	file:
-slidingPiece	moves.c	18;"	d	file:
+slide_update	moves.c	22;"	d	file:
+slidingPiece	moves.c	20;"	d	file:
 square	board.h	/^}square;$/;"	t	typeref:struct:__anon1
 square	moves.new.c	/^}square;$/;"	t	typeref:struct:__anon8	file:
 ssint	defs.h	/^typedef char ssint; \/* for changes in direction *\/$/;"	t

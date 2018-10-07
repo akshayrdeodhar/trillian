@@ -8,8 +8,14 @@
 #include "defs.h"
 #include "display.h"
 
+/* compilation macros */
 #define DEBUG_CALCULATE 0
 
+#define SEPERATE_FUNCTIONS 0
+
+#define ALTERNATE_UPDATE 1
+
+/* piece movement macros */
 #define SLIDE_KILL (1 << 7)
 
 #define isSame(p, q) ((isWhite(p) && isWhite(q)) || (isBlack(p) && isBlack(q)))
@@ -28,9 +34,15 @@
 
 #define pawndir(p, dir) (isWhite(p) ? (dir == 1 || dir == 2 || dir || 3) : (dir == 5 || dir == 6 || dir == 7))
 
+#define mkpositive(u) (u > 0 ? u : (-u))
+
+#define dist(sl) mkpositive((sl.drank != 0 ? sl.drank : sl.dfile))
+
+/* direction macros */
 #define DIR_NONE 8
 
-#define ALTERNATE_UPDATE 1
+#define oppDir(d) ((d + 4) & 7)
+
 
 /* origin at a1
  * (7, 7) at h8
@@ -140,7 +152,89 @@ ssint rankincr(usint direction) {
 	return SCHAR_MIN;
 }
 
+/* mostly used for king movements, also called from can_move, as for non-pawn pieces, can_move requires can attack */
+int can_attack(piece p, position ps, chessboard ch) {
+	usint direction;
+	usint distance;
+	move mv;
+	movement sl;
+	usint ranksq, filesq;
+	if (!inrange(ps.rank, ps.file)) {
+		return 0;
+	}
+	/* square is on the board */
+	mv.ini = p.ps;
+	mv.fin = ps;
+	sl = find_movement(mv);
+	direction = find_dir(sl);
+	distance = dist(sl);
+	/* square is on the board */
+	switch(toupper(p.piece)) {
+		/* piece has been updated at the end of last move */
+		case 'Q': case 'R': case 'B':
+			if (direction == DIR_NONE) {
+				return 0;
+			}
+			/* piece can move 'distance' squares in 'direction'*/
+			if (p.dirs[direction] >= distance) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
+			break;
+
+		/* distance is sqrt(5) and two squares movement in one direction */
+		case 'N':
+			ranksq = sl.drank * sl.drank;
+			filesq = sl.dfile * sl.dfile;
+			if ((ranksq + filesq == 5) && ((ranksq == 4) || (filesq == 4))) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
+			break;
+
+		/* rank movement specific according to color, file movement 1 or -1 */
+		case 'P':
+			if ((sl.drank == deltarank(p.piece)) && (mkpositive(sl.dfile) == 1)) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
+			break;
+
+		/* move distance is 1, direction is one of the eight directions */
+		case 'K':
+			if (direction == DIR_NONE || distance != 1) {
+				return 0;
+			}
+			else {
+				return 1;
+			}
+			break;
+
+		default:
+			fprintf(stderr, "Invalid piece in can_attack, %c\n", p.piece);
+			return 0;
+			break;
+	}
+	return 0;
+}
+
+			
+
+
+
 int can_move(piece p, position sq, chessboard ch) {
+	char piece = ch.brd[sq.file][sq.rank].pc;
+	if (!(inrange(sq.rank, sq.file) && (!piece || (isDifferent(p.piece, piece) && (piece != oppKing(p.piece)))))) {
+		return 0;
+	}
+	/* in board, unoccupied or enemy piece */
+	/* TODO: Take pins int account */
 	return 0;
 }
 
@@ -148,10 +242,12 @@ int piece_can_slide(piece p, position sq, chessboard ch) {
 	return 0;
 }
 
+
+#if (SEPERATE_FUNCTIONS == 1)
 int knight_move(piece q, position sq, chessboard ch){
-	if (q.pin_dir != 8) {
+	/*if (q.pin_dir != 8) {
 		return 0;
-	}
+	}*/
 	char piece;
 	usint ranksq, filesq;
 	move mv;
@@ -186,9 +282,9 @@ int pawn_move(piece q, position sq, chessboard ch) {
 	val_drank = deltarank(q.piece);
 	direction = find_dir(sl);
 	/* pin */
-	if (q.pin_dir != 8 && q.pin_dir != direction) {
+	/*if (q.pin_dir != 8 && q.pin_dir != direction) {
 		return 0;
-	}
+	}*/
 
 	/* single push */
 	if (sl.drank == val_drank && sl.dfile == 0 && !piece && direction == 2) {
@@ -207,6 +303,7 @@ int pawn_move(piece q, position sq, chessboard ch) {
 	}
 	return 0;
 }
+#endif
 
 void calculate_piece(piece *p, chessboard ch) {
 	usint i;
@@ -220,7 +317,9 @@ void calculate_piece(piece *p, chessboard ch) {
 		return;
 	}
 
+	if (DEBUG_CALCULATE) {
 	printf("Piece: %c\n", p->piece);
+	}
 
 	chessboard moves = ch;
 

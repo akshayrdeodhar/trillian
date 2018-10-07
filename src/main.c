@@ -8,6 +8,9 @@
 #include "moves.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
+#define DEBUG (0)
+#define DEBUG_INTERFACE 1
+#define DEBUG_CALCULATE 2
 
 void interface_board_set(chessboard *board, chesset *set); /* sets 'indexes' in board, initialize pieces in chesset */
 
@@ -56,14 +59,20 @@ int main(int argc, char *argv[]) {
 	}
 
 	interface_board_set(&board, &set);
-	/*show_set(set); */
+
+#if (DEBUG & DEBUG_INTERFACE)
+	show_set(set); 
+
 	verify_interface(board, set);
+#endif
 
 	calculate_all(&set, board);
 
 	display(board, MOVES_MODE);
 
+#if (DEBUG & DEBUG_CALCULATE)
 	verify_calculation(set, board);
+#endif
 
 	return 0;
 }
