@@ -151,3 +151,9 @@ Validation:
 	If occupied by friendly piece, along or opp check direction, opponent
 	piece can move / supported by opponent piece-> invalid
 	Else valid
+
+Q14: Is too big a program necessarily a bad thing?
+A1: Big code is definitely difficult to mantain. Maybe a few runs are required
+to remove needless code, prune it. How important is this?. Also, I am
+sometimes needing a bit of thinking to understand code I have written. A
+commenting run is probably needed

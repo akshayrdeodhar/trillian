@@ -5,7 +5,7 @@
 #include "pieces.h"
 
 typedef struct {
-	usint dfile, drank;
+	ssint dfile, drank;
 }movement;
 
 typedef struct {
@@ -13,7 +13,7 @@ typedef struct {
 	position fin;
 }move;
 
-movement find_movement(move mv); /* finds change in position */
+movement find_movement(position ini, position fin); /* finds change in position */
 
 usint find_dir(movement sl); /* finds sliding direction from 'slope' */
 
@@ -38,6 +38,8 @@ void calculate_all(chesset *set, chessboard ch); /* calculates sliding movements
 void update_slide(piece *p, chessboard ch, usint direction); /* calculates sliding movement of piece in 'direction' */
 
 void update_set(chesset *set, chessboard ch, move latest); /* updates sliding moves based on latest move */
+
+void update_sliding_pieces(chessboard board, chesset *set, move mv); /* if move affects a sliding piece, update it's slide */
 
 void verify_calculation(chesset set, chessboard board); /* enumerate stored sliding moves for checking- not to be used in main() */
 

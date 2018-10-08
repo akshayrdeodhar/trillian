@@ -3,6 +3,8 @@
 #include <ctype.h>
 #include <stdio.h>
 
+#define DEBUG_PIECES (0)
+#define DEBUG_KILL (1 << 0)
 
 void set_piece(piece *p, char pc, int rank, int file) {
 	switch(toupper(pc)) {
@@ -118,7 +120,9 @@ void kill_piece(chessboard *board, chesset *set, square sq) {
 		index = &(set->n_black);
 	}
 	
+#if (DEBUG_PIECES & DEBUG_KILL)
 	printf("%c killed at %c%c\n", sq.pc, array[sq.index].ps.file + 'a', array[sq.index].ps.rank + '1');
+#endif
 
 	for (i = sq.index; i < *index - 1; ++i) {
 		container = array[i + 1];

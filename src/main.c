@@ -9,7 +9,7 @@
 #include "input.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
-#define DEBUG (0)
+#define DEBUG (0 | DEBUG_CALCULATE | DEBUG_INTERFACE)
 #define DEBUG_INTERFACE 1
 #define DEBUG_CALCULATE 2
 
@@ -74,6 +74,7 @@ int main(int argc, char *argv[]) {
 #if (DEBUG & DEBUG_CALCULATE)
 	verify_calculation(set, board);
 #endif
+
 	while(1) {
 		display(board, MOVES_MODE);
 		printf("COMMAND:");
@@ -87,6 +88,17 @@ int main(int argc, char *argv[]) {
 			make_move(&board, &set, mv);
 			verify_interface(board, set);
 			show_set(set);
+			update_sliding_pieces(board, &set, mv);
+#if (DEBUG & DEBUG_INTERFACE)
+	show_set(set); 
+
+	verify_interface(board, set);
+#endif
+
+
+#if (DEBUG & DEBUG_CALCULATE)
+			verify_calculation(set, board);
+#endif
 		}
 	}
 	return 0;
