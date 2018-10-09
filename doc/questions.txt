@@ -157,3 +157,21 @@ A1: Big code is definitely difficult to mantain. Maybe a few runs are required
 to remove needless code, prune it. How important is this?. Also, I am
 sometimes needing a bit of thinking to understand code I have written. A
 commenting run is probably needed
+
+Q15: If storing moves anyway, why not store the piece at the end of the slide?
+That way, I can also track what things I can kill! Storage for knight, king,
+     pawn seems too much work. But should I keep things uniform?
+A1:
+Storing the piece at the end of the slide is a good idea, as for sliding
+pieces, I have to go along the direction to see what I can kill. But for K, N,
+	P, the pieces that can be killed are right there, at the board,
+	waiting to be directly accessed
+
+There is however the problem of being uniform, which remains unresolved. Also,
+      a lot of space is wasted for non-sliding pieces, which can be put to
+      good use. When there is a query about a piece, I DON't NEED TO LOOK AT
+      THE BOARD!
+The dirs[] array can be used for king to track pins as well as occupied-ness
+of surrounding squares. (3 bits for attacked / friendly piece code) 
+For the knight, most of the space will be wasted- 4 bits: unnocupied,
+    friendly, not in range, enemy

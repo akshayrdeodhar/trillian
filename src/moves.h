@@ -41,6 +41,8 @@ void update_set(chesset *set, chessboard ch, move latest); /* updates sliding mo
 
 void update_sliding_pieces(chessboard board, chesset *set, move mv); /* if move affects a sliding piece, update it's slide */
 
+void update_sliding_piece(chessboard board, piece *p, move mv); /* if move affects a sliding piece, update it's slide */
+
 void verify_calculation(chesset set, chessboard board); /* enumerate stored sliding moves for checking- not to be used in main() */
 
 void make_move(chessboard *board, chesset *set, move mv); /* make move, modify state of board, set metadata modify indexes in case of kill*/

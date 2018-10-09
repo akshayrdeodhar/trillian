@@ -358,7 +358,7 @@ void verify_calculation(chesset set, chessboard board) {
 			else if (set.whites[i].dirs[j] & (1 << 4)) {
 				moves.brd[rank][file].pc = 'S';
 			}
-			else {
+			else if (inrange(rank, file)) {
 				moves.brd[rank][file].pc = 'M';
 			}
 
@@ -398,7 +398,7 @@ void verify_calculation(chesset set, chessboard board) {
 			else if (set.blacks[i].dirs[j] & (1 << 4)) {
 				moves.brd[rank][file].pc = 'S';
 			}
-			else {
+			else if (inrange(rank, file)) {
 				moves.brd[rank][file].pc = 'M';
 			}
 		}
@@ -507,81 +507,15 @@ void menial_move(chessboard *board, chesset *set, move mv) {
 
 void update_sliding_pieces(chessboard board, chesset *set, move mv) {
 	usint i;
-	movement sl1, sl2;
-	usint dir1, dir2;
-	usint dir_start, dir_incr;
-	piece pc;
 	square sq;
 
 	/* if a sliding piece has moved, recalculate it ?*/
 
 	for (i = 0; i < set->n_white; ++i) {
-		pc = set->whites[i];
-		if(!slidingPiece(pc.piece)) {
-			if (DEBUG_MOVES & DEBUG_UPDATE) {
-				printf("Not a sliding piece %c\n", pc.piece);
-			}
-			continue;
-		}
-		if (DEBUG_MOVES & DEBUG_UPDATE) {
-			printf("Sliding piece %c\n", pc.piece);
-		}
-		pc = set->blacks[i];
-
-		sl1 = find_movement(pc.ps, mv.ini);
-		sl2 = find_movement(pc.ps, mv.fin);
-
-		dir_start = pc.dir_start;
-		dir_incr = pc.dir_incr;
-
-		if ((dir1 = find_dir(sl1)) != DIR_NONE && (dir1 % dir_incr == dir_start)) {
-			if (DEBUG_MOVES & DEBUG_UPDATE) {
-				printf("Updating %c at %c%c in direction %d\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', dir1);
-			}
-
-			update_slide(&(set->whites[i]), board, dir1);
-		}
-		if ((dir2 = find_dir(sl2)) != DIR_NONE && (dir2 % dir_incr == dir_start)) {
-			if (DEBUG_MOVES & DEBUG_UPDATE) {
-				printf("Updating %c at %c%c in direction %d\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', dir1);
-			}
-
-			update_slide(&(set->whites[i]), board, dir2);
-		}
+		update_sliding_piece(board, &(set->whites[i]), mv);		
 	}
 	for (i = 0; i < set->n_black; ++i) {
-
-		pc = set->blacks[i];
-		if(!slidingPiece(pc.piece)) {
-			if (DEBUG_MOVES & DEBUG_UPDATE) {
-				printf("Not a sliding piece %c\n", pc.piece);
-			}
-			continue;
-		}
-		if (DEBUG_MOVES & DEBUG_UPDATE) {
-			printf("Sliding piece %c\n", pc.piece);
-		}
-		sl1 = find_movement(pc.ps, mv.ini);
-		sl2 = find_movement(pc.ps, mv.fin);
-
-		dir_start = pc.dir_start;
-		dir_incr = pc.dir_incr;
-
-
-		if ((dir1 = find_dir(sl1)) != DIR_NONE && (dir1 % dir_incr == dir_start)) {
-			if (DEBUG_MOVES & DEBUG_UPDATE) {
-				printf("Updating %c at %c%c in direction %d\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', dir1);
-			}
-
-			update_slide(&(set->blacks[i]), board, dir1);
-		}
-		if ((dir2 = find_dir(sl2)) != DIR_NONE && (dir2 % dir_incr == dir_start)) {
-			if (DEBUG_MOVES & DEBUG_UPDATE) {
-				printf("Updating %c at %c%c in direction %d\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', dir2);
-			}
-
-			update_slide(&(set->blacks[i]), board, dir2);
-		}
+		update_sliding_piece(board, &(set->blacks[i]), mv);		
 	}
 
 	sq = board_position(board, mv.fin);
@@ -592,5 +526,45 @@ void update_sliding_pieces(chessboard board, chesset *set, move mv) {
 		calculate_piece(&(set->blacks[(usint)sq.index]), board);
 	}
 
+}
+
+void update_sliding_piece(chessboard board, piece *p, move mv) {
+	movement sl1, sl2;
+	usint dir1, dir2;
+	usint dir_start, dir_incr;
+	piece pc;
+
+	pc = *p;
+
+	if(!slidingPiece(pc.piece)) {
+		if (DEBUG_MOVES & DEBUG_UPDATE) {
+			printf("Not a sliding piece %c\n", pc.piece);
+		}
+		return;
+	}
+	if (DEBUG_MOVES & DEBUG_UPDATE) {
+		printf("Sliding piece %c\n", pc.piece);
+	}
+
+	sl1 = find_movement(pc.ps, mv.ini);
+	sl2 = find_movement(pc.ps, mv.fin);
+
+	dir_start = pc.dir_start;
+	dir_incr = pc.dir_incr;
+
+	if ((dir1 = find_dir(sl1)) != DIR_NONE && (dir1 % dir_incr == dir_start)) {
+		if (DEBUG_MOVES & DEBUG_UPDATE) {
+			printf("Updating %c at %c%c in direction %d\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', dir1);
+		}
+
+		update_slide(p, board, dir1);
+	}
+	if ((dir2 = find_dir(sl2)) != DIR_NONE && (dir2 % dir_incr == dir_start)) {
+		if (DEBUG_MOVES & DEBUG_UPDATE) {
+			printf("Updating %c at %c%c in direction %d\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', dir1);
+		}
+
+		update_slide(p, board, dir2);
+	}
 }
 

@@ -9,7 +9,7 @@
 #include "input.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
-#define DEBUG (0 | DEBUG_CALCULATE | DEBUG_INTERFACE)
+#define DEBUG (0)
 #define DEBUG_INTERFACE 1
 #define DEBUG_CALCULATE 2
 
@@ -80,6 +80,7 @@ int main(int argc, char *argv[]) {
 		printf("COMMAND:");
 		readline(command, 32);
 		if (!(strcmp(command, "quit"))) {
+			verify_calculation(set, board);
 			return 0;
 		}
 		else {
