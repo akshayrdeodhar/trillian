@@ -289,6 +289,7 @@ void update_slide(piece *p, chessboard ch, usint direction) {
 	}
 	/* encountered a piece */
 	if (!inrange(file, rank)) {
+		--i;
 		p->dirs[direction] = i;
 		return;
 	}
@@ -341,7 +342,7 @@ void verify_calculation(chesset set, chessboard board) {
 			fileinc = fileincr(j);
 			rank = set.whites[i].ps.rank + rankinc;
 			file = set.whites[i].ps.file + fileinc;
-			for(k = 1; k <= slide_smooth(set.whites[i].dirs[j]); ++k) {
+			for(k = 1; k < slide_smooth(set.whites[i].dirs[j]); ++k) {
 				if (!inrange(rank, file)) {
 					printf("Error: %c: %d: %d %c%c\n", set.whites[i].piece, j, k, file + 'a', rank + '1');
 					break;
@@ -351,9 +352,15 @@ void verify_calculation(chesset set, chessboard board) {
 				file += fileinc;
 			}
 			/* k == slide_smooth(set.whites[i].dirs[j]) */
-			/*if (set.whites[i].dirs[j] & (1 << 3)) {
-			  moves.brd[rank][file].pc = 'X';
-			  }*/
+			if (set.whites[i].dirs[j] & (1 << 3)) {
+				moves.brd[rank][file].pc = 'X';
+			}
+			else if (set.whites[i].dirs[j] & (1 << 4)) {
+				moves.brd[rank][file].pc = 'S';
+			}
+			else {
+				moves.brd[rank][file].pc = 'M';
+			}
 
 		}
 		display(board, MOVES_MODE);
@@ -374,7 +381,7 @@ void verify_calculation(chesset set, chessboard board) {
 			fileinc = fileincr(j);
 			rank = set.blacks[i].ps.rank + rankinc;
 			file = set.blacks[i].ps.file + fileinc;
-			for(k = 1; k <= slide_smooth(set.blacks[i].dirs[j]); ++k) {
+			for(k = 1; k < slide_smooth(set.blacks[i].dirs[j]); ++k) {
 				if (!inrange(rank, file)) {
 					printf("Error: %c: %d: %d %c%c\n", set.blacks[i].piece, j, k, file + 'a', rank + '1');
 					break;
@@ -384,10 +391,16 @@ void verify_calculation(chesset set, chessboard board) {
 				file += fileinc;
 			}
 			/* k == slide_smooth(set.blacks .. ]) */
-			/*
-			   if (set.blacks[i].dirs[j] & (1 << 3)) {
-			   moves.brd[rank][file].pc = 'X';
-			   }*/
+
+			if (set.blacks[i].dirs[j] & (1 << 3)) {
+				moves.brd[rank][file].pc = 'X';
+			}
+			else if (set.blacks[i].dirs[j] & (1 << 4)) {
+				moves.brd[rank][file].pc = 'S';
+			}
+			else {
+				moves.brd[rank][file].pc = 'M';
+			}
 		}
 		display(board, MOVES_MODE);
 		display(moves, MOVES_MODE);
@@ -571,7 +584,7 @@ void update_sliding_pieces(chessboard board, chesset *set, move mv) {
 		}
 	}
 
-	sq = board_position(board, mv.ini);
+	sq = board_position(board, mv.fin);
 	if (isWhite(sq.pc)) {
 		calculate_piece(&(set->whites[(usint)sq.index]), board);
 	}
