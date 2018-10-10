@@ -4,7 +4,7 @@
 #include "defs.h"
 #include <limits.h>
 
-#define NONE (-1)
+#define NONE (16)
 #define NONE_CO_ORD UCHAR_MAX
 
 /* origin at a1

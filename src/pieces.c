@@ -8,7 +8,6 @@
 
 /* direction macros */
 #define DIR_NONE 16
-#define DIR_SLIDE_END 8 /* 8 not included */
 
 void set_piece(piece *p, char pc, int rank, int file) {
 	switch(toupper(pc)) {
@@ -16,23 +15,28 @@ void set_piece(piece *p, char pc, int rank, int file) {
 		case 'Q': case 'K':
 			p->dir_start = 0;
 			p->dir_incr = 1;
-			p->dir_end = DIR_SLIDE_END;
+			p->dir_end = 7;
 			break;
 		case 'R':
 			p->dir_start = 0;
 			p->dir_incr = 2;
-			p->dir_end = DIR_SLIDE_END;
+			p->dir_end = 7;
 			break;
 		case 'B':
 			p->dir_start = 1;
 			p->dir_incr = 2;
-			p->dir_end = DIR_SLIDE_END;
+			p->dir_end = 7;
 			break;
 		/* not really just a direction. same variable is used for different purposes */
 		case 'N':
 			p->dir_start = 8;
 			p->dir_incr = 1;
-			p->dir_end = DIR_NONE;
+			p->dir_end = 15;
+			break;
+		case 'P':
+			p->dir_start = isWhite(pc) ? 1 : 5;
+			p->dir_incr = 1;
+			p->dir_end = isWhite(pc) ? 3 : 7;
 			break;
 		default:
 			break;
