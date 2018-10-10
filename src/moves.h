@@ -45,6 +45,8 @@ void update_sliding_piece(chessboard board, piece *p, move mv); /* if move affec
 
 void verify_calculation(chesset set, chessboard board); /* enumerate stored sliding moves for checking- not to be used in main() */
 
+void verify_piece_calculations(chessboard *moves, piece p); /* enumerate moves of piece 'p' for visual checking- called from verify_calculations */
+
 void make_move(chessboard *board, chesset *set, move mv); /* make move, modify state of board, set metadata modify indexes in case of kill*/
 
 void menial_move(chessboard *board, chesset *set, move mv); /* simply move piece on board, set position in piece (called by make_move) */

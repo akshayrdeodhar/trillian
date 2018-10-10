@@ -6,19 +6,33 @@
 #define DEBUG_PIECES (0)
 #define DEBUG_KILL (1 << 0)
 
+/* direction macros */
+#define DIR_NONE 16
+#define DIR_SLIDE_END 8 /* 8 not included */
+
 void set_piece(piece *p, char pc, int rank, int file) {
 	switch(toupper(pc)) {
-		case 'Q':
+		/* but for king, range is restricted */
+		case 'Q': case 'K':
 			p->dir_start = 0;
 			p->dir_incr = 1;
+			p->dir_end = DIR_SLIDE_END;
 			break;
 		case 'R':
 			p->dir_start = 0;
 			p->dir_incr = 2;
+			p->dir_end = DIR_SLIDE_END;
 			break;
 		case 'B':
 			p->dir_start = 1;
 			p->dir_incr = 2;
+			p->dir_end = DIR_SLIDE_END;
+			break;
+		/* not really just a direction. same variable is used for different purposes */
+		case 'N':
+			p->dir_start = 8;
+			p->dir_incr = 1;
+			p->dir_end = DIR_NONE;
 			break;
 		default:
 			break;

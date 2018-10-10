@@ -16,6 +16,8 @@
 #define SEPERATE_FUNCTIONS 0
 
 #define ALTERNATE_UPDATE 1
+#define ALTERNATE_INCR 1
+#define ALTERNATE_VERIFY 1
 
 /* piece movement macros */
 #define SLIDE_KILL (1 << 7)
@@ -47,17 +49,13 @@
 #define dist(sl) mkpositive((sl.drank != 0 ? sl.drank : sl.dfile)) /* slide_distance in direction. sl is movement (i.e slope-like quantity */
 
 /* direction macros */
-#define DIR_NONE 8
+#define DIR_NONE 16
+#define DIR_SLIDE_END 8 /* 8 not included */
 
-#define oppDir(d) ((d + 4) & 7) /* d is direction as defined */
+#define oppDir(d) ((d + 4) & 7) /* d is direction as defined - CAUTION: Not used for Knight */
 
 #define MASK_BLACK_CASTLE (3 << 0) /* q k Q K  are the 4 castling bits in an unsigned number */
 #define MASK_WHITE_CASTLE (3 << 2)
-
-
-/* origin at a1
- * (7, 7) at h8
- * */
 
 
 movement find_movement(position ini, position fin) {
@@ -69,6 +67,12 @@ movement find_movement(position ini, position fin) {
 
 usint find_dir(movement sl) {
 	usint dir;
+	/* Direction codes
+	 * 1  2  3
+	 * 0  P  4
+	 * 7  6  5
+	 * */
+
 	if (sl.dfile < 0 && sl.drank == 0) {
 		dir = 0; /* w */
 	}
@@ -93,75 +97,67 @@ usint find_dir(movement sl) {
 	else if (sl.dfile < 0 && sl.drank < 0) {
 		dir = 7; /* sw */
 	}
+	/* Knight Move codes
+	 * .  9  . 10  . 
+	 * 8  .  .  . 11
+	 * .  .  N  .  .
+	 * 15 .  .  . 12
+	 * . 14  . 13  .
+	 * */
+	else if (sl.dfile == -2 && sl.drank == 1) {
+		dir = 8;
+	}
+	else if (sl.dfile == -1 && sl.drank == 2) {
+		dir = 9;
+	}
+	else if (sl.dfile == 1 && sl.drank == 2) {
+		dir = 10;
+	}
+	else if (sl.dfile == 2 && sl.drank == 1) {
+		dir = 11;
+	}
+	else if (sl.dfile == 2 && sl.drank == -1) {
+		dir = 12;
+	}
+	else if (sl.dfile == 1 && sl.drank == -2) {
+		dir = 13;
+	}
+	else if (sl.dfile == -1 && sl.drank == -2) {
+		dir = 14;
+	}
+	else if (sl.dfile == -2 && sl.drank == -1) {
+		dir = 15;
+	}
 	else {
 		dir = DIR_NONE;
 	}
+
 	return dir;
 }
 
 ssint fileincr(usint direction) {
-	switch(direction) {
-		case 0:
-			return -1;
-			break;
-		case 1:
-			return -1;
-			break;
-		case 2:
-			return 0;
-			break;
-		case 3:
-			return 1;
-			break;
-		case 4:
-			return 1;
-			break;
-		case 5:
-			return 1;
-			break;
-		case 6:
-			return 0;
-			break;
-		case 7:
-			return -1;
-			break;
-		default:
-			return SCHAR_MIN;
-			break;
+	const static ssint file_incr[16] = {-1, -1, 0, 1, 1, 1, 0, -1, -2, -1, 1, 2, 2, 1, -1, -2};
+
+	if (direction < 16) {
+		return file_incr[direction];
 	}
+	else {
+		return SCHAR_MIN;
+	}
+
 	return SCHAR_MIN;
 }
 
 ssint rankincr(usint direction) {
-	switch(direction) {
-		case 0:
-			return 0;
-			break;
-		case 1:
-			return 1;
-			break;
-		case 2:
-			return 1;
-			break;
-		case 3:
-			return 1;
-			break;
-		case 4:
-			return 0;
-			break;
-		case 5:
-			return -1;
-			break;
-		case 6:
-			return -1;
-			break;
-		case 7:
-			return -1;
-			break;
-		default:
-			return SCHAR_MIN;
-			break;
+	const static ssint rank_incr[16] = {0, 1, 1, 1, 0, -1, -1, -1, 1, 2, 2, 1, -1, -2, -2, -1};
+
+	if (direction < 16) {
+		return rank_incr[direction];
 	}
+	else {
+		return SCHAR_MIN;
+	}
+
 	return SCHAR_MIN;
 }
 
@@ -182,7 +178,7 @@ int can_attack(piece p, position ps, chessboard ch) {
 	switch(toupper(p.piece)) {
 		/* piece has been updated at the end of last move */
 		case 'Q': case 'R': case 'B':
-			if (direction == DIR_NONE) {
+			if (direction >= DIR_SLIDE_END) {
 				return 0;
 			}
 			/* piece can move 'distance' squares in 'direction'*/
@@ -255,18 +251,14 @@ int piece_can_slide(piece p, position sq, chessboard ch) {
 
 void calculate_piece(piece *p, chessboard ch) {
 	usint i;
-	if (!slidingPiece(p->piece)) {
-		if (DEBUG_MOVES & DEBUG_CALCULATE) {
-			printf("Not Sliding: %c\n", p->piece);
-		}
-		return;
-	}
-
-	if (DEBUG_MOVES & DEBUG_CALCULATE) {
-		printf("Piece: %c\n", p->piece);
-	}
-	for (i = p->dir_start; i < 8; i += p->dir_incr) {
-		update_slide(p, ch, i);
+	switch(toupper(p->piece)) {
+		case 'Q': case 'R': case 'B':
+			for (i = p->dir_start; i < DIR_SLIDE_END; i += p->dir_incr) {
+				update_slide(p, ch, i);
+			}
+			break;
+		default:
+			break;
 	}
 }
 
@@ -287,12 +279,13 @@ void update_slide(piece *p, chessboard ch, usint direction) {
 		rank += rankinc;
 		file += fileinc;
 	}
-	/* encountered a piece */
+	/* encountered end of board */
 	if (!inrange(file, rank)) {
 		--i;
 		p->dirs[direction] = i;
 		return;
 	}
+	/* assert: encountered piece */
 	/* slayable piece */
 	if (isDifferent(ch.brd[rank][file].pc, p->piece) && ch.brd[rank][file].pc != oppKing(p->piece)) {
 		if (DEBUG_MOVES & DEBUG_CALCULATE) {
@@ -311,6 +304,17 @@ void update_slide(piece *p, chessboard ch, usint direction) {
 	p->dirs[direction] = i;
 }
 
+/*
+void update_knight(piece *p, chessboard ch, usint direction) {
+	ssint rankinc, fileinc;
+	usint rank, file;
+	rankinc = rankincr(direction);
+	fileinc = fileincr(direction);
+	rank = p->ps.rank + rankinc;
+	file = p->ps.file + fileinc;
+}
+*/
+
 void calculate_all(chesset *set, chessboard board) {
 	int i;
 	for (i = 0; i < set->n_white; ++i) {
@@ -324,86 +328,62 @@ void calculate_all(chesset *set, chessboard board) {
 
 void verify_calculation(chesset set, chessboard board) {
 	chessboard moves;
-	int i, j, k;
-	ssint rankinc, fileinc;
-	usint rank, file;
+	int i; 
 	for (i = 0; i < set.n_white; ++i) {
 		moves = board;
 
-		if (!slidingPiece(set.whites[i].piece)) {
-			printf("%c is not a sliding piece\n", set.whites[i].piece);
-			continue;
-		}
+		verify_piece_calculations(&moves, set.whites[i]);
 
-		printf("%c is a sliding piece\n", set.whites[i].piece);
-
-		for(j = set.whites[i].dir_start; j < 8; j += set.whites[i].dir_incr) {
-			rankinc = rankincr(j);
-			fileinc = fileincr(j);
-			rank = set.whites[i].ps.rank + rankinc;
-			file = set.whites[i].ps.file + fileinc;
-			for(k = 1; k < slide_smooth(set.whites[i].dirs[j]); ++k) {
-				if (!inrange(rank, file)) {
-					printf("Error: %c: %d: %d %c%c\n", set.whites[i].piece, j, k, file + 'a', rank + '1');
-					break;
-				}
-				moves.brd[rank][file].pc = 'M';
-				rank += rankinc;
-				file += fileinc;
-			}
-			/* k == slide_smooth(set.whites[i].dirs[j]) */
-			if (set.whites[i].dirs[j] & (1 << 3)) {
-				moves.brd[rank][file].pc = 'X';
-			}
-			else if (set.whites[i].dirs[j] & (1 << 4)) {
-				moves.brd[rank][file].pc = 'S';
-			}
-			else if (inrange(rank, file)) {
-				moves.brd[rank][file].pc = 'M';
-			}
-
-		}
 		display(board, MOVES_MODE);
 		display(moves, MOVES_MODE);
 	}
 	for (i = 0; i < set.n_black; ++i) {
 		moves = board;
 
-		if (!slidingPiece(set.blacks[i].piece)) {
-			printf("%c is not a sliding piece\n", set.blacks[i].piece);
-			continue;
-		}
+		verify_piece_calculations(&moves, set.blacks[i]);
 
-		printf("%c is a sliding piece\n", set.blacks[i].piece);
-
-		for(j = set.blacks[i].dir_start; j < 8; j += set.blacks[i].dir_incr) {
-			rankinc = rankincr(j);
-			fileinc = fileincr(j);
-			rank = set.blacks[i].ps.rank + rankinc;
-			file = set.blacks[i].ps.file + fileinc;
-			for(k = 1; k < slide_smooth(set.blacks[i].dirs[j]); ++k) {
-				if (!inrange(rank, file)) {
-					printf("Error: %c: %d: %d %c%c\n", set.blacks[i].piece, j, k, file + 'a', rank + '1');
-					break;
-				}
-				moves.brd[rank][file].pc = 'M';
-				rank += rankinc;
-				file += fileinc;
-			}
-			/* k == slide_smooth(set.blacks .. ]) */
-
-			if (set.blacks[i].dirs[j] & (1 << 3)) {
-				moves.brd[rank][file].pc = 'X';
-			}
-			else if (set.blacks[i].dirs[j] & (1 << 4)) {
-				moves.brd[rank][file].pc = 'S';
-			}
-			else if (inrange(rank, file)) {
-				moves.brd[rank][file].pc = 'M';
-			}
-		}
 		display(board, MOVES_MODE);
 		display(moves, MOVES_MODE);
+	}
+}
+
+void verify_piece_calculations(chessboard *moves, piece p) {
+	if (!slidingPiece(p.piece)) {
+		printf("%c is not a sliding piece\n", p.piece);
+		return;
+	}
+	
+	int j, k;
+	ssint rankinc, fileinc;
+	usint rank, file;
+
+	printf("%c is a sliding piece\n", p.piece);
+
+	for(j = p.dir_start; j < DIR_SLIDE_END; j += p.dir_incr) {
+		rankinc = rankincr(j);
+		fileinc = fileincr(j);
+		rank = p.ps.rank + rankinc;
+		file = p.ps.file + fileinc;
+		for(k = 1; k < slide_smooth(p.dirs[j]); ++k) {
+			if (!inrange(rank, file)) {
+				printf("Error: %c: %d: %d %c%c\n", p.piece, j, k, file + 'a', rank + '1');
+				break;
+			}
+			moves->brd[rank][file].pc = 'M';
+			rank += rankinc;
+			file += fileinc;
+		}
+		/* k == slide_smooth(set.blacks .. ]) */
+
+		if (p.dirs[j] & (1 << 3)) {
+			moves->brd[rank][file].pc = 'X';
+		}
+		else if (p.dirs[j] & (1 << 4)) {
+			moves->brd[rank][file].pc = 'S';
+		}
+		else if (inrange(rank, file)) {
+			moves->brd[rank][file].pc = 'M';
+		}
 	}
 }
 
