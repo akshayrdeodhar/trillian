@@ -46,4 +46,7 @@ void menial_move(chessboard *board, chesset *set, move mv); /* simply move piece
 
 void check_manually(chesset s);
 
+void calculate_pins(chesset *set, chessboard ch, char color);
+
+void enumpins(chesset set);
 #endif

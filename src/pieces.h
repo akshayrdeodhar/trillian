@@ -11,7 +11,8 @@ typedef struct {
 	usint pin_dir;
 	usint dir_start, dir_incr, dir_end; /*Q-> 0, 1. R-> 0, 2. B-> 1, 2 */
 	position ps;
-	usint dirs[8]; /* w, nw, n, ne, e, se, s, sw */
+	usint dirs[8]; /* stores number of squares that piece can move in particular direction */
+	char end[8]; /* stores piece at the end of movement in direction */
 }piece;
 
 

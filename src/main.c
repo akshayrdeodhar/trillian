@@ -69,8 +69,6 @@ int main(int argc, char *argv[]) {
 #endif
 
 	calculate_all(&set, board);
-	check_manually(set);
-	verify_calculation(set, board);
 
 #if (DEBUG & DEBUG_CALCULATE)
 	verify_calculation(set, board);
@@ -78,18 +76,25 @@ int main(int argc, char *argv[]) {
 
 #if MAIN_LOOP
 	while(1) {
+
+		calculate_pins(&set, board, 'w');
+		calculate_pins(&set, board, 'b');
+		enumpins(set);
+
 		display(board, MOVES_MODE);
-		printf("COMMAND:");
+
+		fprintf(stderr, "COMMAND:");
 		readline(command, 32);
+
 		if (!(strcmp(command, "quit"))) {
-			verify_calculation(set, board);
+			/*verify_calculation(set, board);*/
 			return 0;
 		}
 		else {
 			mv = extract_move(command);
 			print_move(mv);
 			make_move(&board, &set, mv);
-			verify_interface(board, set);
+			/*verify_interface(board, set);*/
 			update_pieces(board, &set, mv);
 		}
 	}
