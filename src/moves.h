@@ -23,7 +23,7 @@ ssint rankincr(usint direction); /* return change 'rank' for unit movement in di
 
 int can_move(piece p, position sq, chessboard ch); /* problem: I don't know whether it is white to play or black to play */
 
-int can_slide(piece p, position sq); /* can piece 'p' slide to position sq */
+int can_attack(piece p, position ps); /* whether position ps is in piece p's ATTACK RANGE */
 
 void calculate_piece(piece *p, chessboard ch); /* calculate sliding movements in all directions of piece, store them in piece */
 
@@ -37,9 +37,9 @@ void update_pieces(chessboard board, chesset *set, move mv); /* if move affects 
 
 void update_piece(chessboard board, piece *p, move mv); /* if move affects a sliding piece, update it's slide */
 
-void verify_calculation(chesset set, chessboard board); /* enumerate stored sliding moves for checking- not to be used in main() */
+void debug_calculation(chesset set, chessboard board); /* enumerate stored sliding moves for checking- not to be used in main() */
 
-void verify_piece_calculations(chessboard *moves, piece p); /* enumerate moves of piece 'p' for visual checking- called from verify_calculations */
+void debug_piece_calculations(chessboard *moves, piece p); /* enumerate moves of piece 'p' for visual checking- called from debug_calculations */
 void make_move(chessboard *board, chesset *set, move mv); /* make move, modify state of board, set metadata modify indexes in case of kill*/
 
 void menial_move(chessboard *board, chesset *set, move mv); /* simply move piece on board, set position in piece (called by make_move) */

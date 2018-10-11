@@ -9,7 +9,7 @@
 #include "input.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
-#define DEBUG (0)
+#define DEBUG (DEBUG_CALCULATE)
 #define DEBUG_INTERFACE 1
 #define DEBUG_CALCULATE 2
 
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 	calculate_all(&set, board);
 
 #if (DEBUG & DEBUG_CALCULATE)
-	verify_calculation(set, board);
+	debug_calculation(set, board);
 #endif
 
 #if MAIN_LOOP
@@ -87,16 +87,16 @@ int main(int argc, char *argv[]) {
 		readline(command, 32);
 
 		if (!(strcmp(command, "quit"))) {
-			/*verify_calculation(set, board);*/
+			debug_calculation(set, board);
 			return 0;
 		}
-		else {
-			mv = extract_move(command);
-			print_move(mv);
-			make_move(&board, &set, mv);
-			/*verify_interface(board, set);*/
-			update_pieces(board, &set, mv);
-		}
+
+		mv = extract_move(command);
+		print_move(mv);
+		make_move(&board, &set, mv);
+
+		/*verify_interface(board, set);*/
+		update_pieces(board, &set, mv);
 	}
 #endif
 	return 0;

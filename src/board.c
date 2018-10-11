@@ -102,7 +102,7 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 	length = get_fentok(current, fenstring, 1);
 
 	if (!length) {
-		return 0;
+		goto handle;
 	}
 
 	for (j = 0; j < length; ++j) {
@@ -110,7 +110,7 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 			case '/':
 				if (file != 8) {
 					fprintf(stderr, "invalid fen string: invalid number of squares in row %d\n", rank + 1);
-					return 0;
+					goto handle;
 				}
 				--rank;
 				file = 0;
@@ -136,7 +136,7 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 				n = current[j] - '0';
 				if (n == 0 || n == 9) {
 					fprintf(stderr, "invalid fen string: invalid number of blank squares in row %d\n", rank + 1);
-					return 0;
+					goto handle;
 				}
 				for (i = 0; i < n; ++i) {
 					board->brd[rank][file].pc = (char)0;
@@ -146,40 +146,40 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 				break;
 
 			default:
-				fprintf(stderr, "invalid fen string: character not recognised\n");
+				fprintf(stderr, "invalid fen string: character '%c' not recognised\n", current[j]);
 				/* not in notation, exit */
-				return 0;
+				goto handle;
 				break;
 		}
 	}
 	if (!(kwf && kbf)) {
 		fprintf(stderr, "invalid fen string: board must have both white and black king\n");
-		return 0;
+		goto handle;
 	}
 	if (rank != 0) {
 		fprintf(stderr, "invalid fen string: invalid number of rows (%d)\n", rank + 1);
-		return 0;
+		goto handle;
 	}
 
 	length = get_fentok(current, fenstring, 0);
 
 	if (!length) {
 		fprintf(stderr, "Too less tokens\n");
-		return 0;
+		goto handle;
 	}
 
 	if ((current[0] == 'w' || current[0] == 'b') && length == 1) {
 		board->player = current[0];
 	}
 	else {
-		return 0;
+		goto handle;
 		fprintf(stderr, "Too less tokens\n");
 	}
 
 	length = get_fentok(current, fenstring, 0);
 
 	if (!length) {
-		return 0;
+		goto handle;
 	}
 
 	for (j = 0; j < length; ++j) {
@@ -190,7 +190,7 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 				}
 				else {
 					fprintf(stderr, "invalid castling token\n");
-					return 0;
+					goto handle;
 				}
 				break;
 
@@ -207,12 +207,12 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 				board->castling |= (1 << 2);
 				break;
 			default:
-				return 0;
+				goto handle;
 				break;
 		}
 	}
 	if (j > 4) {
-		return 0;
+		goto handle;
 	}
 
 	length = get_fentok(current, fenstring, 0);
@@ -229,39 +229,43 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 		}
 	}
 	else {
-		return 0;
+		goto handle;
 	}
 
 
 	length = get_fentok(current, fenstring, 0);
 
 	if (!length) {
-		return 0;
+		goto handle;
 	}
 
 	if ((number = safe_atoi(current)) > -1) {
 		board->halfmoves = (usint)number;
 	}
 	else {
-		return 0;
+		goto handle;
 	}
 
 
 	length = get_fentok(current, fenstring, 0);
 
 	if (!length) {
-		return 0;
+		goto handle;
 	}
 
 	if ((number = safe_atoi(current)) > -1) {
 		board->fullmoves = (usint)number;
 	}
 	else {
-		return 0;
+		goto handle;
 	}
 
 	free(current);
 	return 1;
+
+handle:
+	free(current);
+	return 0;
 }
 
 
