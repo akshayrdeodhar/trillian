@@ -9,7 +9,7 @@
 #include "input.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
-#define DEBUG (DEBUG_CALCULATE)
+#define DEBUG (0)
 #define DEBUG_INTERFACE 1
 #define DEBUG_CALCULATE 2
 
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 		readline(command, 32);
 
 		if (!(strcmp(command, "quit"))) {
-			debug_calculation(set, board);
+			attack_bitboard(set, board);
 			return 0;
 		}
 
@@ -96,6 +96,7 @@ int main(int argc, char *argv[]) {
 		make_move(&board, &set, mv);
 
 		/*verify_interface(board, set);*/
+		display(board, MOVES_MODE);
 		update_pieces(board, &set, mv);
 	}
 #endif

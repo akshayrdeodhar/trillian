@@ -49,4 +49,8 @@ void check_manually(chesset s);
 void calculate_pins(chesset *set, chessboard ch, char color);
 
 void enumpins(chesset set);
+
+void attack_moves(piece p, chessboard board);
+
+void attack_bitboard(chesset set, chessboard board);
 #endif
