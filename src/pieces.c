@@ -91,17 +91,15 @@ void interface_board_set(chessboard *board, chesset *set) {
 
 void show_set(chesset set) {
 	int i;
-	printf("\nWHITE\n");
+	printf("\nWHITE: %d\n", set.n_white);
 	for (i = 0; i < set.n_white; ++i) {
-		printf("Piece: %c\tPin_Status: %d\tDir_Start: %d\tDir_Incr = %d\tPosition: %c%c\n", set.whites[i].piece, set.whites[i].pin_dir, set.whites[i].dir_start, set.whites[i].dir_incr, set.whites[i].ps.file + 'a', set.whites[i].ps.rank + '1');
+		printf("Piece: %c\tPin: %d\tStart: %d\tIncr = %d\tEnd = %d\tPos: %c%c\n", set.whites[i].piece, set.whites[i].pin_dir, set.whites[i].dir_start, set.whites[i].dir_incr, set.whites[i].dir_end, set.whites[i].ps.file + 'a', set.whites[i].ps.rank + '1');
 	}
-	printf("\nBLACK\n");
+	printf("\nBLACK: %d\n", set.n_black);
 
 	for (i = 0; i < set.n_black; ++i) {
-		printf("Piece: %c\tPin_Status: %d\tDir_Start: %d\tDir_Incr = %d\tPosition: %c%c\n", set.blacks[i].piece, set.blacks[i].pin_dir, set.blacks[i].dir_start, set.blacks[i].dir_incr, set.blacks[i].ps.file + 'a', set.blacks[i].ps.rank + '1');
+		printf("Piece: %c\tPin: %d\tStart: %d\tIncr = %d\tEnd: %d\tPos: %c%c\n", set.blacks[i].piece, set.blacks[i].pin_dir, set.blacks[i].dir_start, set.blacks[i].dir_incr, set.whites[i].dir_incr, set.blacks[i].ps.file + 'a', set.blacks[i].ps.rank + '1');
 	}
-
-
 }
 
 void verify_interface(chessboard board, chesset set) {

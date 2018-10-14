@@ -23,6 +23,10 @@ typedef struct {
 
 	int n_black;
 	piece blacks[MAX_PIECES];
+
+	char threat_to;
+	position threat_source;
+	usint threat_count;
 }chesset;
 
 void interface_board_set(chessboard *board, chesset *set); /* sets 'indexes' in board, initialize pieces in chesset */

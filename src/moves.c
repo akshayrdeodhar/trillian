@@ -50,11 +50,11 @@
  * Validate a move
  * */
 
+
 int can_attack(piece p, position ps) {
 	usint direction;
 	usint dist;
 	movement sl;
-	usint rankinc, fileinc;
 
 	if (!inrange(ps.rank, ps.file)) {
 		/* not a valid square */
@@ -62,9 +62,6 @@ int can_attack(piece p, position ps) {
 	}
 	sl = find_movement(p.ps, ps);
 	direction = find_dir(sl);
-	
-	rankinc = rankincr(direction);
-	fileinc = fileincr(direction);
 
 	if (!((direction >= p.dir_start) && (direction <= p.dir_end) && ((direction - p.dir_start) % p.dir_incr == 0))) {
 		/* not in piece's direction */
@@ -96,15 +93,58 @@ int can_attack(piece p, position ps) {
 	return 1;
 }
 
-int can_move(piece p, position sq, chessboard ch) {
-	char piece = ch.brd[sq.file][sq.rank].pc;
-	if (!(inrange(sq.rank, sq.file) && (!piece || (isDifferent(p.piece, piece) && (piece != oppKing(p.piece)))))) {
+int vanilla_can_move(piece p, position ps) {
+	usint direction;
+	usint dist;
+	movement sl;
+
+	if (!inrange(ps.rank, ps.file)) {
+		/* not a valid square */
 		return 0;
 	}
-	/* in board, unoccupied or enemy piece */
-	/* TODO: Take pins int account */
-	return 0;
+	sl = find_movement(p.ps, ps);
+	direction = find_dir(sl);
+
+	if (!((direction >= p.dir_start) && (direction <= p.dir_end) && ((direction - p.dir_start) % p.dir_incr == 0))) {
+		/* not in piece's direction */
+		return 0;
+	}
+
+	if (direction < 8) {
+		dist = MAXMAG(sl.drank, sl.dfile);
+	}
+	else {
+		dist = 1;
+	}
+
+	if (!dist || dist > p.dirs[direction & 7]) {
+		/* not in calculated range or friendly file */
+		return 0;
+	}
+	else if (dist == p.dirs[direction & 7] && ((isSame(p.piece, p.end[direction & 7])) || oppKing(p.piece) == p.end[direction & 7])) {
+		/* friendly or enemy king */
+		return 0;
+	}
+	
+	if (toupper(p.piece) == 'P' && sl.dfile && !p.end[direction]) {
+		/* diagonal movement of pawn when there is no piece to be attacked */
+		return 0;
+	}
+
+	if (toupper(p.piece) == 'K') {
+		/* king moving into attacked square */
+		if (p.pin_dir & (1 << direction)) {
+			return 0;
+		}
+	}
+	else if ((p.pin_dir != DIR_NONE) && direction != p.pin_dir && oppDir(direction) != p.pin_dir) {
+		/* pinned piece moving along non-pinnned direction */
+		return 0;
+	}
+
+	return 1;
 }
+
 
 /* Movement and Direction Functions
  * find_movement (finds change in rank and file, returns in form of a 2-d vector)
@@ -342,7 +382,70 @@ void calculate_direction(piece *p, chessboard ch, usint direction) {
  * enumpins (displays list of pinned pieces (debugging?)
  * */
 
+void calculate_threats(chesset *set, char color) {
+	int n;
+	piece *enemy;
+	piece *king;
+	int i, j;
+	movement sl;
+	usint direction;
+	position neighbour;
 
+	set->threat_count = 0;
+	
+
+	if (color == 'w') {
+		enemy = set->blacks;
+		king = &(set->whites[0]);
+		n = set->n_black;
+		set->threat_to = 'w';
+	}
+	else if (color == 'b') {
+		enemy = set->whites;
+		king = &(set->blacks[0]);
+		n = set->n_white;
+		set->threat_to = 'b';
+	}
+	else {
+		return;
+	}
+	
+	king->pin_dir = 0; /* reset threat word */
+
+	/* checks */
+	for (i = 0; i < n; ++i) {
+		if (can_attack(enemy[i], king->ps)) {
+			set->threat_count += 1; /* count the number of pieces that are checking the king */
+			set->threat_source = enemy[i].ps; /* threat index will be overwritten in case of multiple checks, but then it is not useful anyway*/
+			/* if a sliding piece is checking the king,
+			 * the position in the direction opposite to the pin direction is also out of bounds
+			 * */
+			if (slidingPiece(enemy[i].piece)) {
+				sl = find_movement(king->ps, enemy[i].ps);
+				direction = find_dir(sl);
+				printf("Direction %d %d\n", direction, oppDir(direction));
+				if (direction < 8) {
+					king->pin_dir |= 1 << direction;
+					king->pin_dir |= 1 << oppDir(direction);
+				}
+			}
+		}
+	}
+
+	/* threats to neighbouring squares */
+	for (i = king->dir_start; i <= king->dir_end; i += king->dir_incr) {
+		for (j = 0; j < n; ++j) {
+			neighbour.rank = king->ps.rank + rankincr(i);
+			neighbour.file = king->ps.file + fileincr(i);
+
+			if (can_attack(enemy[j], neighbour)) {
+				king->pin_dir |= (1 << i); /* set the dir-th bit */
+				/*break;*/ /* it takes only one enemy attack to block a square */
+			}
+		}
+	}
+	printf("%x\n", king->pin_dir);
+}
 
 
 void calculate_pins(chesset *set, chessboard ch, char color) {
@@ -443,11 +546,16 @@ void update_pieces(chessboard board, chesset *set, move mv) {
 	
 	sq = board_position(board, mv.fin);
 	if (isWhite(sq.pc)) {
+		if (DEBUG_UPDATE & DEBUG_MOVES) {
 		printf(" Recalculating %c at %c%c\n", set->whites[(usint)sq.index].piece, mv.fin.file + 'a', mv.fin.rank + '1');
+		}
 		calculate_piece(&(set->whites[(usint)sq.index]), board);
 	}
 	else {
+		if (DEBUG_UPDATE & DEBUG_MOVES) {
+		printf(" Recalculating %c at %c%c\n", set->whites[(usint)sq.index].piece, mv.fin.file + 'a', mv.fin.rank + '1');
 		printf(" Recalculating %c at %c%c\n", set->blacks[(usint)sq.index].piece, mv.fin.file + 'a', mv.fin.rank + '1');
+		}
 		calculate_piece(&(set->blacks[(usint)sq.index]), board);
 	}
 
@@ -481,9 +589,6 @@ void update_piece(chessboard board, piece *p, move mv) {
 
 	dir1 = find_dir(sl1);
 	dir2 = find_dir(sl2);
-
-	printf(" %c%c to %c%c: dir = %d\n", pc.ps.file + 'a', pc.ps.rank + '1', mv.ini.file + 'a', mv.ini.rank + '1', dir1);
-	printf(" %c%c to %c%c: dir = %d\n", pc.ps.file + 'a', pc.ps.rank + '1', mv.fin.file + 'a', mv.fin.rank + '1', dir2);
 
 	if (DEBUG_MOVES & DEBUG_UPDATE) {
 		printf(" Updating %c: %d %d -> %d %d %d\n", pc.piece, dir1, dir2, dir_start, dir_incr, dir_end);
@@ -751,3 +856,68 @@ void attack_bitboard(chesset set, chessboard board) {
 	}
 }
 
+void show_threats(chesset set, chessboard board) {
+	int i;
+	piece king;
+	
+	chessboard threats = board;
+
+	if (set.threat_to == 'w') {
+		king = set.whites[0];
+	}
+	else if (set.threat_to == 'b') {
+		king = set.blacks[0];
+	}
+
+	for (i = king.dir_start; i <= king.dir_end; i += king.dir_incr) {
+		if (king.pin_dir & (1 << i)) {
+			putchar('1');
+			threats.brd[king.ps.rank + rankincr(i)][king.ps.file + fileincr(i)].pc = 'B';
+		}
+		putchar('0');
+	}
+	putchar('\n');
+
+	printf("Checks: %d\n", set.threat_count);
+	
+	if (set.threat_count == 1) {
+		printf("Single check from %c%c\n", set.threat_source.file + 'a', set.threat_source.rank + '1');
+		threats.brd[set.threat_source.rank][set.threat_source.file].pc = 'C';
+	}
+
+	display(board, MOVES_MODE);
+	display(threats, MOVES_MODE);
+}
+
+void moves(piece p, chessboard board) {
+	int file, rank;
+	chessboard moves;
+
+	position ps;
+
+	moves = board;
+	for (file = 0; file < 8; ++file) {
+		for (rank = 0; rank < 8; ++rank) {
+			ps.rank  = rank;
+			ps.file = file;
+			if (vanilla_can_move(p, ps)) {
+				moves.brd[rank][file].pc = 'M';
+			}
+		}
+	}
+
+	display(board, MOVES_MODE);
+	printf("Moves of %c at %c%c\n", p.piece, p.ps.file + 'a', p.ps.rank + '1');
+	display(moves, MOVES_MODE);
+}
+
+void moves_bitboard(chesset set, chessboard board) {
+	int i;
+	for (i = 0; i < set.n_white; ++i) {
+		moves(set.whites[i], board);
+	}
+
+	for (i = 0; i < set.n_black; ++i) {
+		moves(set.blacks[i], board);
+	}
+}

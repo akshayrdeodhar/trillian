@@ -79,7 +79,12 @@ int main(int argc, char *argv[]) {
 
 		calculate_pins(&set, board, 'w');
 		calculate_pins(&set, board, 'b');
-		enumpins(set);
+
+		calculate_threats(&set, 'w');
+		show_threats(set, board);
+		calculate_threats(&set, 'b');
+		show_threats(set, board);
+		
 
 		display(board, MOVES_MODE);
 
@@ -87,7 +92,8 @@ int main(int argc, char *argv[]) {
 		readline(command, 32);
 
 		if (!(strcmp(command, "quit"))) {
-			attack_bitboard(set, board);
+			enumpins(set);
+			moves_bitboard(set, board);
 			return 0;
 		}
 

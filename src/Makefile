@@ -1,4 +1,4 @@
-FLAGS = -Wall -std=c89 -fsanitize=address #-g
+FLAGS = -Wall -std=c89 -g #-fsanitize=address 
 REDIRECT = 2> errors.err
 
 try: main.o board.o display.o pieces.o moves.o input.o

@@ -40,6 +40,7 @@ void update_piece(chessboard board, piece *p, move mv); /* if move affects a sli
 void debug_calculation(chesset set, chessboard board); /* enumerate stored sliding moves for checking- not to be used in main() */
 
 void debug_piece_calculations(chessboard *moves, piece p); /* enumerate moves of piece 'p' for visual checking- called from debug_calculations */
+
 void make_move(chessboard *board, chesset *set, move mv); /* make move, modify state of board, set metadata modify indexes in case of kill*/
 
 void menial_move(chessboard *board, chesset *set, move mv); /* simply move piece on board, set position in piece (called by make_move) */
@@ -48,9 +49,17 @@ void check_manually(chesset s);
 
 void calculate_pins(chesset *set, chessboard ch, char color);
 
+void calculate_threats(chesset *set, char color);
+
 void enumpins(chesset set);
+
+void show_threats(chesset set, chessboard board);
 
 void attack_moves(piece p, chessboard board);
 
 void attack_bitboard(chesset set, chessboard board);
+
+void moves(piece p, chessboard board);
+
+void moves_bitboard(chesset set, chessboard board);
 #endif
