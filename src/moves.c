@@ -373,6 +373,11 @@ void calculate_direction(piece *p, chessboard ch, usint direction) {
 		}
 	}
 
+
+	if (ch.enpass_target.rank == rank && ch.enpass_target.file == file) {
+		end = 'P';
+	}
+
 	p->end[direction & 7] = end;
 	p->dirs[direction & 7] = (usint)i;
 }
