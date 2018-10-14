@@ -8,25 +8,28 @@ BOARD_H	board.h	2;"	d
 DEBUG	main.c	12;"	d	file:
 DEBUG_CALCULATE	main.c	14;"	d	file:
 DEBUG_CALCULATE	moves.c	13;"	d	file:
+DEBUG_END	main.c	16;"	d	file:
 DEBUG_INTERFACE	main.c	13;"	d	file:
 DEBUG_KILL	pieces.c	7;"	d	file:
 DEBUG_MOVES	moves.c	12;"	d	file:
 DEBUG_PIECES	pieces.c	6;"	d	file:
 DEBUG_PIN	moves.c	15;"	d	file:
+DEBUG_THREAT	main.c	15;"	d	file:
 DEBUG_UPDATE	moves.c	14;"	d	file:
+DEBUG_VALID	moves.c	16;"	d	file:
 DEFAULT_PATH	main.c	11;"	d	file:
 DEFS_H	defs.h	2;"	d
 DIR_NONE	moves.c	40;"	d	file:
 DIR_NONE	pieces.c	10;"	d	file:
 DISPLAY_h	display.h	2;"	d
 FEN_TOKENS	board.c	8;"	d	file:
-FLAGS	Makefile	/^FLAGS = -Wall -std=c89 -fsanitize=address$/;"	m
+FLAGS	Makefile	/^FLAGS = -Wall -std=c89 -g #-fsanitize=address $/;"	m
 INPUT_H	input.h	2;"	d
-MAIN_LOOP	main.c	16;"	d	file:
-MASK_BLACK_CASTLE	moves.c	44;"	d	file:
-MASK_WHITE_CASTLE	moves.c	45;"	d	file:
+MAIN_LOOP	main.c	18;"	d	file:
+MASK_BLACK_CASTLE	moves.c	43;"	d	file:
+MASK_WHITE_CASTLE	moves.c	44;"	d	file:
 MAX	input.h	4;"	d
-MAX	moves.c	47;"	d	file:
+MAXMAG	moves.c	46;"	d	file:
 MAX_PIECES	pieces.h	6;"	d
 MOVES_H	moves.h	2;"	d
 MOVES_MODE	display.h	7;"	d
@@ -34,6 +37,7 @@ NONE	board.h	7;"	d
 NONE_CO_ORD	board.h	8;"	d
 PIECES_H	pieces.h	2;"	d
 READ_MODE	display.h	6;"	d
+REDIRECT	Makefile	/^REDIRECT = 2> errors.err$/;"	m
 attack_bitboard	moves.c	/^void attack_bitboard(chesset set, chessboard board) {$/;"	f
 attack_moves	moves.c	/^void attack_moves(piece p, chessboard board) {$/;"	f
 blacks	pieces.h	/^	piece blacks[MAX_PIECES];$/;"	m	struct:__anon5
@@ -44,8 +48,9 @@ calculate_all	moves.c	/^void calculate_all(chesset *set, chessboard ch) {$/;"	f
 calculate_direction	moves.c	/^void calculate_direction(piece *p, chessboard ch, usint direction) {$/;"	f
 calculate_piece	moves.c	/^void calculate_piece(piece *p, chessboard ch){$/;"	f
 calculate_pins	moves.c	/^void calculate_pins(chesset *set, chessboard ch, char color) {$/;"	f
+calculate_threats	moves.c	/^void calculate_threats(chesset *set, char color) {$/;"	f
 can_attack	moves.c	/^int can_attack(piece p, position ps) {$/;"	f
-can_move	moves.c	/^int can_move(piece p, position sq, chessboard ch) {$/;"	f
+can_move	moves.c	/^int can_move(chessboard board, chesset set, move mv) {$/;"	f
 castling	board.h	/^	usint castling; \/* X X X X B-queenside B-kingside W-kingside W-queenside *\/$/;"	m	struct:__anon3
 check_manually	moves.c	/^void check_manually(chesset s) {$/;"	f
 chessboard	board.h	/^}chessboard;$/;"	t	typeref:struct:__anon3
@@ -54,7 +59,7 @@ command	input.h	/^typedef enum commandtype command;$/;"	t	typeref:enum:commandty
 commandtype	input.h	/^enum commandtype {$/;"	g
 debug_calculation	moves.c	/^void debug_calculation(chesset set, chessboard board) {$/;"	f
 debug_piece_calculations	moves.c	/^void debug_piece_calculations(chessboard *moves, piece p) {$/;"	f
-deltarank	moves.c	31;"	d	file:
+deltarank	moves.c	32;"	d	file:
 dfile	moves.h	/^	ssint dfile, drank;$/;"	m	struct:__anon6
 dir_end	pieces.h	/^	usint dir_start, dir_incr, dir_end; \/*Q-> 0, 1. R-> 0, 2. B-> 1, 2 *\/$/;"	m	struct:__anon4
 dir_incr	pieces.h	/^	usint dir_start, dir_incr, dir_end; \/*Q-> 0, 1. R-> 0, 2. B-> 1, 2 *\/$/;"	m	struct:__anon4
@@ -78,15 +83,15 @@ fullmoves	board.h	/^	usint fullmoves; \/* number of black moves *\/$/;"	m	struct
 game_ins	input.h	/^	game_ins,$/;"	e	enum:commandtype
 get_fentok	board.c	/^int get_fentok(char tok[], char str[], int reset) {$/;"	f
 halfmoves	board.h	/^	usint halfmoves; \/* number of non-pawn and non capture moves (for 50 move rule) *\/$/;"	m	struct:__anon3
-homerow	moves.c	33;"	d	file:
+homerow	moves.c	34;"	d	file:
 index	board.h	/^	ssint index; \/* index in piece array in set *\/$/;"	m	struct:__anon1
 ini	moves.h	/^	position ini;$/;"	m	struct:__anon7
 inrange	defs.h	12;"	d
 instruction	input.h	/^	usint instruction;$/;"	m	struct:__anon8
 interface_board_set	pieces.c	/^void interface_board_set(chessboard *board, chesset *set) {$/;"	f
 isBlack	defs.h	8;"	d
-isDifferent	moves.c	18;"	d	file:
-isSame	moves.c	17;"	d	file:
+isDifferent	moves.c	19;"	d	file:
+isSame	moves.c	18;"	d	file:
 isWhite	defs.h	7;"	d
 kill_piece	pieces.c	/^void kill_piece(chessboard *board, chesset *set, square sq) {$/;"	f
 main	main.c	/^int main(int argc, char *argv[]) {$/;"	f
@@ -96,12 +101,14 @@ mkpositive	moves.c	36;"	d	file:
 move	moves.h	/^}move;$/;"	t	typeref:struct:__anon7
 move_ins	input.h	/^	move_ins,$/;"	e	enum:commandtype
 movement	moves.h	/^}movement;$/;"	t	typeref:struct:__anon6
+moves	moves.c	/^void moves(piece p, chessboard board) {$/;"	f
+moves_bitboard	moves.c	/^void moves_bitboard(chesset set, chessboard board) {$/;"	f
 mv	input.h	/^	move mv;$/;"	m	struct:__anon8
 n_black	pieces.h	/^	int n_black;$/;"	m	struct:__anon5
 n_white	pieces.h	/^	int n_white;$/;"	m	struct:__anon5
-oppDir	moves.c	42;"	d	file:
-oppKing	moves.c	30;"	d	file:
-pawndir	moves.c	32;"	d	file:
+oppDir	moves.c	41;"	d	file:
+oppKing	moves.c	31;"	d	file:
+pawndir	moves.c	33;"	d	file:
 pc	board.h	/^	char pc; \/* representation of piece *\/$/;"	m	struct:__anon1
 piece	pieces.h	/^	char piece;$/;"	m	struct:__anon4
 piece	pieces.h	/^}piece;$/;"	t	typeref:struct:__anon4
@@ -116,14 +123,19 @@ readline	input.c	/^unsigned readline(char string[], unsigned maxlen) {$/;"	f
 safe_atoi	board.c	/^int safe_atoi(char string[]) {$/;"	f
 set_piece	pieces.c	/^void set_piece(piece *p, char pc, int rank, int file) {$/;"	f
 show_set	pieces.c	/^void show_set(chesset set) {$/;"	f
-slidingPiece	moves.c	19;"	d	file:
+show_threats	moves.c	/^void show_threats(chesset set, chessboard board) {$/;"	f
+slidingPiece	moves.c	20;"	d	file:
 square	board.h	/^}square;$/;"	t	typeref:struct:__anon1
 ssint	defs.h	/^typedef char ssint; \/* for changes in direction *\/$/;"	t
 string	input.h	/^	char string[MAX];$/;"	m	struct:__anon8
+threat_count	pieces.h	/^	usint threat_count;$/;"	m	struct:__anon5
+threat_source	pieces.h	/^	position threat_source;$/;"	m	struct:__anon5
+threat_to	pieces.h	/^	char threat_to;$/;"	m	struct:__anon5
 token	input.h	/^}token;$/;"	t	typeref:struct:__anon8
 update_piece	moves.c	/^void update_piece(chessboard board, piece *p, move mv) {$/;"	f
 update_pieces	moves.c	/^void update_pieces(chessboard board, chesset *set, move mv) {$/;"	f
 usint	defs.h	/^typedef unsigned char usint; \/* for rank and file, slide words *\/$/;"	t
 valid_enpass_square	board.c	9;"	d	file:
+vanilla_can_move	moves.c	/^int vanilla_can_move(piece p, position ps) {$/;"	f
 verify_interface	pieces.c	/^void verify_interface(chessboard board, chesset set) {$/;"	f
 whites	pieces.h	/^	piece whites[MAX_PIECES];$/;"	m	struct:__anon5

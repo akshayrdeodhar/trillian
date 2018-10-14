@@ -9,9 +9,11 @@
 #include "input.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
-#define DEBUG (0)
+#define DEBUG (DEBUG_THREAT)
 #define DEBUG_INTERFACE 1
 #define DEBUG_CALCULATE 2
+#define DEBUG_THREAT 4
+#define DEBUG_END 8
 
 #define MAIN_LOOP 1
 
@@ -73,37 +75,65 @@ int main(int argc, char *argv[]) {
 #if (DEBUG & DEBUG_CALCULATE)
 	debug_calculation(set, board);
 #endif
+	calculate_pins(&set, board, 'w');
+	calculate_pins(&set, board, 'b');
+
+	calculate_threats(&set, board.player);
+
+	if (DEBUG & DEBUG_THREAT) {
+		show_threats(set, board);
+	}
+#if 0
+	calculate_threats(&set, 'b');
+
+	if (DEBUG & DEBUG_THREAT) {
+		show_threats(set, board);
+	}
+#endif
 
 #if MAIN_LOOP
 	while(1) {
-
-		calculate_pins(&set, board, 'w');
-		calculate_pins(&set, board, 'b');
-
-		calculate_threats(&set, 'w');
-		show_threats(set, board);
-		calculate_threats(&set, 'b');
-		show_threats(set, board);
-		
-
-		display(board, MOVES_MODE);
 
 		fprintf(stderr, "COMMAND:");
 		readline(command, 32);
 
 		if (!(strcmp(command, "quit"))) {
-			enumpins(set);
-			moves_bitboard(set, board);
+			if (DEBUG & DEBUG_END) {
+				enumpins(set);
+				moves_bitboard(set, board);
+			}
 			return 0;
 		}
 
 		mv = extract_move(command);
 		print_move(mv);
+		if (!can_move(board, set, mv)) {
+			fprintf(stderr, "Invalid Move\n");
+			continue;
+		}
+
 		make_move(&board, &set, mv);
 
 		/*verify_interface(board, set);*/
-		display(board, MOVES_MODE);
+		display(board, READ_MODE);
+
 		update_pieces(board, &set, mv);
+
+		calculate_pins(&set, board, 'w');
+		calculate_pins(&set, board, 'b');
+
+		calculate_threats(&set, board.player);
+
+		if (DEBUG & DEBUG_THREAT) {
+			show_threats(set, board);
+		}
+#if 0
+		calculate_threats(&set, 'b');
+
+		if (DEBUG & DEBUG_THREAT) {
+			show_threats(set, board);
+		}
+#endif
 	}
 #endif
 	return 0;

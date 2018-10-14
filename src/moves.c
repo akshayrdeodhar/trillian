@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "moves.h"
 #include "board.h"
@@ -13,6 +14,8 @@
 #define DEBUG_CALCULATE (1 << 1)
 #define DEBUG_UPDATE (1 << 0)
 #define DEBUG_PIN (1 << 2)
+#define DEBUG_VALID (1 << 3)
+#define DEBUG_THREAT (1 << 4)
 
 #define isSame(p, q) ((isWhite(p) && isWhite(q)) || (isBlack(p) && isBlack(q))) /* p, q SAN chars */
 #define isDifferent(p, q) ((isWhite(p) && isBlack(q)) || (isBlack(p) && isWhite(q))) /* p, q SAN chars */
@@ -32,13 +35,12 @@
 #define pawndir(p, dir) (isWhite(p) ? (dir == 1 || dir == 2 || dir || 3) : (dir == 5 || dir == 6 || dir == 7)) /* p SAN char -> pawn, dir directoin (as defined in xincr, yincr */
 #define homerow(p) (p == 'P' ? 1 : (p == 'p') ? 6 : SCHAR_MIN)
 
-
 #define mkpositive(u) (u > 0 ? u : (-u)) /* u is any number */
 #define dist(sl) mkpositive((sl.drank != 0 ? sl.drank : sl.dfile)) /* slide_distance in direction. sl is movement (i.e slope-like quantity */
+#define euclidian(sl) (sqrt(sl.drank * sl.drank + sl.dfile * sl.dfile))
 
 /* direction macros */
 #define DIR_NONE 16
-
 #define oppDir(d) ((d + 4) & 7) /* d is direction as defined - CAUTION: Not used for Knight */
 
 #define MASK_BLACK_CASTLE (3 << 0) /* q k Q K  are the 4 castling bits in an unsigned number */
@@ -93,6 +95,9 @@ int can_attack(piece p, position ps) {
 	return 1;
 }
 
+/* checks whether piece movement to position is a legal move
+ * does not consider whether king is in check 
+ * */
 int vanilla_can_move(piece p, position ps) {
 	usint direction;
 	usint dist;
@@ -145,6 +150,48 @@ int vanilla_can_move(piece p, position ps) {
 	return 1;
 }
 
+int can_move(chessboard board, chesset set, move mv) {
+	piece p, king;
+	square sq;
+
+	sq = board.brd[mv.ini.rank][mv.ini.file];
+
+	if (isWhite(sq.pc) && board.player == 'w') {
+		p = set.whites[(usint)sq.index];
+		king = set.whites[0];
+	}
+	else if (isBlack(sq.pc) && board.player == 'b') {
+		p = set.blacks[(usint)sq.index];
+		king = set.blacks[0];
+	}
+	else {
+		/* no piece or trying to control opponents piece */
+		fprintf(stderr, "Trying to control opponent's piece\n");
+		return 0;
+	}
+
+	if (set.threat_to == board.player && set.threat_count && toupper(p.piece) != 'K') {
+		/* king in check and another piece moving */
+		if (set.threat_count == 1) {
+			movement king_to_piece = find_movement(king.ps, mv.fin);
+			movement piece_to_threat = find_movement(mv.fin, set.threat_source);
+			movement king_to_threat = find_movement(king.ps, set.threat_source);
+			if (euclidian(king_to_piece) + euclidian(piece_to_threat) != euclidian(king_to_threat)) {
+				/* if the king, the piece and the threat are not in a straight line :) :) :) */
+				fprintf(stderr, "King in check\n");
+				return 0;
+			}
+		}
+		else {
+			/* multiple checks and king not moving */
+			fprintf(stderr, "King in multiple checks\n");
+			return 0;
+		}
+	}
+
+	return vanilla_can_move(p, mv.fin);
+}
+	
 
 /* Movement and Direction Functions
  * find_movement (finds change in rank and file, returns in form of a 2-d vector)
@@ -643,13 +690,6 @@ void make_move(chessboard *board, chesset *set, move mv) {
 
 	/* move piece on board, update index on board, update piece position */
 
-	/*  A MONUMENT TO MY STUPIDITY: 
-	    menial_move(board, set, mv);
-
-	    square from = board->brd[mv.ini.rank][mv.ini.file];
-	    square to = board->brd[mv.fin.rank][mv.fin.file];
-	    */
-
 	/* castling is a king move, but the rook must also be moved 
 	 * Should I instead use a seperate function handle_castle() ? TODO
 	 * */
@@ -679,7 +719,6 @@ void make_move(chessboard *board, chesset *set, move mv) {
 	else {
 		printf("Not Castling\n");
 	}
-
 
 	/* flip color */
 	board->player = (board->player == 'w') ? 'b' : 'w';
@@ -876,22 +915,22 @@ void show_threats(chesset set, chessboard board) {
 
 	for (i = king.dir_start; i <= king.dir_end; i += king.dir_incr) {
 		if (king.pin_dir & (1 << i)) {
-			putchar('1');
 			threats.brd[king.ps.rank + rankincr(i)][king.ps.file + fileincr(i)].pc = 'B';
 		}
-		putchar('0');
 	}
-	putchar('\n');
 
+	printf("Threat To: %s\n", set.threat_to == 'w' ? "White" : "Black");
 	printf("Checks: %d\n", set.threat_count);
 	
 	if (set.threat_count == 1) {
 		printf("Single check from %c%c\n", set.threat_source.file + 'a', set.threat_source.rank + '1');
 		threats.brd[set.threat_source.rank][set.threat_source.file].pc = 'C';
 	}
-
+	
+	if (DEBUG_THREAT & DEBUG_MOVES) {
 	display(board, MOVES_MODE);
 	display(threats, MOVES_MODE);
+	}
 }
 
 void moves(piece p, chessboard board) {

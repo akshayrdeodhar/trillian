@@ -21,9 +21,9 @@ ssint fileincr(usint direction); /* returns change in 'file' for unit movement i
 
 ssint rankincr(usint direction); /* return change 'rank' for unit movement in direction */
 
-int can_move(piece p, position sq, chessboard ch); /* problem: I don't know whether it is white to play or black to play */
-
 int can_attack(piece p, position ps); /* whether position ps is in piece p's ATTACK RANGE */
+
+int can_move(chessboard board, chesset set, move mv);
 
 void calculate_piece(piece *p, chessboard ch); /* calculate sliding movements in all directions of piece, store them in piece */
 
