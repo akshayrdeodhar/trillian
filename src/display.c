@@ -39,5 +39,22 @@ void display(chessboard board, int mode) {
 	if (mode == READ_MODE) {
 
 		printf("Meta:%c %c%c %d %d\n\n", board.player, board.enpass_target.file + 'a', board.enpass_target.rank + '1', board.halfmoves, board.fullmoves);
+		printf("Castling: ");
+		if (board.castling & (1 << white_kingside)) {
+			putchar('K');
+		}
+		if (board.castling & (1 << white_queenside)) {
+			putchar('Q');
+		}
+		if (board.castling & (1 << black_kingside)) {
+			putchar('k');
+		}
+		if (board.castling & (1 << black_queenside)) {
+			putchar('q');
+		}
+		if (!board.castling) {
+			putchar('-');
+		}
+		putchar('\n');
 	}
 }

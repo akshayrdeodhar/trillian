@@ -195,16 +195,16 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 				break;
 
 			case 'K':
-				board->castling |= (1 << 1);
+				board->castling |= (1 << white_kingside);
 				break;
 			case 'k':
-				board->castling |= (1 << 3);
+				board->castling |= (1 << black_kingside);
 				break;
 			case 'Q':
-				board->castling |= (1 << 0);
+				board->castling |= (1 << white_queenside);
 				break;
 			case 'q':
-				board->castling |= (1 << 2);
+				board->castling |= (1 << black_queenside);
 				break;
 			default:
 				goto handle;

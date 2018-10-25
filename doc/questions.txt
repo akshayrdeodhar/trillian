@@ -175,3 +175,7 @@ The dirs[] array can be used for king to track pins as well as occupied-ness
 of surrounding squares. (3 bits for attacked / friendly piece code) 
 For the knight, most of the space will be wasted- 4 bits: unnocupied,
     friendly, not in range, enemy
+
+Q16. How to hunt bugs?
+I wish I knew. A couple of elementary mistakes destroy days. "Think Twice Code
+Once"

@@ -10,12 +10,14 @@
 #include "display.h"
 
 /* compilation macros */
-#define DEBUG_MOVES (0)
+#define DEBUG_MOVES (DEBUG_PIN | DEBUG_THREAT)
 #define DEBUG_CALCULATE (1 << 1)
 #define DEBUG_UPDATE (1 << 0)
 #define DEBUG_PIN (1 << 2)
 #define DEBUG_VALID (1 << 3)
 #define DEBUG_THREAT (1 << 4)
+
+#define OLD_CASTLE (0)
 
 #define isSame(p, q) ((isWhite(p) && isWhite(q)) || (isBlack(p) && isBlack(q))) /* p, q SAN chars */
 #define isDifferent(p, q) ((isWhite(p) && isBlack(q)) || (isBlack(p) && isWhite(q))) /* p, q SAN chars */
@@ -47,6 +49,69 @@
 #define MASK_WHITE_CASTLE (3 << 2)
 
 #define MAXMAG(a, b) (mkpositive(a) > mkpositive(b) ? mkpositive(a) : mkpositive(b))
+
+#define posequal(pos1, pos2) (pos1.rank == pos2.rank && pos1.file == pos2.file)
+#define movesequal(mv1, mv2) (posequal(mv1.ini, mv2.ini) && posequal(mv1.fin, mv2.fin))
+
+/* CASTLING FUNCTIONS:
+ * castle_move() checks whether move is castling, and returns typed
+ * can_castle() checks whether particular castling move is allowed
+ * */
+
+/* the 4 castle moves. also used for validation */
+const static move king_castle_moves[] = {
+		{{0, 4}, {0, 6}},
+		{{0, 4}, {0, 2}},
+		{{7, 4}, {7, 6}}, 
+		{{7, 4}, {7, 2}}
+};
+
+castle_move check_castling(square sq, move mv) {
+	move temp;
+	int i;
+
+	printf("Called\n");
+	if (!(toupper(sq.pc) == 'K')) {
+		return none;
+	}
+		/* if piece is king */
+	for (i = white_kingside; i <= black_queenside; ++i) {
+		printf("Checking %d\n", i);
+		/* if move is one of the 4 possible castling moves */
+		temp = king_castle_moves[i - 1];
+		if (movesequal(mv, temp)) {
+			/* return castling code */
+			printf("Castling: %d\n", i);
+			return i;
+		}
+	}
+
+	/* not a castling move */
+	return none;
+}
+
+int can_castle(chessboard board, chesset set, castle_move castle) {
+	return 1;
+}
+
+move rook_move(castle_move king_castle) {
+	const static move rook_castle_moves[] = {
+		{{0, 7}, {0, 5}},
+		{{0, 0}, {0, 3}},
+		{{7, 7}, {7, 5}}, 
+		{{7, 0}, {7, 3}},
+		{{8, 8}, {8, 8}} /* for invalid input */
+	};
+
+#define INVALID_CASTLE 4
+	if (!king_castle) {
+		return rook_castle_moves[INVALID_CASTLE];
+	}
+	return rook_castle_moves[king_castle - 1];
+}
+
+
+
 
 /* CHECKING Functions: 
  * Validate a move
@@ -80,7 +145,7 @@ int can_attack(piece p, position ps) {
 	if (!dist) {
 		return 0;
 	}
-	
+
 	if (dist > p.dirs[direction & 7]) {
 		/* not in calculated range */
 		return 0;
@@ -130,7 +195,7 @@ int vanilla_can_move(piece p, position ps) {
 		/* friendly or enemy king */
 		return 0;
 	}
-	
+
 	if (toupper(p.piece) == 'P' && sl.dfile && !p.end[direction]) {
 		/* diagonal movement of pawn when there is no piece to be attacked */
 		return 0;
@@ -152,6 +217,7 @@ int vanilla_can_move(piece p, position ps) {
 
 int can_move(chessboard board, chesset set, move mv) {
 	piece p, king;
+	castle_move castle;
 	square sq;
 
 	sq = board.brd[mv.ini.rank][mv.ini.file];
@@ -189,9 +255,14 @@ int can_move(chessboard board, chesset set, move mv) {
 		}
 	}
 
+	castle = check_castling(board.brd[mv.ini.rank][mv.ini.file], mv);
+	if (castle) {
+		return can_castle(board, set, castle);
+	}
+
 	return vanilla_can_move(p, mv.fin);
 }
-	
+
 
 /* Movement and Direction Functions
  * find_movement (finds change in rank and file, returns in form of a 2-d vector)
@@ -444,7 +515,7 @@ void calculate_threats(chesset *set, char color) {
 	position neighbour;
 
 	set->threat_count = 0;
-	
+
 
 	if (color == 'w') {
 		enemy = set->blacks;
@@ -461,7 +532,7 @@ void calculate_threats(chesset *set, char color) {
 	else {
 		return;
 	}
-	
+
 	king->pin_dir = 0; /* reset threat word */
 
 	/* checks */
@@ -530,7 +601,7 @@ void calculate_pins(chesset *set, chessboard ch, char color) {
 		n = set->n_black;
 	}
 
-	for (i = 0; i < n; ++i) {
+	for (i = 1; i < n; ++i) {
 		friend[i].pin_dir = DIR_NONE;
 	}
 
@@ -595,18 +666,17 @@ void calculate_pins(chesset *set, chessboard ch, char color) {
 void update_pieces(chessboard board, chesset *set, move mv) {
 	usint i;
 	square sq;
-	
+
 	sq = board_position(board, mv.fin);
 	if (isWhite(sq.pc)) {
 		if (DEBUG_UPDATE & DEBUG_MOVES) {
-		printf(" Recalculating %c at %c%c\n", set->whites[(usint)sq.index].piece, mv.fin.file + 'a', mv.fin.rank + '1');
+			printf(" Recalculating %c at %c%c\n", set->whites[(usint)sq.index].piece, mv.fin.file + 'a', mv.fin.rank + '1');
 		}
 		calculate_piece(&(set->whites[(usint)sq.index]), board);
 	}
 	else {
 		if (DEBUG_UPDATE & DEBUG_MOVES) {
-		printf(" Recalculating %c at %c%c\n", set->whites[(usint)sq.index].piece, mv.fin.file + 'a', mv.fin.rank + '1');
-		printf(" Recalculating %c at %c%c\n", set->blacks[(usint)sq.index].piece, mv.fin.file + 'a', mv.fin.rank + '1');
+			printf(" Recalculating %c at %c%c\n", set->blacks[(usint)sq.index].piece, mv.fin.file + 'a', mv.fin.rank + '1');
 		}
 		calculate_piece(&(set->blacks[(usint)sq.index]), board);
 	}
@@ -620,7 +690,7 @@ void update_pieces(chessboard board, chesset *set, move mv) {
 		update_piece(board, &(set->blacks[i]), mv);		
 	}
 
-	
+
 
 }
 
@@ -678,18 +748,24 @@ void update_piece(chessboard board, piece *p, move mv) {
  * and the metadata is is handled by the function itself.
  * TODO: Better Ideas ?
  * */
-void make_move(chessboard *board, chesset *set, move mv) {
+castle_move make_move(chessboard *board, chesset *set, move mv) {
 
 	/* this is done only to shut the warning up. there is a guarentee that if castling happens, castle_rook WILL be set to a proper value */
+#if OLD_CASTLE
 	move castle_rook = mv;
+#endif
+	castle_move castle;
 
 	square from = board->brd[mv.ini.rank][mv.ini.file];
 	square to = board->brd[mv.fin.rank][mv.fin.file];
+
+	castle = check_castling(from, mv);
 
 	menial_move(board, set, mv);
 
 	/* move piece on board, update index on board, update piece position */
 
+#if OLD_CASTLE
 	/* castling is a king move, but the rook must also be moved 
 	 * Should I instead use a seperate function handle_castle() ? TODO
 	 * */
@@ -719,6 +795,7 @@ void make_move(chessboard *board, chesset *set, move mv) {
 	else {
 		printf("Not Castling\n");
 	}
+#endif
 
 	/* flip color */
 	board->player = (board->player == 'w') ? 'b' : 'w';
@@ -738,6 +815,8 @@ void make_move(chessboard *board, chesset *set, move mv) {
 		/* restart doomsday clock ? more like boringday clock */
 		board->halfmoves = 0;
 	}
+
+	return castle;
 }
 
 void menial_move(chessboard *board, chesset *set, move mv) {
@@ -903,7 +982,7 @@ void attack_bitboard(chesset set, chessboard board) {
 void show_threats(chesset set, chessboard board) {
 	int i;
 	piece king;
-	
+
 	chessboard threats = board;
 
 	if (set.threat_to == 'w') {
@@ -915,21 +994,23 @@ void show_threats(chesset set, chessboard board) {
 
 	for (i = king.dir_start; i <= king.dir_end; i += king.dir_incr) {
 		if (king.pin_dir & (1 << i)) {
-			threats.brd[king.ps.rank + rankincr(i)][king.ps.file + fileincr(i)].pc = 'B';
+			if (inrange(king.ps.rank + rankincr(i), king.ps.file + fileincr(i))) {
+				threats.brd[king.ps.rank + rankincr(i)][king.ps.file + fileincr(i)].pc = 'B';
+			}
 		}
 	}
 
 	printf("Threat To: %s\n", set.threat_to == 'w' ? "White" : "Black");
 	printf("Checks: %d\n", set.threat_count);
-	
+
 	if (set.threat_count == 1) {
 		printf("Single check from %c%c\n", set.threat_source.file + 'a', set.threat_source.rank + '1');
 		threats.brd[set.threat_source.rank][set.threat_source.file].pc = 'C';
 	}
-	
+
 	if (DEBUG_THREAT & DEBUG_MOVES) {
-	display(board, MOVES_MODE);
-	display(threats, MOVES_MODE);
+		display(board, MOVES_MODE);
+		display(threats, MOVES_MODE);
 	}
 }
 
@@ -965,3 +1046,5 @@ void moves_bitboard(chesset set, chessboard board) {
 		moves(set.blacks[i], board);
 	}
 }
+
+

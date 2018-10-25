@@ -1,6 +1,6 @@
-FLAGS = -Wall -std=c89 -g #-fsanitize=address 
+FLAGS = -Wall -std=c89 -fsanitize=address 
 MATH = -lm
-REDIRECT = 2> errors.err
+REDIRECT = #2> errors.err
 
 try: main.o board.o display.o pieces.o moves.o input.o
 	gcc main.o board.o display.o pieces.o moves.o input.o $(FLAGS) $(MATH) -o try $(REDIRECT)

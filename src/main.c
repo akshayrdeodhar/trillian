@@ -9,7 +9,7 @@
 #include "input.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
-#define DEBUG (DEBUG_THREAT)
+#define DEBUG (DEBUG_THREAT | DEBUG_END)
 #define DEBUG_INTERFACE 1
 #define DEBUG_CALCULATE 2
 #define DEBUG_THREAT 4
@@ -20,7 +20,7 @@
 int main(int argc, char *argv[]) {
 
 	char command[32];
-	move mv;
+	move mv, rook_castle;
 
 	if (argc > 2) {
 		fprintf(stderr, "usage: ./chess <file.fen>\n");
@@ -54,6 +54,8 @@ int main(int argc, char *argv[]) {
 	}
 	chessboard board;
 	chesset set;
+	castle_move castle;
+
 	if (fenstring_to_board(&board, string)) {
 		printf("Impossible:\n");
 		display(board, READ_MODE);
@@ -112,12 +114,24 @@ int main(int argc, char *argv[]) {
 			continue;
 		}
 
-		make_move(&board, &set, mv);
+		castle = make_move(&board, &set, mv);
+
+
+		if (castle) {
+			rook_castle = rook_move(castle);
+			menial_move(&board, &set, rook_castle);
+			update_pieces(board, &set, rook_castle);
+		}
+		
+		update_pieces(board, &set, mv);
+
+		if (castle) {
+			moves_bitboard(set, board);
+		}
 
 		/*verify_interface(board, set);*/
 		display(board, READ_MODE);
 
-		update_pieces(board, &set, mv);
 
 		calculate_pins(&set, board, 'w');
 		calculate_pins(&set, board, 'b');
