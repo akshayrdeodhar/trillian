@@ -720,13 +720,18 @@ void calculate_pins(chesset *set, chessboard ch, char color) {
 	int oppdir;
 
 	piece p;
-	piece *friend;
-	piece *enemy;
+	/* just to shut up errors */
+	p.ps.rank = p.ps.file = 8; 
+	p.dir_start = p.dir_end = p.dir_incr = 8;
+	p.piece = '\0';
+	/* end of shutup_errors */
+	piece *friend = NULL;
+	piece *enemy = NULL;
 	usint rank, file;
 
 	int friendly_count = 0;
 	int friendly_index;
-	int n;
+	int n = 0;
 
 	square pinning_square;
 	piece adversary;
@@ -1129,6 +1134,9 @@ void attack_bitboard(chesset set, chessboard board) {
 void show_threats(chesset set, chessboard board) {
 	int i;
 	piece king;
+	/* shut up errors */
+	king.dir_start = king.dir_end = king.dir_incr = 8;
+	/* end of shutup errors */
 
 	chessboard threats = board;
 
