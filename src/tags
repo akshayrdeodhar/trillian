@@ -24,9 +24,9 @@ DIR_NONE	moves.c	45;"	d	file:
 DIR_NONE	pieces.c	10;"	d	file:
 DISPLAY_h	display.h	2;"	d
 FEN_TOKENS	board.c	8;"	d	file:
-FLAGS	Makefile	/^FLAGS = -Wall -std=c89 -g #-fsanitize=address $/;"	m
+FLAGS	Makefile	/^FLAGS = -Wall -std=c89 -fsanitize=address $/;"	m
 INPUT_H	input.h	2;"	d
-INVALID_CASTLE	moves.c	104;"	d	file:
+INVALID_CASTLE	moves.c	129;"	d	file:
 MAIN_LOOP	main.c	18;"	d	file:
 MASK_BLACK_CASTLE	moves.c	48;"	d	file:
 MASK_WHITE_CASTLE	moves.c	49;"	d	file:
@@ -41,7 +41,7 @@ NONE_CO_ORD	board.h	8;"	d
 OLD_CASTLE	moves.c	20;"	d	file:
 PIECES_H	pieces.h	2;"	d
 READ_MODE	display.h	6;"	d
-REDIRECT	Makefile	/^REDIRECT = 2> errors.err$/;"	m
+REDIRECT	Makefile	/^REDIRECT = #2> errors.err$/;"	m
 attack_bitboard	moves.c	/^void attack_bitboard(chesset set, chessboard board) {$/;"	f
 attack_moves	moves.c	/^void attack_moves(piece p, chessboard board) {$/;"	f
 black_kingside	defs.h	/^	black_kingside = 3,$/;"	e	enum:castle_move
@@ -61,7 +61,7 @@ can_move	moves.c	/^int can_move(chessboard board, chesset set, move mv) {$/;"	f
 castle_move	defs.h	/^typedef enum castle_move {$/;"	g
 castle_move	defs.h	/^}castle_move;$/;"	t	typeref:enum:castle_move
 castling	board.h	/^	usint castling; \/* X X X X B-queenside B-kingside W-kingside W-queenside *\/$/;"	m	struct:__anon3
-check_castling	moves.c	/^castle_move check_castling(chessboard board, move mv) {$/;"	f
+check_castling	moves.c	/^castle_move check_castling(square sq, move mv) {$/;"	f
 check_manually	moves.c	/^void check_manually(chesset s) {$/;"	f
 chessboard	board.h	/^}chessboard;$/;"	t	typeref:struct:__anon3
 chesset	pieces.h	/^}chesset;$/;"	t	typeref:struct:__anon5
@@ -107,7 +107,7 @@ isWhite	defs.h	17;"	d
 kill_piece	pieces.c	/^void kill_piece(chessboard *board, chesset *set, square sq) {$/;"	f
 king_castle_moves	moves.c	/^const static move king_castle_moves[] = {$/;"	v	file:
 main	main.c	/^int main(int argc, char *argv[]) {$/;"	f
-make_move	moves.c	/^void make_move(chessboard *board, chesset *set, move mv) {$/;"	f
+make_move	moves.c	/^castle_move make_move(chessboard *board, chesset *set, move mv) {$/;"	f
 menial_move	moves.c	/^void menial_move(chessboard *board, chesset *set, move mv) {$/;"	f
 mkpositive	moves.c	40;"	d	file:
 move	moves.h	/^}move;$/;"	t	typeref:struct:__anon7
@@ -135,6 +135,7 @@ ps	pieces.h	/^	position ps;$/;"	m	struct:__anon4
 rank	board.h	/^	usint rank, file;$/;"	m	struct:__anon2
 rankincr	moves.c	/^ssint rankincr(usint direction) {$/;"	f
 readline	input.c	/^unsigned readline(char string[], unsigned maxlen) {$/;"	f
+rook_castle_moves	moves.c	/^const static move rook_castle_moves[] = {$/;"	v	file:
 rook_move	moves.c	/^move rook_move(castle_move king_castle) {$/;"	f
 safe_atoi	board.c	/^int safe_atoi(char string[]) {$/;"	f
 set_piece	pieces.c	/^void set_piece(piece *p, char pc, int rank, int file) {$/;"	f
@@ -148,6 +149,7 @@ threat_count	pieces.h	/^	usint threat_count;$/;"	m	struct:__anon5
 threat_source	pieces.h	/^	position threat_source;$/;"	m	struct:__anon5
 threat_to	pieces.h	/^	char threat_to;$/;"	m	struct:__anon5
 token	input.h	/^}token;$/;"	t	typeref:struct:__anon8
+update_castling	moves.c	/^void update_castling(chessboard *board, move mv) {$/;"	f
 update_piece	moves.c	/^void update_piece(chessboard board, piece *p, move mv) {$/;"	f
 update_pieces	moves.c	/^void update_pieces(chessboard board, chesset *set, move mv) {$/;"	f
 usint	defs.h	/^typedef unsigned char usint; \/* for rank and file, slide words *\/$/;"	t

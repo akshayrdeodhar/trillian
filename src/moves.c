@@ -169,7 +169,7 @@ int can_castle(chessboard board, chesset set, castle_move castle) {
 
 	for (slide_square.file = king_move.ini.file; slide_square.file <= king_move.fin.file; slide_square.file += fileinc) {
 		for (i = 0; i < n; ++i) {
-			if (can_attack(enemy[i], slide_square)) {
+			if (can_attack(enemy[i], slide_square) || board.brd[slide_square.rank][slide_square.file].pc) {
 				if (DEBUG_CASTLE) {
 					printf("%c%c attacked by %c\n", slide_square.file + 'a', slide_square.rank + '1', enemy[i].piece);
 				}
@@ -615,7 +615,10 @@ int is_checkmate(chessboard board, chesset set) {
 		return 0;
 	}
 
-	for (king.dir_start = 0; i <= king.dir_end; i += king.dir_incr) {
+	printf("PIN_DIR:");
+	show_register(king.pin_dir);
+
+	for (i = king.dir_start; i <= king.dir_end; i += king.dir_incr) {
 		if ((!(king.pin_dir & (1 << i))) && king.dirs[i & 7] && (!isSame(king.piece, king.end[i & 7]))) {
 			/* not attacked, not unavailable, and not friendly -> escape available */
 			return 0;
@@ -1201,6 +1204,7 @@ void show_register(usint word) {
 			putchar('0');
 		}
 	}
+	putchar('\n');
 }
 
 
