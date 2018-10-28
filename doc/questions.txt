@@ -179,3 +179,32 @@ For the knight, most of the space will be wasted- 4 bits: unnocupied,
 Q16. How to hunt bugs?
 I wish I knew. A couple of elementary mistakes destroy days. "Think Twice Code
 Once"
+
+Q17. Is castling legal if ROOK is attacked?
+A: Yes. Only the squares which the king moves through should not be attacked
+https://en.wikipedia.org/wiki/Castling
+
+Q18. Should I break the encapsulation to optimize the code ?
+When checking for checkmate, I can do 
+a. call can_move for all squares around the king
+b. check all the squares manually
+
+Similarly, for possible piece movement, I can call
+a. can_move for all squares in check slide
+b. see the squares stored in the piece manually
+
+I know that all that if-else need not run for this, as I don't need to perform
+wrapper checks- I am generating the possible moves myself rather than taking
+input from the user.
+But this will require me to write repetitive code
+
+
+	code not required | code required   <- can_move
+              |			 |
+without calling this   <----cannot call this
+
+But if I do this manually, then I will again need to write the same
+(code_required code)
+ANS: I will call can_move(). who will write the same code again? 
+&&** optimization, that's what I say (&&** means 'burn')
+

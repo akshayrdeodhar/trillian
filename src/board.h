@@ -23,7 +23,7 @@ typedef struct {
 typedef struct {
 	square brd[8][8]; /* contains characters in SAN notation which represent pieces */
 	char player; /* 'w' white 'b' black to move */
-	usint castling; /* X X X X B-queenside B-kingside W-kingside W-queenside */
+	usint castling; /* X X X B-queenside B-kingside W-queenside W-kingside X*/
 	position enpass_target; /* the square to which enpass is allowed (there is only one) */
 	usint halfmoves; /* number of non-pawn and non capture moves (for 50 move rule) */
 	usint fullmoves; /* number of black moves */

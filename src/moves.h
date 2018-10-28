@@ -68,4 +68,9 @@ move rook_move(castle_move king_castle);
 int can_castle(chessboard board, chesset set, castle_move castle);
 
 castle_move check_castling(square sq, move mv);
+
+void show_register(usint word);
+
+int is_checkmate(chessboard board, chesset set);
+
 #endif

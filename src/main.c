@@ -138,6 +138,12 @@ int main(int argc, char *argv[]) {
 
 		calculate_threats(&set, board.player);
 
+		if (is_checkmate(board, set)) {
+			printf("Checkmate!\n");
+			printf("%s Wins!\n", board.player == 'w' ? "Black" : "White");
+			break;
+		}
+
 		if (DEBUG & DEBUG_THREAT) {
 			show_threats(set, board);
 		}

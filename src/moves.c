@@ -10,12 +10,13 @@
 #include "display.h"
 
 /* compilation macros */
-#define DEBUG_MOVES (DEBUG_PIN | DEBUG_THREAT)
+#define DEBUG_MOVES (DEBUG_CASTLE)
 #define DEBUG_CALCULATE (1 << 1)
 #define DEBUG_UPDATE (1 << 0)
 #define DEBUG_PIN (1 << 2)
 #define DEBUG_VALID (1 << 3)
 #define DEBUG_THREAT (1 << 4)
+#define DEBUG_CASTLE (1 << 5)
 
 #define OLD_CASTLE (0)
 
@@ -37,9 +38,12 @@
 #define pawndir(p, dir) (isWhite(p) ? (dir == 1 || dir == 2 || dir || 3) : (dir == 5 || dir == 6 || dir == 7)) /* p SAN char -> pawn, dir directoin (as defined in xincr, yincr */
 #define homerow(p) (p == 'P' ? 1 : (p == 'p') ? 6 : SCHAR_MIN)
 
+#define MAXMAG(a, b) (mkpositive(a) > mkpositive(b) ? mkpositive(a) : mkpositive(b))
+
 #define mkpositive(u) (u > 0 ? u : (-u)) /* u is any number */
-#define dist(sl) mkpositive((sl.drank != 0 ? sl.drank : sl.dfile)) /* slide_distance in direction. sl is movement (i.e slope-like quantity */
 #define euclidian(sl) (sqrt(sl.drank * sl.drank + sl.dfile * sl.dfile))
+#define distance(sl, dir) ((dir < 8) ? MAXMAG(sl.drank, sl.dfile) : 1)
+
 
 /* direction macros */
 #define DIR_NONE 16
@@ -48,7 +52,6 @@
 #define MASK_BLACK_CASTLE (3 << 0) /* q k Q K  are the 4 castling bits in an unsigned number */
 #define MASK_WHITE_CASTLE (3 << 2)
 
-#define MAXMAG(a, b) (mkpositive(a) > mkpositive(b) ? mkpositive(a) : mkpositive(b))
 
 #define posequal(pos1, pos2) (pos1.rank == pos2.rank && pos1.file == pos2.file)
 #define movesequal(mv1, mv2) (posequal(mv1.ini, mv2.ini) && posequal(mv1.fin, mv2.fin))
@@ -60,23 +63,31 @@
 
 /* the 4 castle moves. also used for validation */
 const static move king_castle_moves[] = {
-		{{0, 4}, {0, 6}},
-		{{0, 4}, {0, 2}},
-		{{7, 4}, {7, 6}}, 
-		{{7, 4}, {7, 2}}
+	{{0, 4}, {0, 6}},
+	{{0, 4}, {0, 2}},
+	{{7, 4}, {7, 6}}, 
+	{{7, 4}, {7, 2}}
 };
+
+const static move rook_castle_moves[] = {
+	{{0, 7}, {0, 5}},
+	{{0, 0}, {0, 3}},
+	{{7, 7}, {7, 5}}, 
+	{{7, 0}, {7, 3}},
+	{{8, 8}, {8, 8}} /* for invalid input */
+};
+
+
 
 castle_move check_castling(square sq, move mv) {
 	move temp;
 	int i;
 
-	printf("Called\n");
 	if (!(toupper(sq.pc) == 'K')) {
 		return none;
 	}
-		/* if piece is king */
+	/* if piece is king */
 	for (i = white_kingside; i <= black_queenside; ++i) {
-		printf("Checking %d\n", i);
 		/* if move is one of the 4 possible castling moves */
 		temp = king_castle_moves[i - 1];
 		if (movesequal(mv, temp)) {
@@ -90,27 +101,92 @@ castle_move check_castling(square sq, move mv) {
 	return none;
 }
 
+
+/* changes castling availibility based on king and rook movement */
+void update_castling(chessboard *board, move mv) {
+	castle_move castle;
+	for (castle = white_kingside; castle <= black_queenside; castle++) {
+		/* for each possible castling move
+		 * NOTE: piece can never move to king king home position unless king has already moved from there */
+		if ((board->castling & ((castle) << 1)) && (posequal(mv.ini, king_castle_moves[castle - 1].ini) || posequal(mv.ini, rook_castle_moves[castle - 1].ini) || posequal(mv.fin, rook_castle_moves[castle - 1].ini))) {
+			/* if that move is available and something is moving from the king initial square, or something is moving from or to the rook initial square, that particular move*/
+			if (DEBUG_CASTLE) {
+				printf("Disabled Castle: %d\n", castle);
+			}
+			board->castling &= (~((castle) << 1)); /* that castling is disabled */
+		}
+	}
+}
+
 int can_castle(chessboard board, chesset set, castle_move castle) {
+	if (!(board.castling & ((castle) << 1))) {
+		/* if that castling move is not available */
+		show_register(board.castling);
+		if (DEBUG_CASTLE) {
+			printf("Not Available\n");
+		}
+		return 0;
+	}
+	usint dir;
+	ssint fileinc;
+	char king_color;
+	piece *enemy;
+	int n, i;
+	position slide_square;
+	movement sl;
+
+	move king_move, rook_move;
+
+	king_move = king_castle_moves[castle - 1];
+	sl = find_movement(king_move.ini, king_move.fin);
+	dir = find_dir(sl);
+	fileinc = fileincr(dir);
+
+	king_color = board.brd[king_move.ini.rank][king_move.ini.file].pc;
+	if (king_color == 'K') {
+		enemy = set.blacks;
+		n = set.n_black;
+	}
+	else if (king_color == 'k') {
+		enemy = set.whites;
+		n = set.n_white;
+	}
+	else {
+		fprintf(stderr, "Attempting to castle non-king piece\n");
+		return 0;
+	}
+
+	rook_move = rook_castle_moves[castle - 1];
+	char rook_color = board.brd[rook_move.ini.rank][rook_move.ini.file].pc;
+	if (toupper(rook_color) != 'R' || !isSame(king_color, rook_color)) {
+		if (DEBUG_CASTLE) {
+			printf("No Rook\n");
+		}
+		return 0;
+	}
+
+	slide_square.rank = king_move.ini.rank;
+
+	for (slide_square.file = king_move.ini.file; slide_square.file <= king_move.fin.file; slide_square.file += fileinc) {
+		for (i = 0; i < n; ++i) {
+			if (can_attack(enemy[i], slide_square)) {
+				if (DEBUG_CASTLE) {
+					printf("%c%c attacked by %c\n", slide_square.file + 'a', slide_square.rank + '1', enemy[i].piece);
+				}
+				return 0;
+			}
+		}
+	}
 	return 1;
 }
 
 move rook_move(castle_move king_castle) {
-	const static move rook_castle_moves[] = {
-		{{0, 7}, {0, 5}},
-		{{0, 0}, {0, 3}},
-		{{7, 7}, {7, 5}}, 
-		{{7, 0}, {7, 3}},
-		{{8, 8}, {8, 8}} /* for invalid input */
-	};
-
 #define INVALID_CASTLE 4
 	if (!king_castle) {
 		return rook_castle_moves[INVALID_CASTLE];
 	}
 	return rook_castle_moves[king_castle - 1];
 }
-
-
 
 
 /* CHECKING Functions: 
@@ -141,6 +217,7 @@ int can_attack(piece p, position ps) {
 	else {
 		dist = 1;
 	}
+	dist = distance(sl, direction);
 
 	if (!dist) {
 		return 0;
@@ -505,6 +582,70 @@ void calculate_direction(piece *p, chessboard ch, usint direction) {
  * enumpins (displays list of pinned pieces (debugging?)
  * */
 
+/* is_checkmate(board, set)
+ * the direction array around the king is set, as is the pin_dir jugaad which records the attacked squares
+ * so all that is left is to check moves of the remaining pieces 
+ * */
+int is_checkmate(chessboard board, chesset set) {
+	piece king;
+	piece *friendlies;
+	int n, i, j;
+	position save;
+	movement sl;
+	usint direction, dist;
+	ssint rankinc, fileinc;
+
+	if (!set.threat_count) {
+		/* not in check */
+		return 0;
+	}
+
+	if (board.player == 'w') {
+		king = set.whites[0];
+		friendlies = set.whites;
+		n = set.n_white;
+	}
+	else if (board.player == 'b') {
+		king = set.blacks[0];
+		friendlies = set.blacks;
+		n = set.n_black;
+	}
+	else {
+		/* invalid */
+		return 0;
+	}
+
+	for (king.dir_start = 0; i <= king.dir_end; i += king.dir_incr) {
+		if ((!(king.pin_dir & (1 << i))) && king.dirs[i & 7] && (!isSame(king.piece, king.end[i & 7]))) {
+			/* not attacked, not unavailable, and not friendly -> escape available */
+			return 0;
+		}
+	}
+
+	if (set.threat_count == 1) {
+		sl = find_movement(king.ps, set.threat_source);
+		direction = find_dir(sl);
+		rankinc = rankincr(direction);
+		fileinc = fileincr(direction);
+		save.rank = king.ps.rank + rankinc;
+		save.file = king.ps.file + fileinc;
+		dist = distance(sl, direction);
+		for (i = 1; i <= dist; i++, save.rank += rankinc, save.file += fileinc) {
+			/* for each 'natural' square in line joining king and source of check */
+			for (j = 0; j < n; j++) {
+				/* for each friendly piece */
+				if (vanilla_can_move(friendlies[j], save)) {
+					/* if can block or kill */
+					return 0;
+				}
+			}
+		}
+	}
+
+	return 1;
+}
+
+
 void calculate_threats(chesset *set, char color) {
 	int n;
 	piece *enemy;
@@ -797,6 +938,9 @@ castle_move make_move(chessboard *board, chesset *set, move mv) {
 	}
 #endif
 
+	/* update castling word */
+	update_castling(board, mv);
+
 	/* flip color */
 	board->player = (board->player == 'w') ? 'b' : 'w';
 
@@ -1044,6 +1188,18 @@ void moves_bitboard(chesset set, chessboard board) {
 
 	for (i = 0; i < set.n_black; ++i) {
 		moves(set.blacks[i], board);
+	}
+}
+
+void show_register(usint word) {
+	int i;
+	for (i = 0; i < 8; ++i) {
+		if (word & (1 << i)) {
+			putchar('1');
+		}
+		else {
+			putchar('0');
+		}
 	}
 }
 
