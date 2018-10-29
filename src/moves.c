@@ -10,13 +10,14 @@
 #include "display.h"
 
 /* compilation macros */
-#define DEBUG_MOVES (DEBUG_CASTLE)
+#define DEBUG_MOVES (DEBUG_CASTLE | DEBUG_GAMEND)
 #define DEBUG_CALCULATE (1 << 1)
 #define DEBUG_UPDATE (1 << 0)
 #define DEBUG_PIN (1 << 2)
 #define DEBUG_VALID (1 << 3)
 #define DEBUG_THREAT (1 << 4)
 #define DEBUG_CASTLE (1 << 5)
+#define DEBUG_GAMEND (1 << 6)
 
 #define OLD_CASTLE (0)
 
@@ -568,9 +569,8 @@ void calculate_direction(piece *p, chessboard ch, usint direction) {
 		}
 	}
 
-
-	if (ch.enpass_target.rank == rank && ch.enpass_target.file == file) {
-		end = 'P';
+	if (toupper(p->piece) == 'P' && ch.enpass_target.rank == rank && ch.enpass_target.file == file) {
+		end = isWhite(p->piece) ? 'p' : 'P';
 	}
 
 	p->end[direction & 7] = end;
@@ -581,72 +581,6 @@ void calculate_direction(piece *p, chessboard ch, usint direction) {
  * calculate_pins (sets pin_dir of all pieces which are pinned for current board state
  * enumpins (displays list of pinned pieces (debugging?)
  * */
-
-/* is_checkmate(board, set)
- * the direction array around the king is set, as is the pin_dir jugaad which records the attacked squares
- * so all that is left is to check moves of the remaining pieces 
- * */
-int is_checkmate(chessboard board, chesset set) {
-	piece king;
-	piece *friendlies;
-	int n, i, j;
-	position save;
-	movement sl;
-	usint direction, dist;
-	ssint rankinc, fileinc;
-
-	if (!set.threat_count) {
-		/* not in check */
-		return 0;
-	}
-
-	if (board.player == 'w') {
-		king = set.whites[0];
-		friendlies = set.whites;
-		n = set.n_white;
-	}
-	else if (board.player == 'b') {
-		king = set.blacks[0];
-		friendlies = set.blacks;
-		n = set.n_black;
-	}
-	else {
-		/* invalid */
-		return 0;
-	}
-
-	printf("PIN_DIR:");
-	show_register(king.pin_dir);
-
-	for (i = king.dir_start; i <= king.dir_end; i += king.dir_incr) {
-		if ((!(king.pin_dir & (1 << i))) && king.dirs[i & 7] && (!isSame(king.piece, king.end[i & 7]))) {
-			/* not attacked, not unavailable, and not friendly -> escape available */
-			return 0;
-		}
-	}
-
-	if (set.threat_count == 1) {
-		sl = find_movement(king.ps, set.threat_source);
-		direction = find_dir(sl);
-		rankinc = rankincr(direction);
-		fileinc = fileincr(direction);
-		save.rank = king.ps.rank + rankinc;
-		save.file = king.ps.file + fileinc;
-		dist = distance(sl, direction);
-		for (i = 1; i <= dist; i++, save.rank += rankinc, save.file += fileinc) {
-			/* for each 'natural' square in line joining king and source of check */
-			for (j = 0; j < n; j++) {
-				/* for each friendly piece */
-				if (vanilla_can_move(friendlies[j], save)) {
-					/* if can block or kill */
-					return 0;
-				}
-			}
-		}
-	}
-
-	return 1;
-}
 
 
 void calculate_threats(chesset *set, char color) {
@@ -1215,4 +1149,137 @@ void show_register(usint word) {
 	putchar('\n');
 }
 
+/* End-of-Game functions:
+ * Detect draw or checkmate
+ * */
 
+/* is_checkmate(board, set)
+ * the direction array around the king is set, as is the pin_dir jugaad which records the attacked squares
+ * so all that is left is to check moves of the remaining pieces 
+ * */
+
+int is_checkmate(chessboard board, chesset set) {
+	piece king;
+	piece *friendlies;
+	int n, i, j;
+	position save;
+	movement sl;
+	usint direction, dist;
+	ssint rankinc, fileinc;
+
+	if (!set.threat_count) {
+		/* not in check */
+		return 0;
+	}
+
+	if (board.player == 'w') {
+		king = set.whites[0];
+		friendlies = set.whites;
+		n = set.n_white;
+	}
+	else if (board.player == 'b') {
+		king = set.blacks[0];
+		friendlies = set.blacks;
+		n = set.n_black;
+	}
+	else {
+		/* invalid */
+		return 0;
+	}
+
+	printf("PIN_DIR:");
+	show_register(king.pin_dir);
+
+	for (i = king.dir_start; i <= king.dir_end; i += king.dir_incr) {
+		if ((!(king.pin_dir & (1 << i))) && king.dirs[i & 7] && (!isSame(king.piece, king.end[i & 7]))) {
+			/* not attacked, not unavailable, and not friendly -> escape available */
+			return 0;
+		}
+	}
+
+	if (set.threat_count == 1) {
+		sl = find_movement(king.ps, set.threat_source);
+		direction = find_dir(sl);
+		rankinc = rankincr(direction);
+		fileinc = fileincr(direction);
+		save.rank = king.ps.rank + rankinc;
+		save.file = king.ps.file + fileinc;
+		dist = distance(sl, direction);
+		for (i = 1; i <= dist; i++, save.rank += rankinc, save.file += fileinc) {
+			/* for each 'natural' square in line joining king and source of check */
+			for (j = 0; j < n; j++) {
+				/* for each friendly piece */
+				if (vanilla_can_move(friendlies[j], save)) {
+					/* if can block or kill */
+					return 0;
+				}
+			}
+		}
+	}
+
+	return 1;
+}
+
+/* should be called after board position and threats have been evaluated (i.e at end of move)
+ * */
+int is_stalemate(chessboard board, chesset set) {
+	piece *player = NULL;
+	piece pc;
+	int n = 0;
+	int i, j;
+	if (set.threat_count) {
+		if (DEBUG_GAMEND) {
+			printf("King in check, not stale\n");
+		}
+		/* king in check, cannot be stalemate */
+		return 0;
+	}
+
+	if (board.player == 'w') {
+		player = set.whites;
+		n = set.n_white;
+	}
+	else if (board.player == 'b') {
+		player = set.blacks;
+		n = set.n_black;
+	}
+
+	for (i = 1; i < n; i++) {
+		pc = player[i];
+		if (pc.pin_dir != DIR_NONE && (!(pc.pin_dir >= pc.dir_start && pc.pin_dir <= pc.dir_end && ((pc.pin_dir - pc.dir_start) % pc.dir_incr == 0)))) {
+			/* piece pinned in direction which is not direction of it's movement-> piece cannot move */
+			continue;
+		}
+
+		for (j = pc.dir_start; j <= pc.dir_end; j += pc.dir_incr) {
+			if (pc.dirs[j & 7] > 1) {
+				if (DEBUG_GAMEND) {
+					printf("%c at %c%c can move in %d direction, not stalemate\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', j);
+				}
+				/* sliding for more than one square */
+				return 0;
+			}
+			else if (pc.dirs[j & 7] == 1 && isDifferent(pc.piece, pc.end[j & 7])) {
+				/* no need to consider (pc.end[j & 7] != oppKing(pc.piece)) as king is not in check */
+				/* first square- check whether blocked */
+				if (DEBUG_GAMEND) {
+					printf("%c at %c%c can move in %d direction, not stalemate\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', j);
+				}
+				return 0;
+			}
+		}
+	}
+	
+	pc = player[0];
+	for (j = pc.dir_start; j <= pc.dir_end; j++) {
+		if ((!(pc.pin_dir & (1 << (j)))) && pc.dirs[j & 7] == 1 && !isSame(pc.piece, pc.end[j & 7])) {
+			return 0;
+		}
+	}
+
+	/* castling not considered specially because for castling to work, king should be able to move one space in that direction */
+
+	/* no moves possible: stalemate */
+
+	return 1;
+}

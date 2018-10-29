@@ -82,6 +82,10 @@ int main(int argc, char *argv[]) {
 
 	calculate_threats(&set, board.player);
 
+	if (is_checkmate(board, set) || is_stalemate(board, set)) {
+		fprintf(stderr, "Invalid game file, game has already ended\n");
+	}
+
 	if (DEBUG & DEBUG_THREAT) {
 		show_threats(set, board);
 	}
@@ -141,6 +145,10 @@ int main(int argc, char *argv[]) {
 		if (is_checkmate(board, set)) {
 			printf("Checkmate!\n");
 			printf("%s Wins!\n", board.player == 'w' ? "Black" : "White");
+			break;
+		}
+		else if (is_stalemate(board, set)) {
+			printf("Stalemate!\n");
 			break;
 		}
 

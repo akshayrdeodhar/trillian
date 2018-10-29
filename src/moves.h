@@ -73,4 +73,6 @@ void show_register(usint word);
 
 int is_checkmate(chessboard board, chesset set);
 
+int is_stalemate(chessboard board, chesset set);
+
 #endif
