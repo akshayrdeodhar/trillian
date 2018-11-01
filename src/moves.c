@@ -57,6 +57,23 @@
 #define posequal(pos1, pos2) (pos1.rank == pos2.rank && pos1.file == pos2.file)
 #define movesequal(mv1, mv2) (posequal(mv1.ini, mv2.ini) && posequal(mv1.fin, mv2.fin))
 
+/* PROMOTION Function:
+ * promotes pawn in final rank to chosen piece
+ * recalulates moves of that piece
+ * */
+
+void handle_promotion(chessboard *board, chesset *set, move mv, char promoted) {
+	square final;
+	final = board->brd[mv.fin.rank][mv.ini.file];
+	if (final.pc == 'P') {
+		set_piece(&(set->whites[(usint)final.index]), promoted, mv.fin.rank, mv.fin.file);
+	}
+	else if (final.pc == 'p') {
+		set_piece(&(set->blacks[(usint)final.index]), promoted, mv.fin.rank, mv.fin.file);
+	}
+	board->brd[mv.fin.rank][mv.fin.file].pc = promoted;
+}
+
 /* CASTLING FUNCTIONS:
  * castle_move() checks whether move is castling, and returns typed
  * can_castle() checks whether particular castling move is allowed
@@ -80,21 +97,30 @@ const static move rook_castle_moves[] = {
 
 
 
-castle_move check_castling(square sq, move mv) {
+special_move check_special(square sq, move mv) {
 	move temp;
+	char pc = toupper(sq.pc);
 	int i;
 
-	if (!(toupper(sq.pc) == 'K')) {
+	if (!(pc == 'K' || pc == 'P')) {
 		return none;
 	}
-	/* if piece is king */
-	for (i = white_kingside; i <= black_queenside; ++i) {
-		/* if move is one of the 4 possible castling moves */
-		temp = king_castle_moves[i - 1];
-		if (movesequal(mv, temp)) {
-			/* return castling code */
-			printf("Castling: %d\n", i);
-			return i;
+
+	if (pc == 'K') {
+		for (i = white_kingside; i <= black_queenside; ++i) {
+			/* if move is one of the 4 possible castling moves */
+			temp = king_castle_moves[i - 1];
+			if (movesequal(mv, temp)) {
+				/* return castling code */
+				printf("Castling: %d\n", i);
+				return i;
+			}
+		}
+	}
+	else if (pc == 'P') {
+		if (mv.fin.rank == 7 || mv.fin.rank == 0) {
+			/*promotion */
+			return promotion;
 		}
 	}
 
@@ -105,7 +131,7 @@ castle_move check_castling(square sq, move mv) {
 
 /* changes castling availibility based on king and rook movement */
 void update_castling(chessboard *board, move mv) {
-	castle_move castle;
+	special_move castle;
 	for (castle = white_kingside; castle <= black_queenside; castle++) {
 		/* for each possible castling move
 		 * NOTE: piece can never move to king king home position unless king has already moved from there */
@@ -122,8 +148,8 @@ void update_castling(chessboard *board, move mv) {
 	}
 }
 
-int can_castle(chessboard board, chesset set, castle_move castle) {
-	if (!(board.castling & ((castle) << 1))) {
+int can_castle(chessboard board, chesset set, special_move castle) {
+	if (!(board.castling & (1 << (castle)))) {
 		/* if that castling move is not available */
 		printf("Checking: %d\n", castle);
 		show_register(((usint)castle) << 1);
@@ -187,7 +213,7 @@ int can_castle(chessboard board, chesset set, castle_move castle) {
 	return 1;
 }
 
-move rook_move(castle_move king_castle) {
+move rook_move(special_move king_castle) {
 #define INVALID_CASTLE 4
 	if (!king_castle) {
 		return rook_castle_moves[INVALID_CASTLE];
@@ -302,7 +328,7 @@ int vanilla_can_move(piece p, position ps) {
 
 int can_move(chessboard board, chesset set, move mv) {
 	piece p, king;
-	castle_move castle;
+	special_move castle;
 	square sq;
 
 	sq = board.brd[mv.ini.rank][mv.ini.file];
@@ -340,8 +366,8 @@ int can_move(chessboard board, chesset set, move mv) {
 		}
 	}
 
-	castle = check_castling(board.brd[mv.ini.rank][mv.ini.file], mv);
-	if (castle) {
+	castle = check_special(board.brd[mv.ini.rank][mv.ini.file], mv);
+	if (castle >= white_kingside && castle <= black_queenside) {
 		return can_castle(board, set, castle);
 	}
 
@@ -793,7 +819,6 @@ void update_piece(chessboard board, piece *p, move mv) {
 	movement sl1, sl2;
 	usint dir1, dir2;
 	usint dir_start, dir_incr, dir_end;
-	usint dist;
 	piece pc;
 
 	pc = *p;
@@ -825,28 +850,6 @@ void update_piece(chessboard board, piece *p, move mv) {
 		}
 		calculate_direction(p, board, dir2);
 	}
-
-#if 0
-	if (toupper(pc.piece) == 'P') {
-		sl1 = find_movement(pc.ps, board.enpass_target);
-		dir1 = find_dir(sl1);
-		dist = distance(sl1, dir1);
-		printf("Enpass Target: %c%c\n", board.enpass_target.file + 'a', board.enpass_target.rank + '1');
-		printf("Calculating Pawn at %c%c\n", pc.ps.file + 'a', pc.ps.rank + '1');
-		printf("dist = %d dir = %d\n", dist, dir1);
-		if (dist == 1) {
-			switch(dir1) {
-				case 1: case 3: case 5: case 7:
-					printf("Updating Enpass\n");
-					calculate_direction(p, board, dir1);
-					break;
-				default:
-					break;
-			}
-		}
-	}
-#endif
-
 }
 
 
@@ -865,18 +868,18 @@ void update_piece(chessboard board, piece *p, move mv) {
  * and the metadata is is handled by the function itself.
  * TODO: Better Ideas ?
  * */
-castle_move make_move(chessboard *board, chesset *set, move mv) {
+special_move make_move(chessboard *board, chesset *set, move mv) {
 
 	/* this is done only to shut the warning up. there is a guarentee that if castling happens, castle_rook WILL be set to a proper value */
 #if OLD_CASTLE
 	move castle_rook = mv;
 #endif
-	castle_move castle;
+	special_move castle;
 
 	square from = board->brd[mv.ini.rank][mv.ini.file];
 	square to = board->brd[mv.fin.rank][mv.fin.file];
 
-	castle = check_castling(from, mv);
+	castle = check_special(from, mv);
 
 	menial_move(board, set, mv);
 

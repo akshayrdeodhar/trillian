@@ -208,3 +208,12 @@ But if I do this manually, then I will again need to write the same
 ANS: I will call can_move(). who will write the same code again? 
 &&** optimization, that's what I say (&&** means 'burn')
 
+Q18: What is the problem with enpass?
+The final position of the piece which kills and the position of the pieces
+which is killed are different
+So, enpass must be handled specially, not in the vanilla_can_move function,
+which handles only pieces that are in the killer's range!
+This might prove ok when the king is not in check, but what if the king is
+checked by the pawn which will be the target of the enpass?
+Then the complexity will become too large to handle
+So, I am postponing enpass to infinity

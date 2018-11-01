@@ -41,7 +41,7 @@ void debug_calculation(chesset set, chessboard board); /* enumerate stored slidi
 
 void debug_piece_calculations(chessboard *moves, piece p); /* enumerate moves of piece 'p' for visual checking- called from debug_calculations */
 
-castle_move make_move(chessboard *board, chesset *set, move mv); /* make move, modify state of board, set metadata modify indexes in case of kill*/
+special_move make_move(chessboard *board, chesset *set, move mv); /* make move, modify state of board, set metadata modify indexes in case of kill*/
 
 void menial_move(chessboard *board, chesset *set, move mv); /* simply move piece on board, set position in piece (called by make_move) */
 
@@ -63,11 +63,13 @@ void moves(piece p, chessboard board);
 
 void moves_bitboard(chesset set, chessboard board);
 
-move rook_move(castle_move king_castle);
+move rook_move(special_move king_castle);
 
-int can_castle(chessboard board, chesset set, castle_move castle);
+int can_castle(chessboard board, chesset set, special_move castle);
 
-castle_move check_castling(square sq, move mv);
+special_move check_special(square sq, move mv);
+			
+void handle_promotion(chessboard *board, chesset *set, move mv, char promoted);
 
 void show_register(usint word);
 

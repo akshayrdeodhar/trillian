@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 	}
 	chessboard board;
 	chesset set;
-	castle_move castle;
+	special_move castle;
 
 	if (fenstring_to_board(&board, string)) {
 		printf("Impossible:\n");
@@ -121,10 +121,15 @@ int main(int argc, char *argv[]) {
 		castle = make_move(&board, &set, mv);
 
 
-		if (castle) {
+		if (white_kingside <= castle && black_queenside >= castle) {
 			rook_castle = rook_move(castle);
 			menial_move(&board, &set, rook_castle);
 			update_pieces(board, &set, rook_castle);
+		}
+		else if (castle == promotion) {
+			char promoted = get_promotion(board.player == 'b' ? 'w' : 'b');
+			handle_promotion(&board, &set, mv, promoted);
+
 		}
 		
 		update_pieces(board, &set, mv);

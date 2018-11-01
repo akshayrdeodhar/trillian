@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "moves.h"
 #include "defs.h"
 
@@ -38,4 +39,24 @@ move extract_move(char string[]) {
 	mv.fin.file = f2;
 
 	return mv;
+}
+
+char get_promotion(char player) {
+	printf("Today is your lucky day!\n");
+	char promote_to = '\0';
+	char valid = 0;
+	while(!valid) {
+		printf("Promote to ? (Q, R, B, N, q, r, b, n)\n");
+		promote_to = getchar();
+		getchar();
+		switch(toupper(promote_to)) {
+			case 'Q': case 'R': case 'N': case 'B':
+				valid = 1;
+				break;
+			default:
+				printf("Cannot promote to %c\n", promote_to);
+				break;
+		}
+	}
+	return (player == 'w' ? toupper(promote_to) : tolower(promote_to));
 }
