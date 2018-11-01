@@ -4,23 +4,6 @@
 #include "board.h"
 #include "pieces.h"
 
-typedef struct {
-	ssint dfile, drank;
-}movement;
-
-typedef struct {
-	position ini;
-	position fin;
-}move;
-
-movement find_movement(position ini, position fin); /* finds change in position */
-
-usint find_dir(movement sl); /* finds sliding direction from 'slope' */
-
-ssint fileincr(usint direction); /* returns change in 'file' for unit movement in 'direction' */
-
-ssint rankincr(usint direction); /* return change 'rank' for unit movement in direction */
-
 int can_attack(piece p, position ps); /* whether position ps is in piece p's ATTACK RANGE */
 
 int can_move(chessboard board, chesset set, move mv);
@@ -45,36 +28,36 @@ special_move make_move(chessboard *board, chesset *set, move mv); /* make move, 
 
 void menial_move(chessboard *board, chesset *set, move mv); /* simply move piece on board, set position in piece (called by make_move) */
 
-void check_manually(chesset s);
+void check_manually(chesset s); /* check whether knight moves are calculated accurately, DEBUGGING, REMOVE */
 
-void calculate_pins(chesset *set, chessboard ch, char color);
+void calculate_pins(chesset *set, chessboard ch, char color); /* calculate pin directions of all pieces in set */
 
-void calculate_threats(chesset *set, char color);
+void calculate_threats(chesset *set, char color); /* calculate which neightbouring squares of king are attcked, and checks to king */
 
-void enumpins(chesset set);
+void enumpins(chesset set); /* enumerate pins */
 
-void show_threats(chesset set, chessboard board);
+void show_threats(chesset set, chessboard board); /* display which squares around king are attacked, check information */
 
-void attack_moves(piece p, chessboard board);
+void attack_moves(piece p, chessboard board); /* show all squares attacked by piece on board */
 
-void attack_bitboard(chesset set, chessboard board);
+void attack_bitboard(chesset set, chessboard board); /* show all squares attacked by all pieces */
 
-void moves(piece p, chessboard board);
+void moves(piece p, chessboard board); /* show all squares to which piece can move on board */
 
-void moves_bitboard(chesset set, chessboard board);
+void moves_bitboard(chesset set, chessboard board); /* show all squares to which all pieces in set can move on bitboard */
 
-move rook_move(special_move king_castle);
+move rook_move(special_move king_castle); /* return rook move for castle */
 
-int can_castle(chessboard board, chesset set, special_move castle);
+int can_castle(chessboard board, chesset set, special_move castle); /* check whether specified castling is legal */
 
-special_move check_special(square sq, move mv);
+special_move check_special(square sq, move mv); /* check whether move is castling or promotion, return it's code */
 			
-void handle_promotion(chessboard *board, chesset *set, move mv, char promoted);
+void handle_promotion(chessboard *board, chesset *set, move mv, char promoted); /* promote the pawn to chosen piece */
 
-void show_register(usint word);
+void show_register(usint word); /* show 8 bit register of flags */
 
-int is_checkmate(chessboard board, chesset set);
+int is_checkmate(chessboard board, chesset set); /* whether a king is in checkmate */
 
-int is_stalemate(chessboard board, chesset set);
+int is_stalemate(chessboard board, chesset set); /* check whether stalemate */
 
 #endif

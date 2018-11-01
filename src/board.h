@@ -2,6 +2,7 @@
 #define BOARD_H
 
 #include "defs.h"
+#include "vector.h"
 #include <limits.h>
 
 #define NONE (16)
@@ -15,10 +16,6 @@ typedef struct {
 	char pc; /* representation of piece */
 	ssint index; /* index in piece array in set */
 }square;
-
-typedef struct {
-	usint rank, file;
-}position;
 
 typedef struct {
 	square brd[8][8]; /* contains characters in SAN notation which represent pieces */
