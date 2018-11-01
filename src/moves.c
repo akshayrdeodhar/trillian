@@ -36,14 +36,14 @@
 
 #define oppKing(p) (isWhite(p) ? 'k' : 'K') /* p SAN char */
 #define deltarank(p) (isWhite(p) ? 1: -1) /* p SAN char */
-#define pawndir(p, dir) (isWhite(p) ? (dir == 1 || dir == 2 || dir || 3) : (dir == 5 || dir == 6 || dir == 7)) /* p SAN char -> pawn, dir directoin (as defined in xincr, yincr */
+#define pawndir(p, dir) (isWhite(p) ? ((dir) == 1 || (dir) == 2 || (dir) == 3) : ((dir) == 5 || (dir) == 6 || (dir) == 7)) /* p SAN char -> pawn, dir directoin (as defined in xincr, yincr */
 #define homerow(p) (p == 'P' ? 1 : (p == 'p') ? 6 : SCHAR_MIN)
 
 #define MAXMAG(a, b) (mkpositive(a) > mkpositive(b) ? mkpositive(a) : mkpositive(b))
 
-#define mkpositive(u) (u > 0 ? u : (-u)) /* u is any number */
+#define mkpositive(u) ((u) > 0 ? (u) : (-(u))) /* u is any number */
 #define euclidian(sl) (sqrt(sl.drank * sl.drank + sl.dfile * sl.dfile))
-#define distance(sl, dir) ((dir < 8) ? MAXMAG(sl.drank, sl.dfile) : 1)
+#define distance(sl, dir) (((dir) < 8) ? MAXMAG(sl.drank, sl.dfile) : 1)
 
 
 /* direction macros */
@@ -109,12 +109,15 @@ void update_castling(chessboard *board, move mv) {
 	for (castle = white_kingside; castle <= black_queenside; castle++) {
 		/* for each possible castling move
 		 * NOTE: piece can never move to king king home position unless king has already moved from there */
-		if ((board->castling & ((castle) << 1)) && (posequal(mv.ini, king_castle_moves[castle - 1].ini) || posequal(mv.ini, rook_castle_moves[castle - 1].ini) || posequal(mv.fin, rook_castle_moves[castle - 1].ini))) {
+		if ((board->castling & (1 << (castle))) && (posequal(mv.ini, king_castle_moves[castle - 1].ini) || posequal(mv.ini, rook_castle_moves[castle - 1].ini) || posequal(mv.fin, rook_castle_moves[castle - 1].ini))) {
 			/* if that move is available and something is moving from the king initial square, or something is moving from or to the rook initial square, that particular move*/
 			if (DEBUG_CASTLE) {
 				printf("Disabled Castle: %d\n", castle);
 			}
-			board->castling &= (~((castle) << 1)); /* that castling is disabled */
+			show_register(board->castling);
+			show_register(~(1 << (castle)));
+			board->castling &= (~(1 << (castle))); /* that castling is disabled */
+			show_register(board->castling);
 		}
 	}
 }
@@ -122,6 +125,8 @@ void update_castling(chessboard *board, move mv) {
 int can_castle(chessboard board, chesset set, castle_move castle) {
 	if (!(board.castling & ((castle) << 1))) {
 		/* if that castling move is not available */
+		printf("Checking: %d\n", castle);
+		show_register(((usint)castle) << 1);
 		show_register(board.castling);
 		if (DEBUG_CASTLE) {
 			printf("Not Available\n");
@@ -167,10 +172,11 @@ int can_castle(chessboard board, chesset set, castle_move castle) {
 	}
 
 	slide_square.rank = king_move.ini.rank;
+	board.brd[king_move.ini.rank][king_move.ini.file].pc = '\0';
 
 	for (slide_square.file = king_move.ini.file; slide_square.file <= king_move.fin.file; slide_square.file += fileinc) {
 		for (i = 0; i < n; ++i) {
-			if (can_attack(enemy[i], slide_square) || board.brd[slide_square.rank][slide_square.file].pc) {
+			if (can_attack(enemy[i], slide_square) || (board.brd[slide_square.rank][slide_square.file].pc)) {
 				if (DEBUG_CASTLE) {
 					printf("%c%c attacked by %c\n", slide_square.file + 'a', slide_square.rank + '1', enemy[i].piece);
 				}
@@ -276,6 +282,7 @@ int vanilla_can_move(piece p, position ps) {
 
 	if (toupper(p.piece) == 'P' && sl.dfile && !p.end[direction]) {
 		/* diagonal movement of pawn when there is no piece to be attacked */
+		printf("Enpass Failed\n");
 		return 0;
 	}
 
@@ -569,8 +576,13 @@ void calculate_direction(piece *p, chessboard ch, usint direction) {
 		}
 	}
 
-	if (toupper(p->piece) == 'P' && ch.enpass_target.rank == rank && ch.enpass_target.file == file) {
-		end = isWhite(p->piece) ? 'p' : 'P';
+	if (inrange(ch.enpass_target.rank, ch.enpass_target.file)) {
+		printf("Enpass Try: %c%c\n", file + 'a', rank + '1');
+		if (toupper(p->piece) == 'P' && ch.enpass_target.rank == rank && ch.enpass_target.file == file) {
+			printf("Enpass\n");
+			end = isWhite(p->piece) ? 'p' : 'P';
+			printf("End = %c\n", end);
+		}
 	}
 
 	p->end[direction & 7] = end;
@@ -781,6 +793,7 @@ void update_piece(chessboard board, piece *p, move mv) {
 	movement sl1, sl2;
 	usint dir1, dir2;
 	usint dir_start, dir_incr, dir_end;
+	usint dist;
 	piece pc;
 
 	pc = *p;
@@ -803,7 +816,6 @@ void update_piece(chessboard board, piece *p, move mv) {
 		if (DEBUG_MOVES & DEBUG_UPDATE) {
 			printf(" %d is in %d %d %d\n", dir1, dir_start, dir_incr, dir_end);
 		}
-
 		calculate_direction(p, board, dir1);
 	}
 
@@ -813,6 +825,28 @@ void update_piece(chessboard board, piece *p, move mv) {
 		}
 		calculate_direction(p, board, dir2);
 	}
+
+#if 0
+	if (toupper(pc.piece) == 'P') {
+		sl1 = find_movement(pc.ps, board.enpass_target);
+		dir1 = find_dir(sl1);
+		dist = distance(sl1, dir1);
+		printf("Enpass Target: %c%c\n", board.enpass_target.file + 'a', board.enpass_target.rank + '1');
+		printf("Calculating Pawn at %c%c\n", pc.ps.file + 'a', pc.ps.rank + '1');
+		printf("dist = %d dir = %d\n", dist, dir1);
+		if (dist == 1) {
+			switch(dir1) {
+				case 1: case 3: case 5: case 7:
+					printf("Updating Enpass\n");
+					calculate_direction(p, board, dir1);
+					break;
+				default:
+					break;
+			}
+		}
+	}
+#endif
+
 }
 
 
@@ -879,6 +913,13 @@ castle_move make_move(chessboard *board, chesset *set, move mv) {
 		printf("Not Castling\n");
 	}
 #endif
+	position temp;
+	temp.rank = temp.file = 8;
+	if (toupper(from.pc) == 'P' && mkpositive(mv.ini.rank - mv.fin.rank) == 2) {
+		temp.rank = (mv.ini.rank + mv.fin.rank) / 2;
+		temp.file = mv.ini.file;
+	}
+	board->enpass_target = temp;
 
 	/* update castling word */
 	update_castling(board, mv);
@@ -1138,7 +1179,7 @@ void moves_bitboard(chesset set, chessboard board) {
 
 void show_register(usint word) {
 	int i;
-	for (i = 0; i < 8; ++i) {
+	for (i = 7; i > -1; --i) {
 		if (word & (1 << i)) {
 			putchar('1');
 		}
