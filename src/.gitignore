@@ -2,3 +2,6 @@
 *.o
 try
 test.fen
+*.pdf
+save*
+*.err
