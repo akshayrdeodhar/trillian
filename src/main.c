@@ -9,11 +9,12 @@
 #include "input.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
-#define DEBUG (DEBUG_THREAT | DEBUG_END)
+#define DEBUG (0)
 #define DEBUG_INTERFACE 1
 #define DEBUG_CALCULATE 2
 #define DEBUG_THREAT 4
 #define DEBUG_END 8
+#define DEBUG_FEN 16
 
 #define MAIN_LOOP 1
 
@@ -140,7 +141,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		/*verify_interface(board, set);*/
-		display(board, READ_MODE);
+		display(board, MOVES_MODE);
 
 
 		calculate_pins(&set, board, 'w');
@@ -163,7 +164,9 @@ int main(int argc, char *argv[]) {
 		}
 
 		board_to_fenstring(string, board);
+		if (DEBUG & DEBUG_FEN) {
 		printf("Current .FEN string: %s\n", string);
+		}
 #if 0
 		calculate_threats(&set, 'b');
 

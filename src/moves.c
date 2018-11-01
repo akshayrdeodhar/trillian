@@ -11,7 +11,7 @@
 #include "vector.h"
 
 /* compilation macros */
-#define DEBUG_MOVES (DEBUG_CASTLE | DEBUG_GAMEND)
+#define DEBUG_MOVES (0)
 #define DEBUG_CALCULATE (1 << 1)
 #define DEBUG_UPDATE (1 << 0)
 #define DEBUG_PIN (1 << 2)
@@ -21,6 +21,8 @@
 #define DEBUG_GAMEND (1 << 6)
 
 #define OLD_CASTLE (0)
+#define TRY_ENPASS (0)
+#define TRY_ENPASS (0)
 
 #define isSame(p, q) ((isWhite(p) && isWhite(q)) || (isBlack(p) && isBlack(q))) /* p, q SAN chars */
 #define isDifferent(p, q) ((isWhite(p) && isBlack(q)) || (isBlack(p) && isWhite(q))) /* p, q SAN chars */
@@ -137,7 +139,7 @@ void update_castling(chessboard *board, move mv) {
 		 * NOTE: piece can never move to king king home position unless king has already moved from there */
 		if ((board->castling & (1 << (castle))) && (posequal(mv.ini, king_castle_moves[castle - 1].ini) || posequal(mv.ini, rook_castle_moves[castle - 1].ini) || posequal(mv.fin, rook_castle_moves[castle - 1].ini))) {
 			/* if that move is available and something is moving from the king initial square, or something is moving from or to the rook initial square, that particular move*/
-			if (DEBUG_CASTLE) {
+			if (DEBUG_MOVES & DEBUG_CASTLE) {
 				printf("Disabled Castle: %d\n", castle);
 			}
 			show_register(board->castling);
@@ -154,7 +156,7 @@ int can_castle(chessboard board, chesset set, special_move castle) {
 		printf("Checking: %d\n", castle);
 		show_register(((usint)castle) << 1);
 		show_register(board.castling);
-		if (DEBUG_CASTLE) {
+		if (DEBUG_MOVES & DEBUG_CASTLE) {
 			printf("Not Available\n");
 		}
 		return 0;
@@ -191,7 +193,7 @@ int can_castle(chessboard board, chesset set, special_move castle) {
 	rook_move = rook_castle_moves[castle - 1];
 	char rook_color = board.brd[rook_move.ini.rank][rook_move.ini.file].pc;
 	if (toupper(rook_color) != 'R' || !isSame(king_color, rook_color)) {
-		if (DEBUG_CASTLE) {
+		if (DEBUG_MOVES & DEBUG_CASTLE) {
 			printf("No Rook\n");
 		}
 		return 0;
@@ -203,7 +205,7 @@ int can_castle(chessboard board, chesset set, special_move castle) {
 	for (slide_square.file = king_move.ini.file; slide_square.file <= king_move.fin.file; slide_square.file += fileinc) {
 		for (i = 0; i < n; ++i) {
 			if (can_attack(enemy[i], slide_square) || (board.brd[slide_square.rank][slide_square.file].pc)) {
-				if (DEBUG_CASTLE) {
+				if (DEBUG_MOVES & DEBUG_CASTLE) {
 					printf("%c%c attacked by %c\n", slide_square.file + 'a', slide_square.rank + '1', enemy[i].piece);
 				}
 				return 0;
@@ -308,7 +310,6 @@ int vanilla_can_move(piece p, position ps) {
 
 	if (toupper(p.piece) == 'P' && sl.dfile && !p.end[direction]) {
 		/* diagonal movement of pawn when there is no piece to be attacked */
-		printf("Enpass Failed\n");
 		return 0;
 	}
 
@@ -494,11 +495,10 @@ void calculate_direction(piece *p, chessboard ch, usint direction) {
 	}
 
 	if (inrange(ch.enpass_target.rank, ch.enpass_target.file)) {
-		printf("Enpass Try: %c%c\n", file + 'a', rank + '1');
-		if (toupper(p->piece) == 'P' && ch.enpass_target.rank == rank && ch.enpass_target.file == file) {
-			printf("Enpass\n");
-			end = isWhite(p->piece) ? 'p' : 'P';
-			printf("End = %c\n", end);
+		if (TRY_ENPASS) {
+			if (toupper(p->piece) == 'P' && ch.enpass_target.rank == rank && ch.enpass_target.file == file) {
+				end = isWhite(p->piece) ? 'p' : 'P';
+			}
 		}
 	}
 
@@ -553,7 +553,9 @@ void calculate_threats(chesset *set, char color) {
 			if (slidingPiece(enemy[i].piece)) {
 				sl = find_movement(king->ps, enemy[i].ps);
 				direction = find_dir(sl);
-				printf("Direction %d %d\n", direction, oppDir(direction));
+				if (DEBUG_MOVES & DEBUG_THREAT) {
+					printf("Direction %d %d\n", direction, oppDir(direction));
+				}
 				if (direction < 8) {
 					king->pin_dir |= 1 << direction;
 					king->pin_dir |= 1 << oppDir(direction);
@@ -574,7 +576,9 @@ void calculate_threats(chesset *set, char color) {
 			}
 		}
 	}
-	printf("%x\n", king->pin_dir);
+	if (DEBUG_MOVES & DEBUG_THREAT) {
+		printf("%x\n", king->pin_dir);
+	}
 }
 
 
@@ -1165,7 +1169,7 @@ int is_stalemate(chessboard board, chesset set) {
 	int n = 0;
 	int i, j;
 	if (set.threat_count) {
-		if (DEBUG_GAMEND) {
+		if (DEBUG_MOVES & DEBUG_GAMEND) {
 			printf("King in check, not stale\n");
 		}
 		/* king in check, cannot be stalemate */
@@ -1190,7 +1194,7 @@ int is_stalemate(chessboard board, chesset set) {
 
 		for (j = pc.dir_start; j <= pc.dir_end; j += pc.dir_incr) {
 			if (pc.dirs[j & 7] > 1) {
-				if (DEBUG_GAMEND) {
+				if (DEBUG_MOVES & DEBUG_GAMEND) {
 					printf("%c at %c%c can move in %d direction, not stalemate\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', j);
 				}
 				/* sliding for more than one square */
@@ -1199,14 +1203,14 @@ int is_stalemate(chessboard board, chesset set) {
 			else if (pc.dirs[j & 7] == 1 && isDifferent(pc.piece, pc.end[j & 7])) {
 				/* no need to consider (pc.end[j & 7] != oppKing(pc.piece)) as king is not in check */
 				/* first square- check whether blocked */
-				if (DEBUG_GAMEND) {
+				if (DEBUG_MOVES & DEBUG_GAMEND) {
 					printf("%c at %c%c can move in %d direction, not stalemate\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', j);
 				}
 				return 0;
 			}
 		}
 	}
-	
+
 	pc = player[0];
 	for (j = pc.dir_start; j <= pc.dir_end; j++) {
 		if ((!(pc.pin_dir & (1 << (j)))) && pc.dirs[j & 7] == 1 && !isSame(pc.piece, pc.end[j & 7])) {

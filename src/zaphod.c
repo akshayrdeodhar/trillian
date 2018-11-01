@@ -1,0 +1,5 @@
+#include "zaphod.h"
+#include "moves.h"
+#include "board.h"
+#include "pieces.h"
+#include "defs.h"
