@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
 		display(board, READ_MODE);
 		return 1;
 	}
+	string[0] = '\0';
 
 	interface_board_set(&board, &set);
 
@@ -160,6 +161,9 @@ int main(int argc, char *argv[]) {
 		if (DEBUG & DEBUG_THREAT) {
 			show_threats(set, board);
 		}
+
+		board_to_fenstring(string, board);
+		printf("Current .FEN string: %s\n", string);
 #if 0
 		calculate_threats(&set, 'b');
 

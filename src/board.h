@@ -24,6 +24,10 @@ typedef struct {
 	position enpass_target; /* the square to which enpass is allowed (there is only one) */
 	usint halfmoves; /* number of non-pawn and non capture moves (for 50 move rule) */
 	usint fullmoves; /* number of black moves */
+	move whiterep;
+	usint white_reps;
+	move blackrep;
+	usint blackreps;
 }chessboard;
 
 int fenstring_to_board(chessboard *board, char fenstring[]); /* converts a .fen string to corresponding board position */

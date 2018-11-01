@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include "moves.h"
 #include "defs.h"
+#include "input.h"
 
 unsigned readline(char string[], unsigned maxlen) {
 	int i = 0;

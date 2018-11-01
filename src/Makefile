@@ -22,7 +22,7 @@ pieces.o: pieces.c pieces.h board.h defs.h
 moves.o: moves.c moves.h pieces.h board.h defs.h display.h vector.h
 	gcc -c moves.c $(FLAGS) $(ASAN) $(DEBUG) $(REDIRECT)
 
-input.o: input.c
+input.o: input.c input.h
 	gcc -c input.c $(FLAGS) $(ASAN) $(DEBUG) $(REDIRECT)
 
 vector.o: vector.c vector.h defs.h

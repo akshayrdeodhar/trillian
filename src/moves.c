@@ -1005,6 +1005,8 @@ void show_threats(chesset set, chessboard board) {
 	piece king;
 	/* shut up errors */
 	king.dir_start = king.dir_end = king.dir_incr = 8;
+	king.ps.rank = king.ps.file = 8;
+	king.pin_dir = 0;
 	/* end of shutup errors */
 
 	chessboard threats = board;
