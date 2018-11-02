@@ -5,3 +5,5 @@ test.fen
 *.pdf
 save*
 *.err
+../doc/*.pdf
+../save*.c
