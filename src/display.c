@@ -12,7 +12,12 @@ void display(chessboard board, int mode) {
 				putchar(' ');
 			}
 			else {
-				putchar('.');
+				if ((i + j) & 1) {
+					putchar('.');
+				}
+				else {
+					putchar('x');
+				}
 				putchar(' ');
 			}
 		}

@@ -21,10 +21,9 @@
 #define DEBUG_GAMEND (1 << 6)
 
 #define OLD_CASTLE (0)
-#define TRY_ENPASS (0)
+#define OLD_STALEMATE (0)
 #define TRY_ENPASS (0)
 
-#define isSame(p, q) ((isWhite(p) && isWhite(q)) || (isBlack(p) && isBlack(q))) /* p, q SAN chars */
 #define isDifferent(p, q) ((isWhite(p) && isBlack(q)) || (isBlack(p) && isWhite(q))) /* p, q SAN chars */
 #define slidingPiece(p) ((toupper(p) == 'R') || (toupper(p) == 'Q') || (toupper(p) == 'B')) /* p SAN char */
 
@@ -42,11 +41,8 @@
 #define pawndir(p, dir) (isWhite(p) ? ((dir) == 1 || (dir) == 2 || (dir) == 3) : ((dir) == 5 || (dir) == 6 || (dir) == 7)) /* p SAN char -> pawn, dir directoin (as defined in xincr, yincr */
 #define homerow(p) (p == 'P' ? 1 : (p == 'p') ? 6 : SCHAR_MIN)
 
-#define MAXMAG(a, b) (mkpositive(a) > mkpositive(b) ? mkpositive(a) : mkpositive(b))
 
-#define mkpositive(u) ((u) > 0 ? (u) : (-(u))) /* u is any number */
 #define euclidian(sl) (sqrt(sl.drank * sl.drank + sl.dfile * sl.dfile))
-#define distance(sl, dir) (((dir) < 8) ? MAXMAG(sl.drank, sl.dfile) : 1)
 
 
 /* direction macros */
@@ -314,6 +310,7 @@ int vanilla_can_move(piece p, position ps) {
 	}
 
 	if (toupper(p.piece) == 'K') {
+		printf("King moving into attacked square\n");
 		/* king moving into attacked square */
 		if (p.pin_dir & (1 << direction)) {
 			return 0;
@@ -1128,8 +1125,10 @@ int is_checkmate(chessboard board, chesset set) {
 		return 0;
 	}
 
+	if (DEBUG_GAMEND & DEBUG_MOVES) {
 	printf("PIN_DIR:");
 	show_register(king.pin_dir);
+	}
 
 	for (i = king.dir_start; i <= king.dir_end; i += king.dir_incr) {
 		if ((!(king.pin_dir & (1 << i))) && king.dirs[i & 7] && (!isSame(king.piece, king.end[i & 7]))) {
@@ -1167,7 +1166,9 @@ int is_stalemate(chessboard board, chesset set) {
 	piece *player = NULL;
 	piece pc;
 	int n = 0;
-	int i, j;
+	int i, j, k;
+	ssint rankinc, fileinc;
+	position where;
 	if (set.threat_count) {
 		if (DEBUG_MOVES & DEBUG_GAMEND) {
 			printf("King in check, not stale\n");
@@ -1185,6 +1186,7 @@ int is_stalemate(chessboard board, chesset set) {
 		n = set.n_black;
 	}
 
+#if OLD_STALEMATE
 	for (i = 1; i < n; i++) {
 		pc = player[i];
 		if (pc.pin_dir != DIR_NONE && (!(pc.pin_dir >= pc.dir_start && pc.pin_dir <= pc.dir_end && ((pc.pin_dir - pc.dir_start) % pc.dir_incr == 0)))) {
@@ -1200,7 +1202,8 @@ int is_stalemate(chessboard board, chesset set) {
 				/* sliding for more than one square */
 				return 0;
 			}
-			else if (pc.dirs[j & 7] == 1 && isDifferent(pc.piece, pc.end[j & 7])) {
+			else if (((pc.dirs[j & 7] == 1) && isDifferent(pc.piece, pc.end[j & 7]))
+					|| ((!pc.end[j & 7]) && (toupper(pc.piece) != 'P'))) {
 				/* no need to consider (pc.end[j & 7] != oppKing(pc.piece)) as king is not in check */
 				/* first square- check whether blocked */
 				if (DEBUG_MOVES & DEBUG_GAMEND) {
@@ -1210,6 +1213,26 @@ int is_stalemate(chessboard board, chesset set) {
 			}
 		}
 	}
+#else
+	for (i = 1; i < n; i++) {
+		pc = player[i];
+		for (j = pc.dir_start; j <= pc.dir_end; j += pc.dir_incr) {
+			where = pc.ps;
+			rankinc = rankincr(j);
+			fileinc = fileincr(j);
+			where.rank += rankinc;
+			where.file += fileinc;
+			for (k = 1; k <= pc.dirs[j & 7]; k++, where.rank += rankinc, where.file += fileinc) {
+				if (vanilla_can_move(pc, where)) {
+					if (DEBUG_MOVES & DEBUG_GAMEND) {
+						printf("%c at %c%c can move to %c%c, not stalemate\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', where.file + 'a', where.rank + '1');
+					}
+					return 0;
+				}
+			}
+		}
+	}
+#endif
 
 	pc = player[0];
 	for (j = pc.dir_start; j <= pc.dir_end; j++) {

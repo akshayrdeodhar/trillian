@@ -6,7 +6,9 @@
 
 int can_attack(piece p, position ps); /* whether position ps is in piece p's ATTACK RANGE */
 
-int can_move(chessboard board, chesset set, move mv);
+int vanilla_can_move(piece p, position ps); /* checks whether piece can move to specified position without considering threats to king */
+
+int can_move(chessboard board, chesset set, move mv); /* checks whether specified move is legal for given board position */
 
 void calculate_piece(piece *p, chessboard ch); /* calculate sliding movements in all directions of piece, store them in piece */
 

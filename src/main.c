@@ -7,6 +7,8 @@
 #include "display.h"
 #include "moves.h"
 #include "input.h"
+#include "array.h"
+#include "zaphod.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
 #define DEBUG (0)
@@ -22,6 +24,7 @@ int main(int argc, char *argv[]) {
 
 	char command[32];
 	move mv, rook_castle;
+	array a;
 
 	if (argc > 2) {
 		fprintf(stderr, "usage: ./chess <file.fen>\n");
@@ -46,7 +49,7 @@ int main(int argc, char *argv[]) {
 	}
 
 
-	int n;
+	int n, i;
 	char string[128];
 	fgets(string, 128, fp);
 	n = strlen(string);
@@ -101,6 +104,16 @@ int main(int argc, char *argv[]) {
 
 #if MAIN_LOOP
 	while(1) {
+		
+		ainit(&a);
+		generate_moves(&board, &set, &a);
+		int movecount;
+		movecount = alength(&a);
+		for (i = 0; i < movecount; i++) {
+			print_move(a.arr[i]);
+		}
+		adestroy(&a);
+
 
 		fprintf(stderr, "COMMAND:");
 		readline(command, 32);
@@ -133,7 +146,7 @@ int main(int argc, char *argv[]) {
 			handle_promotion(&board, &set, mv, promoted);
 
 		}
-		
+
 		update_pieces(board, &set, mv);
 
 		if (castle) {
@@ -141,7 +154,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		/*verify_interface(board, set);*/
-		display(board, MOVES_MODE);
+		display(board, READ_MODE);
 
 
 		calculate_pins(&set, board, 'w');
@@ -149,6 +162,7 @@ int main(int argc, char *argv[]) {
 
 		calculate_threats(&set, board.player);
 
+		
 		if (is_checkmate(board, set)) {
 			printf("Checkmate!\n");
 			printf("%s Wins!\n", board.player == 'w' ? "Black" : "White");
@@ -165,15 +179,8 @@ int main(int argc, char *argv[]) {
 
 		board_to_fenstring(string, board);
 		if (DEBUG & DEBUG_FEN) {
-		printf("Current .FEN string: %s\n", string);
+			printf("Current .FEN string: %s\n", string);
 		}
-#if 0
-		calculate_threats(&set, 'b');
-
-		if (DEBUG & DEBUG_THREAT) {
-			show_threats(set, board);
-		}
-#endif
 	}
 #endif
 	return 0;
