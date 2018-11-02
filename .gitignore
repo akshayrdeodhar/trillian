@@ -3,4 +3,6 @@ doc/gamesearch.pdf
 save*.c
 *.txt
 *.o
+*.err
+test.fen
 try
