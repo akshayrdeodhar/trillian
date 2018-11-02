@@ -1,5 +1,6 @@
 #ifndef INPUT_H
 #define INPUT_H
+#include "player.h"
 
 #define MAX 16
 
@@ -21,6 +22,8 @@ typedef struct {
 move extract_move(char string[]);
 unsigned readline(char string[], unsigned maxlen);
 char get_promotion(char player);
+int get_gamemode(void);
+player_token get_player(char col);
 
 #endif
 

@@ -25,6 +25,8 @@ int main(int argc, char *argv[]) {
 	char command[32];
 	move mv, rook_castle;
 	array a;
+	int players;
+	player_token pw, pb, pt;
 
 	if (argc > 2) {
 		fprintf(stderr, "usage: ./chess <file.fen>\n");
@@ -52,6 +54,7 @@ int main(int argc, char *argv[]) {
 	int n, i;
 	char string[128];
 	fgets(string, 128, fp);
+	fclose(fp);
 	n = strlen(string);
 	if (string[n - 1] == '\n') {
 		string[n - 1] = '\0';
@@ -69,6 +72,29 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	string[0] = '\0';
+
+	players = get_gamemode();
+	if (!players) {
+		printf("Begone, Cretin\n");
+		return 0;
+	}
+	pw = get_player('\0');
+	if (players == 2) {
+		pb = get_player(pw.color);
+	}
+	else {
+		pb.type = COMPUTER;
+		strcpy(pb.name, COMP_NAME);
+		pb.color = (pw.color == 'w') ? 'b' : 'w';
+	}
+
+	/* pw should be the player who plays white */
+	if (pw.color == 'b') {
+		pt = pb;
+		pb = pw;
+		pw = pt;
+	}
+
 
 	interface_board_set(&board, &set);
 
@@ -104,7 +130,9 @@ int main(int argc, char *argv[]) {
 
 #if MAIN_LOOP
 	while(1) {
-		
+
+		/* zaphod generates moves */
+#if 0
 		ainit(&a);
 		generate_moves(&board, &set, &a);
 		int movecount;
@@ -113,29 +141,37 @@ int main(int argc, char *argv[]) {
 			print_move(a.arr[i]);
 		}
 		adestroy(&a);
+#endif
 
+		display(board, MOVES_MODE);
 
-		fprintf(stderr, "COMMAND:");
-		readline(command, 32);
+		/* get command from user */
+		pt = (board.player == 'w') ? pw : pb;
+		if (pt.type == HUMAN) {
+			fprintf(stderr, "Your turn, %s\nCommand:", pt.name);
+			readline(command, 32);
 
-		if (!(strcmp(command, "quit"))) {
-			if (DEBUG & DEBUG_END) {
-				enumpins(set);
-				moves_bitboard(set, board);
+			if (!(strcmp(command, "quit"))) {
+				if (DEBUG & DEBUG_END) {
+					enumpins(set);
+					moves_bitboard(set, board);
+				}
+				return 0;
 			}
-			return 0;
-		}
 
-		mv = extract_move(command);
-		print_move(mv);
+			mv = extract_move(command);
+			print_move(mv);
+		}
+		else {
+			mv = zaphod(&board, &set);
+		}
 		if (!can_move(board, set, mv)) {
-			fprintf(stderr, "Invalid Move\n");
+			fprintf(stderr, "Invalid Move, %s\n", pt.name);
 			continue;
 		}
-
 		castle = make_move(&board, &set, mv);
 
-
+		/* handle special moves */
 		if (white_kingside <= castle && black_queenside >= castle) {
 			rook_castle = rook_move(castle);
 			menial_move(&board, &set, rook_castle);
@@ -147,25 +183,17 @@ int main(int argc, char *argv[]) {
 
 		}
 
+		/* recalculate */
 		update_pieces(board, &set, mv);
-
-		if (castle) {
-			moves_bitboard(set, board);
-		}
-
-		/*verify_interface(board, set);*/
-		display(board, READ_MODE);
-
-
 		calculate_pins(&set, board, 'w');
 		calculate_pins(&set, board, 'b');
-
 		calculate_threats(&set, board.player);
 
-		
+
+		/* check for end of game */
 		if (is_checkmate(board, set)) {
 			printf("Checkmate!\n");
-			printf("%s Wins!\n", board.player == 'w' ? "Black" : "White");
+			printf("%s Wins!\n", board.player == 'w' ? pb.name : pw.name);
 			break;
 		}
 		else if (is_stalemate(board, set)) {

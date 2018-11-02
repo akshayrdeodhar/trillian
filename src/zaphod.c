@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "zaphod.h"
 #include "moves.h"
 #include "board.h"
@@ -56,6 +57,7 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 	/* single check, calculate possible blocking or evasion moves */
 	if (set->threat_count == 1) {
 		king = zaphod[0];
+		printf("Threat from %c%c\n", set->threat_source.file + 'a', set->threat_source.rank + '1');
 		sl = find_movement(king.ps, set->threat_source);
 		direction = find_dir(sl);
 		rankinc = rankincr(direction);
@@ -63,16 +65,15 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 		save.rank = king.ps.rank + rankinc;
 		save.file = king.ps.file + fileinc;
 		dist = distance(sl, direction);
-		for (i = 1; i < zn; i++) {
-			show = *board;
-			/* for each friendly piece */
-			pc = zaphod[i];
-			mv.ini = pc.ps;
-			for (j = 1; j <= dist; j++, save.rank += rankinc, save.file += fileinc) {
+		for (i = 1; i <= dist; i++, save.rank += rankinc, save.file += fileinc) {
 			/* for each 'natural' square in line joining king and source of check */
-				if (vanilla_can_move(zaphod[j], save)) {
+			for (j = 0; j < zn; j++) {
+				/* for each friendly piece */
+				pc = zaphod[j];
+				mv.ini = pc.ps;
+				if (vanilla_can_move(pc, save)) {
 					mv.fin = save;
-					show.brd[mv.fin.rank][mv.fin.file].pc = 'M';
+					print_move(mv);
 					aappend(a, mv);
 					/* if can block or kill */
 				}
@@ -107,5 +108,22 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 		}
 		display(show, MOVES_MODE);
 	}
+}
+
+
+/* takes board and set with all calculations done, returns a random move, beeblebrox style */
+move zaphod(chessboard *board, chesset *set) {
+	array a;
+	int x;
+	ainit(&a);
+	generate_moves(board, set, &a);
+	int n = alength(&a);
+	for (x = 0; x < n; x++) {
+		print_move(a.arr[x]);
+	}
+	int i = rand() % n;
+	move mv = a.arr[i];
+	adestroy(&a);
+	return mv;
 }
 

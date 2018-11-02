@@ -24,6 +24,8 @@
 #define OLD_STALEMATE (0)
 #define TRY_ENPASS (0)
 
+#define EPSILON 1e-6
+
 #define isDifferent(p, q) ((isWhite(p) && isBlack(q)) || (isBlack(p) && isWhite(q))) /* p, q SAN chars */
 #define slidingPiece(p) ((toupper(p) == 'R') || (toupper(p) == 'Q') || (toupper(p) == 'B')) /* p SAN char */
 
@@ -351,7 +353,8 @@ int can_move(chessboard board, chesset set, move mv) {
 			movement king_to_piece = find_movement(king.ps, mv.fin);
 			movement piece_to_threat = find_movement(mv.fin, set.threat_source);
 			movement king_to_threat = find_movement(king.ps, set.threat_source);
-			if (euclidian(king_to_piece) + euclidian(piece_to_threat) != euclidian(king_to_threat)) {
+			printf("king_to_piece: %lf\tpiece_to_threat: %lf\tking_to_threat: %lf\n", euclidian(king_to_piece), euclidian(piece_to_threat), euclidian(king_to_threat));
+			if (fabs(euclidian(king_to_piece) + euclidian(piece_to_threat) - euclidian(king_to_threat)) > EPSILON) {
 				/* if the king, the piece and the threat are not in a straight line :) :) :) */
 				fprintf(stderr, "King in check\n");
 				return 0;
@@ -1110,6 +1113,7 @@ int is_checkmate(chessboard board, chesset set) {
 		return 0;
 	}
 
+	/* chose player's pieces */
 	if (board.player == 'w') {
 		king = set.whites[0];
 		friendlies = set.whites;
@@ -1126,12 +1130,13 @@ int is_checkmate(chessboard board, chesset set) {
 	}
 
 	if (DEBUG_GAMEND & DEBUG_MOVES) {
-	printf("PIN_DIR:");
-	show_register(king.pin_dir);
+		printf("PIN_DIR:");
+		show_register(king.pin_dir);
 	}
 
 	for (i = king.dir_start; i <= king.dir_end; i += king.dir_incr) {
 		if ((!(king.pin_dir & (1 << i))) && king.dirs[i & 7] && (!isSame(king.piece, king.end[i & 7]))) {
+			printf("King can move in direction %d, not checkmate\n", i);
 			/* not attacked, not unavailable, and not friendly -> escape available */
 			return 0;
 		}
@@ -1150,6 +1155,7 @@ int is_checkmate(chessboard board, chesset set) {
 			for (j = 0; j < n; j++) {
 				/* for each friendly piece */
 				if (vanilla_can_move(friendlies[j], save)) {
+					printf("%c can move to %c%c\n", friendlies[j].piece, save.file + 'a', save.rank + '1');
 					/* if can block or kill */
 					return 0;
 				}
@@ -1169,6 +1175,7 @@ int is_stalemate(chessboard board, chesset set) {
 	int i, j, k;
 	ssint rankinc, fileinc;
 	position where;
+
 	if (set.threat_count) {
 		if (DEBUG_MOVES & DEBUG_GAMEND) {
 			printf("King in check, not stale\n");
@@ -1177,6 +1184,7 @@ int is_stalemate(chessboard board, chesset set) {
 		return 0;
 	}
 
+	/* chose player's pieces */
 	if (board.player == 'w') {
 		player = set.whites;
 		n = set.n_white;
@@ -1186,34 +1194,7 @@ int is_stalemate(chessboard board, chesset set) {
 		n = set.n_black;
 	}
 
-#if OLD_STALEMATE
-	for (i = 1; i < n; i++) {
-		pc = player[i];
-		if (pc.pin_dir != DIR_NONE && (!(pc.pin_dir >= pc.dir_start && pc.pin_dir <= pc.dir_end && ((pc.pin_dir - pc.dir_start) % pc.dir_incr == 0)))) {
-			/* piece pinned in direction which is not direction of it's movement-> piece cannot move */
-			continue;
-		}
-
-		for (j = pc.dir_start; j <= pc.dir_end; j += pc.dir_incr) {
-			if (pc.dirs[j & 7] > 1) {
-				if (DEBUG_MOVES & DEBUG_GAMEND) {
-					printf("%c at %c%c can move in %d direction, not stalemate\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', j);
-				}
-				/* sliding for more than one square */
-				return 0;
-			}
-			else if (((pc.dirs[j & 7] == 1) && isDifferent(pc.piece, pc.end[j & 7]))
-					|| ((!pc.end[j & 7]) && (toupper(pc.piece) != 'P'))) {
-				/* no need to consider (pc.end[j & 7] != oppKing(pc.piece)) as king is not in check */
-				/* first square- check whether blocked */
-				if (DEBUG_MOVES & DEBUG_GAMEND) {
-					printf("%c at %c%c can move in %d direction, not stalemate\n", pc.piece, pc.ps.file + 'a', pc.ps.rank + '1', j);
-				}
-				return 0;
-			}
-		}
-	}
-#else
+	/* look for piece moves */
 	for (i = 1; i < n; i++) {
 		pc = player[i];
 		for (j = pc.dir_start; j <= pc.dir_end; j += pc.dir_incr) {
@@ -1232,18 +1213,16 @@ int is_stalemate(chessboard board, chesset set) {
 			}
 		}
 	}
-#endif
 
+	/* look for king moves */
 	pc = player[0];
 	for (j = pc.dir_start; j <= pc.dir_end; j++) {
 		if ((!(pc.pin_dir & (1 << (j)))) && pc.dirs[j & 7] == 1 && !isSame(pc.piece, pc.end[j & 7])) {
 			return 0;
 		}
 	}
-
 	/* castling not considered specially because for castling to work, king should be able to move one space in that direction */
 
 	/* no moves possible: stalemate */
-
 	return 1;
 }

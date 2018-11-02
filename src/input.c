@@ -4,6 +4,7 @@
 #include "moves.h"
 #include "defs.h"
 #include "input.h"
+#include "player.h"
 
 unsigned readline(char string[], unsigned maxlen) {
 	int i = 0;
@@ -61,3 +62,83 @@ char get_promotion(char player) {
 	}
 	return (player == 'w' ? toupper(promote_to) : tolower(promote_to));
 }
+
+/* prompts user to choose game mode 
+ * TODO: Place a cheat-code for 'testing mode'
+ * */
+int get_gamemode(void) {
+	char no, next;
+	int pole = 0;
+	printf("Hello gentlemen: All your base are belong to us!\n You can:\nPlay chess with a superior being (Press 1)\nPlay chess with a lower being of your species (Press 2)\n There is no option 3.\n");
+	no = getchar();
+	next = getchar();
+	while(no != '1' && no != '2' && pole < 5) {
+		if (next != '\n');
+		putchar('\n');
+		printf("Thou shalt choose 1 or 2\nChoose:");
+		no = getchar();
+		next = getchar();
+		pole++;
+	}
+
+	if (no == '1' || no == '2') {
+		return no - '0';
+	}
+
+	printf("Thou art indeed a ReBeL\n");
+
+	return 0;
+}
+
+/* creates a player token for player with a fake, old english manner. 
+ * if col is NUL, prompts for color. else chooses color automatically based on col
+ * TODO: hardening against rebellious users
+ * */
+player_token get_player(char col) {
+	player_token tk;
+	int n, pole = 0;
+	char cl, next;
+	printf("What art thou called? (Thy name shalt not exceed 15 characters)\n");
+	fgets(tk.name, 16, stdin);
+	n = strlen(tk.name);
+	while(tk.name[n - 1] != '\n') {
+		putchar('\n');
+		printf("THY NAME SHALT NOT EXCEED FIFTEEN CHARACTERS\n");
+		fgets(tk.name, 16, stdin);
+		n = strlen(tk.name);
+	}
+	tk.name[n - 1] = '\0';
+	tk.type = HUMAN;
+
+	if (col) {
+		printf("%s, thou shalt not choose your color\n", tk.name);
+		tk.color = (col == 'w') ? 'b' : 'w';
+		return tk;
+	}
+
+	printf("What color dost thou choose?\n w - white\tb - black\n(Psst- white gets to play first)\n");
+	cl = getchar();
+	next = getchar();
+
+	printf("\n%c\n", cl);
+	while(cl != 'w' && cl != 'b' && pole < 5) {
+		if (next != '\n');
+		putchar('\n');
+		printf("Thou shalt choose w or b, thou descendent of the ape\n");
+		cl = getchar();
+		next = getchar();
+		pole++;
+	}
+
+	if (cl != 'w' && cl != 'b') {
+		printf("I grow weary of this.\n");
+		tk.color = '\0';
+		return tk;
+	}
+
+	printf("Very well, %s\n", tk.name);
+	tk.color = cl;
+
+	return tk;
+}
+

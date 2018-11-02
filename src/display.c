@@ -9,17 +9,11 @@ void display(chessboard board, int mode) {
 		for (j = 0; j < 8; ++j) {
 			if(board.brd[i][j].pc) {
 				putchar(board.brd[i][j].pc);
-				putchar(' ');
 			}
 			else {
-				if ((i + j) & 1) {
-					putchar('.');
-				}
-				else {
-					putchar('x');
-				}
-				putchar(' ');
+				putchar('.');
 			}
+			putchar(' ');
 		}
 		putchar('\n');
 	}
