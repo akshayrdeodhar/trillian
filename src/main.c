@@ -7,7 +7,6 @@
 #include "display.h"
 #include "moves.h"
 #include "input.h"
-#include "array.h"
 #include "zaphod.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
@@ -24,7 +23,6 @@ int main(int argc, char *argv[]) {
 
 	char command[32];
 	move mv, rook_castle;
-	array a;
 	int players;
 	player_token pw, pb, pt;
 
@@ -51,9 +49,10 @@ int main(int argc, char *argv[]) {
 	}
 
 
-	int n, i;
+	int n;
 	char string[128];
 	fgets(string, 128, fp);
+	n = 0;
 	fclose(fp);
 	n = strlen(string);
 	if (string[n - 1] == '\n') {
@@ -78,21 +77,31 @@ int main(int argc, char *argv[]) {
 		printf("Begone, Cretin\n");
 		return 0;
 	}
-	pw = get_player('\0');
-	if (players == 2) {
-		pb = get_player(pw.color);
+	if (players != 42) {
+		pw = get_player('\0');
+		if (players == 2) {
+			pb = get_player(pw.color);
+		}
+		else {
+			pb.type = COMPUTER;
+			strcpy(pb.name, COMP_NAME);
+			pb.color = (pw.color == 'w') ? 'b' : 'w';
+		}
+
+		/* pw should be the player who plays white */
+		if (pw.color == 'b') {
+			pt = pb;
+			pb = pw;
+			pw = pt;
+		}
 	}
 	else {
-		pb.type = COMPUTER;
-		strcpy(pb.name, COMP_NAME);
-		pb.color = (pw.color == 'w') ? 'b' : 'w';
-	}
-
-	/* pw should be the player who plays white */
-	if (pw.color == 'b') {
-		pt = pb;
-		pb = pw;
-		pw = pt;
+		strcpy(pw.name, "Walter");
+		pw.type = HUMAN;
+		pw.color = 'w';
+		strcpy(pb.name, "Jesse");
+		pw.type = HUMAN;
+		pb.color = 'b';
 	}
 
 

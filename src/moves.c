@@ -312,9 +312,10 @@ int vanilla_can_move(piece p, position ps) {
 	}
 
 	if (toupper(p.piece) == 'K') {
-		printf("King moving into attacked square\n");
 		/* king moving into attacked square */
+		show_register(p.pin_dir);
 		if (p.pin_dir & (1 << direction)) {
+			printf("King moving into attacked square\n");
 			return 0;
 		}
 	}
@@ -518,7 +519,7 @@ void calculate_threats(chesset *set, char color) {
 	piece *king;
 	int i, j;
 	movement sl;
-	usint direction;
+	usint direction, dist;
 	position neighbour;
 
 	set->threat_count = 0;
@@ -553,11 +554,15 @@ void calculate_threats(chesset *set, char color) {
 			if (slidingPiece(enemy[i].piece)) {
 				sl = find_movement(king->ps, enemy[i].ps);
 				direction = find_dir(sl);
+				dist = distance(sl, direction);
 				if (DEBUG_MOVES & DEBUG_THREAT) {
 					printf("Direction %d %d\n", direction, oppDir(direction));
 				}
 				if (direction < 8) {
-					king->pin_dir |= 1 << direction;
+					if (dist != 1) {
+						/* if attacking piece adjecant to king, opposite dir is dir of piece- do not conisder */
+						king->pin_dir |= 1 << direction;
+					}
 					king->pin_dir |= 1 << oppDir(direction);
 				}
 			}

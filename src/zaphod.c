@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/time.h>
 #include "zaphod.h"
 #include "moves.h"
 #include "board.h"
@@ -113,6 +114,9 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 
 /* takes board and set with all calculations done, returns a random move, beeblebrox style */
 move zaphod(chessboard *board, chesset *set) {
+	struct timeval random_time;
+	gettimeofday(&random_time, NULL);
+	srand(random_time.tv_sec);
 	array a;
 	int x;
 	ainit(&a);

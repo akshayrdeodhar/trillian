@@ -72,7 +72,7 @@ int get_gamemode(void) {
 	printf("Hello gentlemen: All your base are belong to us!\n You can:\nPlay chess with a superior being (Press 1)\nPlay chess with a lower being of your species (Press 2)\n There is no option 3.\n");
 	no = getchar();
 	next = getchar();
-	while(no != '1' && no != '2' && pole < 5) {
+	while(no != 'c' && no != '1' && no != '2' && pole < 5) {
 		if (next != '\n');
 		putchar('\n');
 		printf("Thou shalt choose 1 or 2\nChoose:");
@@ -83,6 +83,11 @@ int get_gamemode(void) {
 
 	if (no == '1' || no == '2') {
 		return no - '0';
+	}
+
+	if (no == 'c') {
+		/* c for cheat code- testing mode */
+		return 42;
 	}
 
 	printf("Thou art indeed a ReBeL\n");
@@ -99,15 +104,12 @@ player_token get_player(char col) {
 	int n, pole = 0;
 	char cl, next;
 	printf("What art thou called? (Thy name shalt not exceed 15 characters)\n");
-	fgets(tk.name, 16, stdin);
-	n = strlen(tk.name);
-	while(tk.name[n - 1] != '\n') {
+	n = readline(tk.name, 15);
+	while(n > 15) {
 		putchar('\n');
 		printf("THY NAME SHALT NOT EXCEED FIFTEEN CHARACTERS\n");
-		fgets(tk.name, 16, stdin);
-		n = strlen(tk.name);
+		n = readline(tk.name, 15);
 	}
-	tk.name[n - 1] = '\0';
 	tk.type = HUMAN;
 
 	if (col) {
