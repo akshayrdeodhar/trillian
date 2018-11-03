@@ -217,3 +217,7 @@ This might prove ok when the king is not in check, but what if the king is
 checked by the pawn which will be the target of the enpass?
 Then the complexity will become too large to handle
 So, I am postponing enpass to infinity
+
+Q19. How to make user I/O strict?
+Using getchar() to get a single character is foolish. So I propose to use
+readline() everywhere, then validate the content of the line
