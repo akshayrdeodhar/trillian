@@ -95,6 +95,10 @@ const static move rook_castle_moves[] = {
 	{{8, 8}, {8, 8}} /* for invalid input */
 };
 
+move king_castle(special_move castle) {
+	return king_castle_moves[castle - 1];
+}
+
 
 
 special_move check_special(square sq, move mv) {
@@ -150,11 +154,11 @@ void update_castling(chessboard *board, move mv) {
 
 int can_castle(chessboard board, chesset set, special_move castle) {
 	if (!(board.castling & (1 << (castle)))) {
-		/* if that castling move is not available */
-		printf("Checking: %d\n", castle);
-		show_register(((usint)castle) << 1);
-		show_register(board.castling);
 		if (DEBUG_MOVES & DEBUG_CASTLE) {
+			/* if that castling move is not available */
+			printf("Checking: %d\n", castle);
+			show_register(((usint)castle) << 1);
+			show_register(board.castling);
 			printf("Not Available\n");
 		}
 		return 0;
@@ -200,9 +204,13 @@ int can_castle(chessboard board, chesset set, special_move castle) {
 	slide_square.rank = king_move.ini.rank;
 	board.brd[king_move.ini.rank][king_move.ini.file].pc = '\0';
 
-	for (slide_square.file = king_move.ini.file; slide_square.file <= king_move.fin.file; slide_square.file += fileinc) {
+	for (slide_square.file = king_move.ini.file; slide_square.file != (king_move.fin.file + fileinc); slide_square.file += fileinc) {
+		if (board.brd[slide_square.rank][slide_square.file].pc) {
+			/* square blocked */
+			return 0;
+		}
 		for (i = 0; i < n; ++i) {
-			if (can_attack(enemy[i], slide_square) || (board.brd[slide_square.rank][slide_square.file].pc)) {
+			if (can_attack(enemy[i], slide_square)) {
 				if (DEBUG_MOVES & DEBUG_CASTLE) {
 					printf("%c%c attacked by %c\n", slide_square.file + 'a', slide_square.rank + '1', enemy[i].piece);
 				}

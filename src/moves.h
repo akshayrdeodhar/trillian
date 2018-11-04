@@ -50,6 +50,8 @@ void moves_bitboard(chesset set, chessboard board); /* show all squares to which
 
 move rook_move(special_move king_castle); /* return rook move for castle */
 
+move king_castle(special_move castle); /* returns king move for castle */
+
 int can_castle(chessboard board, chesset set, special_move castle); /* check whether specified castling is legal */
 
 special_move check_special(square sq, move mv); /* check whether move is castling or promotion, return it's code */

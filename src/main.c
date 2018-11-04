@@ -49,7 +49,10 @@ int main(int argc, char *argv[]) {
 	}
 
 
-	int n;
+	int n, i;
+	int movecount;
+	array a;
+	ainit(&a);
 	char string[128];
 	fgets(string, 128, fp);
 	n = 0;
@@ -77,10 +80,18 @@ int main(int argc, char *argv[]) {
 		printf("Begone, Cretin\n");
 		return 0;
 	}
-	if (players != 42) {
+	if (players != 6 && players != 9) {
 		pw = get_player('\0');
+		if (!pw.color) {
+			fprintf(stderr, "Your services are no longer required\n");
+			return 0;
+		}
 		if (players == 2) {
 			pb = get_player(pw.color);
+			if (!pb.color) {
+				fprintf(stderr, "Your services are no longer required\n");
+				return 0;
+			}
 		}
 		else {
 			pb.type = COMPUTER;
@@ -97,10 +108,10 @@ int main(int argc, char *argv[]) {
 	}
 	else {
 		strcpy(pw.name, "Walter");
-		pw.type = HUMAN;
+		pw.type = (players == 6 ? HUMAN : COMPUTER);
 		pw.color = 'w';
 		strcpy(pb.name, "Jesse");
-		pw.type = HUMAN;
+		pb.type = pw.type == HUMAN ? COMPUTER : HUMAN;
 		pb.color = 'b';
 	}
 
@@ -141,16 +152,14 @@ int main(int argc, char *argv[]) {
 	while(1) {
 
 		/* zaphod generates moves */
-#if 0
 		ainit(&a);
+		printf("Possible Moves:\n");
 		generate_moves(&board, &set, &a);
-		int movecount;
 		movecount = alength(&a);
 		for (i = 0; i < movecount; i++) {
 			print_move(a.arr[i]);
 		}
 		adestroy(&a);
-#endif
 
 		display(board, MOVES_MODE);
 

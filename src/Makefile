@@ -2,7 +2,7 @@ FLAGS = -Wall -std=c89 -O2
 MATH = -lm
 REDIRECT = #2> errors.err
 ASAN = #-fsanitize=address
-DEBUG = -g
+DEBUG = #-g
 
 try: main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o
 	gcc main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o $(FLAGS) $(MATH) $(ASAN) $(DEBUG) -o try $(REDIRECT)

@@ -16,22 +16,24 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 	piece *zaphod = NULL;
 	piece pc, king;
 	int zn, i, j, k;
+	special_move castle_k;
 	usint direction, dist;
 	ssint rankinc, fileinc;
 	movement sl;
 	position save, where;
 	move mv;
-	chessboard show;
 
 	zn = 0;
 
 	if (board->player == 'w')  {
 		zaphod = set->whites;
 		zn = set->n_white;
+		castle_k = white_kingside;
 	}
 	else if (board->player == 'b') {
 		zaphod = set->blacks;
 		zn = set->n_black;
+		castle_k = black_kingside;
 	}
 	else {
 		zaphod = NULL;
@@ -39,7 +41,6 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 	}
 
 	/* calculate king moves first, as routine for this does not change based on whether king is in check */
-	show = *board; /* all show to starboard */
 	pc = zaphod[0]; 
 	mv.ini = pc.ps;
 	show_register(pc.pin_dir);
@@ -48,12 +49,10 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 			mv.fin.rank = pc.ps.rank + rankincr(i);
 			mv.fin.file = pc.ps.file + fileincr(i);
 			if (inrange(mv.fin.rank, mv.fin.file)) {
-				show.brd[mv.fin.rank][mv.fin.file].pc = 'M';
 				aappend(a, mv);
 			}
 		}
 	}
-	display(show, MOVES_MODE);
 
 	/* single check, calculate possible blocking or evasion moves */
 	if (set->threat_count == 1) {
@@ -79,16 +78,25 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 					/* if can block or kill */
 				}
 			}
-			display(show, MOVES_MODE);
 		}
 		/* no moves other than these remove check */
 		return;
+	}
+
+	if (can_castle(*board, *set, castle_k)) {
+		mv = king_castle(castle_k);
+		print_move(mv);
+		aappend(a, mv);
+	}
+	if (can_castle(*board, *set, castle_k + 1)) {
+		mv = king_castle(castle_k + 1);
+		print_move(mv);
+		aappend(a, mv);
 	}
 	
 	
 	for (i = 1; i < zn; i++) {
 		/* for each piece */
-		show = *board;
 		pc = zaphod[i];
 		for (j = pc.dir_start; j <= pc.dir_end; j += pc.dir_incr) {
 			/* for each direction in which piece moves */
@@ -103,11 +111,9 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 				if (vanilla_can_move(pc, where)) {
 					mv.fin = where;
 					aappend(a, mv);
-					show.brd[where.rank][where.file].pc = 'M';
 				}
 			}
 		}
-		display(show, MOVES_MODE);
 	}
 }
 

@@ -10,10 +10,13 @@ unsigned readline(char string[], unsigned maxlen) {
 	int i = 0;
 	char c;
 
-	while(((c = getchar()) != EOF) && (c != '\n') && (i < maxlen - 1)) {
+	while(((c = getchar()) != EOF) && (c != '\n') && (i < maxlen)) {
 		string[i++] = c;
 	}
 	string[i] = '\0';
+	while(c != '\n') {
+		c = getchar();
+	}
 	
 	return i;
 }
@@ -67,17 +70,16 @@ char get_promotion(char player) {
  * TODO: Place a cheat-code for 'testing mode'
  * */
 int get_gamemode(void) {
-	char no, next;
+	char line[16];
+	char no;
 	int pole = 0;
+	int n;
 	printf("Hello gentlemen: All your base are belong to us!\n You can:\nPlay chess with a superior being (Press 1)\nPlay chess with a lower being of your species (Press 2)\n There is no option 3.\n");
-	no = getchar();
-	next = getchar();
-	while(no != 'c' && no != '1' && no != '2' && pole < 5) {
-		if (next != '\n');
-		putchar('\n');
+	n = readline(line, 16);
+	no = line[0];
+	while((n > 1 || (no != 'C' && no != 'c' && no != '1' && no != '2')) && pole < 5) {
 		printf("Thou shalt choose 1 or 2\nChoose:");
-		no = getchar();
-		next = getchar();
+		n = readline(line, 16);
 		pole++;
 	}
 
@@ -87,7 +89,10 @@ int get_gamemode(void) {
 
 	if (no == 'c') {
 		/* c for cheat code- testing mode */
-		return 42;
+		return 9;
+	}
+	else if (no == 'C') {
+		return 6;
 	}
 
 	printf("Thou art indeed a ReBeL\n");
@@ -101,14 +106,15 @@ int get_gamemode(void) {
  * */
 player_token get_player(char col) {
 	player_token tk;
+	char line[8];
 	int n, pole = 0;
-	char cl, next;
+	char cl;
 	printf("What art thou called? (Thy name shalt not exceed 15 characters)\n");
-	n = readline(tk.name, 15);
+	n = readline(tk.name, 16);
+	printf("%d\n", n);
 	while(n > 15) {
-		putchar('\n');
 		printf("THY NAME SHALT NOT EXCEED FIFTEEN CHARACTERS\n");
-		n = readline(tk.name, 15);
+		n = readline(tk.name, 16);
 	}
 	tk.type = HUMAN;
 
@@ -119,16 +125,12 @@ player_token get_player(char col) {
 	}
 
 	printf("What color dost thou choose?\n w - white\tb - black\n(Psst- white gets to play first)\n");
-	cl = getchar();
-	next = getchar();
-
-	printf("\n%c\n", cl);
-	while(cl != 'w' && cl != 'b' && pole < 5) {
-		if (next != '\n');
-		putchar('\n');
+	n = readline(line, 8);
+	cl = line[0];
+	while((n > 1 || (cl != 'w' && cl != 'b')) && pole < 5) {
 		printf("Thou shalt choose w or b, thou descendent of the ape\n");
-		cl = getchar();
-		next = getchar();
+		n = readline(line, 8);
+		cl = line[0];
 		pole++;
 	}
 
