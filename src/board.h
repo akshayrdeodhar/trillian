@@ -27,7 +27,7 @@ typedef struct {
 	move whiterep;
 	usint white_reps;
 	move blackrep;
-	usint blackreps;
+	usint black_reps;
 }chessboard;
 
 int fenstring_to_board(chessboard *board, char fenstring[]); /* converts a .fen string to corresponding board position */

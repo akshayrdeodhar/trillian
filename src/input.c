@@ -85,6 +85,7 @@ int get_gamemode(void) {
 	while((n > 1 || (no != 'C' && no != 'c' && no != '1' && no != '2')) && pole < 5) {
 		printf("Thou shalt choose 1 or 2\nChoose:");
 		n = readline(line, 16, stdin);
+		no = line[0];
 		pole++;
 	}
 
@@ -152,4 +153,3 @@ player_token get_player(char col) {
 
 	return tk;
 }
-

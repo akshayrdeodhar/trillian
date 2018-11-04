@@ -1238,3 +1238,42 @@ int is_stalemate(chessboard *board, chesset *set) {
 	/* no moves possible: stalemate */
 	return 1;
 }
+
+int is_draw(chessboard *board, chesset *set) {
+	return ((board->white_reps == 6) && (board->black_reps == 6)) || is_stalemate(board, set);
+}
+
+
+void update_repetition(chessboard *board, move mv) {
+	move *pmv = NULL;
+	move temp;
+	usint *count = NULL;
+	/* as we are updating, move has already taken place, and colors have flipped */
+	if (board->player == 'w') {
+		pmv = &(board->blackrep);
+		count = &(board->black_reps);
+	}
+	else if (board->player == 'b') {
+		pmv = &(board->whiterep);
+		count = &(board->white_reps);
+	}
+
+	/* opposite of last move */
+	temp.fin = (*pmv).ini;
+	temp.ini = (*pmv).fin;
+
+	if (movesequal(temp, mv)) {
+		/* opposite of last move made */
+		*count += 1;
+	}
+	else {
+		/* new move made */
+		*count = 1;
+	}
+	*pmv = mv;
+}
+
+void show_repetition(chessboard *board) {
+	printf("White: %d\t", board->white_reps); print_move(board->whiterep);
+	printf("Black: %d\t", board->black_reps); print_move(board->blackrep);
+}

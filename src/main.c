@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 		return EINVAL;
 	}
 
-	FILE *fp;
+	FILE *fp = NULL;
 
 	if (argc == 1) {
 		fp = fopen(DEFAULT_PATH, "r");
@@ -67,12 +67,15 @@ int main(int argc, char *argv[]) {
 
 	if (fenstring_to_board(&board, string)) {
 		printf("Impossible:\n");
+		filled_display(&board);
 		display(&board, READ_MODE);
 	}
 	else {
+		filled_display(&board);
 		display(&board, READ_MODE);
 		return 1;
 	}
+	filled_display(&board);
 	string[0] = '\0';
 
 	players = get_gamemode();
@@ -116,6 +119,7 @@ int main(int argc, char *argv[]) {
 	}
 
 
+
 	interface_board_set(&board, &set);
 
 #if (DEBUG & DEBUG_INTERFACE)
@@ -150,8 +154,10 @@ int main(int argc, char *argv[]) {
 
 #if MAIN_LOOP
 	while(1) {
+		filled_display(&board);
 
 		/* zaphod generates moves */
+#if 0
 		ainit(&a);
 		printf("Possible Moves:\n");
 		generate_moves(&board, &set, &a);
@@ -160,8 +166,7 @@ int main(int argc, char *argv[]) {
 			print_move(a.arr[i]);
 		}
 		adestroy(&a);
-
-		display(&board, MOVES_MODE);
+#endif
 
 		/* get command from user */
 		pt = (board.player == 'w') ? pw : pb;
@@ -203,10 +208,11 @@ int main(int argc, char *argv[]) {
 
 		/* recalculate */
 		update_pieces(&board, &set, mv);
+		update_repetition(&board, mv);
+		show_repetition(&board);
 		calculate_pins(&set, &board, 'w');
 		calculate_pins(&set, &board, 'b');
 		calculate_threats(&set, board.player);
-
 
 		/* check for end of game */
 		if (is_checkmate(&board, &set)) {
@@ -214,8 +220,8 @@ int main(int argc, char *argv[]) {
 			printf("%s Wins!\n", board.player == 'w' ? pb.name : pw.name);
 			break;
 		}
-		else if (is_stalemate(&board, &set)) {
-			printf("Stalemate!\n");
+		else if (is_draw(&board, &set)) {
+			printf("Draw!\n");
 			break;
 		}
 

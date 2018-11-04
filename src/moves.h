@@ -64,4 +64,10 @@ int is_checkmate(chessboard *board, chesset *set); /* whether a king is in check
 
 int is_stalemate(chessboard *board, chesset *set); /* check whether stalemate */
 
+int is_draw(chessboard *board, chesset *set); /* checks all draw possibilites */
+
+void update_repetition(chessboard *board, move mv);
+
+void show_repetition(chessboard *board);
+
 #endif
