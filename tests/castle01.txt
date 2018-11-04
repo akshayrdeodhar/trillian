@@ -1,0 +1,12 @@
+2
+arthur
+2
+bela
+e2-e4
+e7-e5
+g1-f3
+b8-c6
+f1-c4
+f8-c5
+e1-g1
+quit

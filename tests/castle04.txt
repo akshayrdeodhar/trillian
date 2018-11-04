@@ -1,0 +1,7 @@
+2
+arthur
+w
+bela
+e2-e4
+e8-c8
+quit
