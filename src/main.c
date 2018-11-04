@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 	array a;
 	ainit(&a);
 	char string[128];
-	fgets(string, 128, fp);
+	readline(string, 128, fp);
 	n = 0;
 	fclose(fp);
 	n = strlen(string);
@@ -67,10 +67,10 @@ int main(int argc, char *argv[]) {
 
 	if (fenstring_to_board(&board, string)) {
 		printf("Impossible:\n");
-		display(board, READ_MODE);
+		display(&board, READ_MODE);
 	}
 	else {
-		display(board, READ_MODE);
+		display(&board, READ_MODE);
 		return 1;
 	}
 	string[0] = '\0';
@@ -120,25 +120,25 @@ int main(int argc, char *argv[]) {
 
 #if (DEBUG & DEBUG_INTERFACE)
 	show_set(set); 
-	verify_interface(board, set);
+	verify_interface(&board, &set);
 #endif
 
-	calculate_all(&set, board);
+	calculate_all(&set, &board);
 
 #if (DEBUG & DEBUG_CALCULATE)
-	debug_calculation(set, board);
+	debug_calculation(&set, &board);
 #endif
-	calculate_pins(&set, board, 'w');
-	calculate_pins(&set, board, 'b');
+	calculate_pins(&set, &board, 'w');
+	calculate_pins(&set, &board, 'b');
 
 	calculate_threats(&set, board.player);
 
-	if (is_checkmate(board, set) || is_stalemate(board, set)) {
+	if (is_checkmate(&board, &set) || is_stalemate(&board, &set)) {
 		fprintf(stderr, "Invalid game file, game has already ended\n");
 	}
 
 	if (DEBUG & DEBUG_THREAT) {
-		show_threats(set, board);
+		show_threats(&set, &board);
 	}
 #if 0
 	calculate_threats(&set, 'b');
@@ -161,18 +161,18 @@ int main(int argc, char *argv[]) {
 		}
 		adestroy(&a);
 
-		display(board, MOVES_MODE);
+		display(&board, MOVES_MODE);
 
 		/* get command from user */
 		pt = (board.player == 'w') ? pw : pb;
 		if (pt.type == HUMAN) {
 			fprintf(stderr, "Your turn, %s\nCommand:", pt.name);
-			readline(command, 32);
+			readline(command, 32, stdin);
 
 			if (!(strcmp(command, "quit"))) {
 				if (DEBUG & DEBUG_END) {
-					enumpins(set);
-					moves_bitboard(set, board);
+					enumpins(&set);
+					moves_bitboard(&set, &board);
 				}
 				return 0;
 			}
@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
 		else {
 			mv = zaphod(&board, &set);
 		}
-		if (!can_move(board, set, mv)) {
+		if (!can_move(&board, &set, mv)) {
 			fprintf(stderr, "Invalid Move, %s\n", pt.name);
 			continue;
 		}
@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
 		if (white_kingside <= castle && black_queenside >= castle) {
 			rook_castle = rook_move(castle);
 			menial_move(&board, &set, rook_castle);
-			update_pieces(board, &set, rook_castle);
+			update_pieces(&board, &set, rook_castle);
 		}
 		else if (castle == promotion) {
 			char promoted = get_promotion(board.player == 'b' ? 'w' : 'b');
@@ -202,28 +202,28 @@ int main(int argc, char *argv[]) {
 		}
 
 		/* recalculate */
-		update_pieces(board, &set, mv);
-		calculate_pins(&set, board, 'w');
-		calculate_pins(&set, board, 'b');
+		update_pieces(&board, &set, mv);
+		calculate_pins(&set, &board, 'w');
+		calculate_pins(&set, &board, 'b');
 		calculate_threats(&set, board.player);
 
 
 		/* check for end of game */
-		if (is_checkmate(board, set)) {
+		if (is_checkmate(&board, &set)) {
 			printf("Checkmate!\n");
 			printf("%s Wins!\n", board.player == 'w' ? pb.name : pw.name);
 			break;
 		}
-		else if (is_stalemate(board, set)) {
+		else if (is_stalemate(&board, &set)) {
 			printf("Stalemate!\n");
 			break;
 		}
 
 		if (DEBUG & DEBUG_THREAT) {
-			show_threats(set, board);
+			show_threats(&set, &board);
 		}
 
-		board_to_fenstring(string, board);
+		board_to_fenstring(string, &board);
 		if (DEBUG & DEBUG_FEN) {
 			printf("Current .FEN string: %s\n", string);
 		}

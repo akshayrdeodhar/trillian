@@ -20,7 +20,7 @@ typedef struct {
 }token;
 
 move extract_move(char string[]);
-unsigned readline(char string[], unsigned maxlen);
+unsigned readline(char string[], unsigned maxlen, FILE *fp);
 char get_promotion(char player);
 int get_gamemode(void);
 player_token get_player(char col);

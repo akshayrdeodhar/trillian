@@ -1,14 +1,14 @@
 #include "display.h"
 #include <stdio.h>
-void display(chessboard board, int mode) {
+void display(chessboard *board, int mode) {
 	int i, j;
 	for (i = 7; i > -1; --i) {
 		putchar(i + '1');
 		putchar(' ');
 		putchar('|');
 		for (j = 0; j < 8; ++j) {
-			if(board.brd[i][j].pc) {
-				putchar(board.brd[i][j].pc);
+			if(board->brd[i][j].pc) {
+				putchar(board->brd[i][j].pc);
 			}
 			else {
 				putchar('.');
@@ -37,21 +37,21 @@ void display(chessboard board, int mode) {
 
 	if (mode == READ_MODE) {
 
-		printf("Meta:%c %c%c %d %d\n\n", board.player, board.enpass_target.file + 'a', board.enpass_target.rank + '1', board.halfmoves, board.fullmoves);
+		printf("Meta:%c %c%c %d %d\n\n", board->player, board->enpass_target.file + 'a', board->enpass_target.rank + '1', board->halfmoves, board->fullmoves);
 		printf("Castling: ");
-		if (board.castling & (1 << white_kingside)) {
+		if (board->castling & (1 << white_kingside)) {
 			putchar('K');
 		}
-		if (board.castling & (1 << white_queenside)) {
+		if (board->castling & (1 << white_queenside)) {
 			putchar('Q');
 		}
-		if (board.castling & (1 << black_kingside)) {
+		if (board->castling & (1 << black_kingside)) {
 			putchar('k');
 		}
-		if (board.castling & (1 << black_queenside)) {
+		if (board->castling & (1 << black_queenside)) {
 			putchar('q');
 		}
-		if (!board.castling) {
+		if (!board->castling) {
 			putchar('-');
 		}
 		putchar('\n');

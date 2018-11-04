@@ -1,6 +1,6 @@
 FLAGS = -Wall -std=c89 -O2
 MATH = -lm
-REDIRECT = #2> errors.err
+REDIRECT = 2> errors.err
 ASAN = #-fsanitize=address
 DEBUG = #-g
 

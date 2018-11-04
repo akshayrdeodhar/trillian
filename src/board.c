@@ -269,11 +269,11 @@ handle:
 }
 
 
-square board_position(chessboard board, position p) {
-	return board.brd[p.rank][p.file];
+square board_position(chessboard *board, position p) {
+	return board->brd[p.rank][p.file];
 }
 
-void board_to_fenstring(char fenstring[], chessboard board) {
+void board_to_fenstring(char fenstring[], chessboard *board) {
 	int i, j;
 	usint index = 0;
 	usint state;
@@ -283,12 +283,12 @@ void board_to_fenstring(char fenstring[], chessboard board) {
 	for (i = 7; i >= 0; --i) {
 		state = count = 0;
 		for (j = 0; j < 8; ++j) {
-			if (board.brd[i][j].pc) {
+			if (board->brd[i][j].pc) {
 				if (state) {
 					fenstring[index++] = count + '0';
 					count = state = 0;
 				}
-				fenstring[index++] = board.brd[i][j].pc;
+				fenstring[index++] = board->brd[i][j].pc;
 			}
 			else {
 				state = 1;
@@ -303,19 +303,19 @@ void board_to_fenstring(char fenstring[], chessboard board) {
 		}
 	}
 	fenstring[index++] = ' ';
-	fenstring[index++] = board.player;
+	fenstring[index++] = board->player;
 	fenstring[index++] = ' ';
 
-	if (board.castling && (1 << (white_queenside))) {
+	if (board->castling && (1 << (white_queenside))) {
 		fenstring[index++] = 'Q';
 	}
-	if (board.castling && (1 << (black_queenside))) {
+	if (board->castling && (1 << (black_queenside))) {
 		fenstring[index++] = 'q';
 	}
-	if (board.castling && (1 << (white_queenside))) {
+	if (board->castling && (1 << (white_queenside))) {
 		fenstring[index++] = 'K';
 	}
-	if (board.castling && (1 << black_kingside)) {
+	if (board->castling && (1 << black_kingside)) {
 		fenstring[index++] = 'k';
 	}
 
@@ -325,9 +325,9 @@ void board_to_fenstring(char fenstring[], chessboard board) {
 
 	fenstring[index++] = ' ';
 
-	if (board.enpass_target.rank < 8 && board.enpass_target.file < 8) {
-		fenstring[index++] = board.enpass_target.file + 'a';
-		fenstring[index++] = board.enpass_target.rank + '1';
+	if (board->enpass_target.rank < 8 && board->enpass_target.file < 8) {
+		fenstring[index++] = board->enpass_target.file + 'a';
+		fenstring[index++] = board->enpass_target.rank + '1';
 	}
 	else {
 		fenstring[index++] = '-';
@@ -337,13 +337,13 @@ void board_to_fenstring(char fenstring[], chessboard board) {
 
 	fenstring[index] = '\0';
 
-	sprintf(temp, "%d", board.halfmoves);
+	sprintf(temp, "%d", board->halfmoves);
 	strcat(fenstring, temp);
 	index += strlen(temp);
 	fenstring[index++] = ' ';
 	fenstring[index] = '\0';
 
 	temp[0] = '\0';
-	sprintf(temp, "%d", board.fullmoves);
+	sprintf(temp, "%d", board->fullmoves);
 	strcat(fenstring, temp);
 }

@@ -107,7 +107,7 @@ void verify_interface(chessboard board, chesset set) {
 	square sq;
 	printf("\nWHITE\n");
 	for (i = 0; i < set.n_white; ++i) {
-		sq = board_position(board, set.whites[i].ps);
+		sq = board_position(&board, set.whites[i].ps);
 		if (sq.index != i) {
 			printf("Problem at %c%c\n", set.whites[i].ps.file + 'a', set.whites[i].ps.rank + '1');
 		}
@@ -115,7 +115,7 @@ void verify_interface(chessboard board, chesset set) {
 	printf("\nBLACK\n");
 
 	for (i = 0; i < set.n_black; ++i) {
-		sq = board_position(board, set.blacks[i].ps);
+		sq = board_position(&board, set.blacks[i].ps);
 		if (sq.index != i) {
 			printf("Problem at %c%c\n", set.blacks[i].ps.file + 'a', set.blacks[i].ps.rank + '1');
 		}

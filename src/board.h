@@ -32,8 +32,8 @@ typedef struct {
 
 int fenstring_to_board(chessboard *board, char fenstring[]); /* converts a .fen string to corresponding board position */
 
-void board_to_fenstring(char fenstring[], chessboard board);
+void board_to_fenstring(char fenstring[], chessboard *board);
 
-square board_position(chessboard board, position p); /* returns square at position 'p' on the board */
+square board_position(chessboard *board, position p); /* returns square at position 'p' on the board */
 
 #endif

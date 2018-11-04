@@ -6,16 +6,16 @@
 #include "input.h"
 #include "player.h"
 
-unsigned readline(char string[], unsigned maxlen) {
+unsigned readline(char string[], unsigned maxlen, FILE *fp) {
 	int i = 0;
 	char c;
 
-	while(((c = getchar()) != EOF) && (c != '\n') && (i < maxlen)) {
+	while(((c = fgetc(fp)) != EOF) && (c != '\n') && (i < maxlen)) {
 		string[i++] = c;
 	}
 	string[i] = '\0';
-	while(c != '\n') {
-		c = getchar();
+	while(c != '\n' && c != EOF) {
+		c = fgetc(fp);
 	}
 	
 	return i;
@@ -50,10 +50,15 @@ char get_promotion(char player) {
 	printf("Today is your lucky day!\n");
 	char promote_to = '\0';
 	char valid = 0;
+	char line[8];
+	int n;
 	while(!valid) {
 		printf("Promote to ? (Q, R, B, N, q, r, b, n)\n");
-		promote_to = getchar();
-		getchar();
+		n = readline(line, 8, stdin);
+		if (n > 1) {
+			continue;
+		}
+		promote_to = line[0];
 		switch(toupper(promote_to)) {
 			case 'Q': case 'R': case 'N': case 'B':
 				valid = 1;
@@ -75,11 +80,11 @@ int get_gamemode(void) {
 	int pole = 0;
 	int n;
 	printf("Hello gentlemen: All your base are belong to us!\n You can:\nPlay chess with a superior being (Press 1)\nPlay chess with a lower being of your species (Press 2)\n There is no option 3.\n");
-	n = readline(line, 16);
+	n = readline(line, 16, stdin);
 	no = line[0];
 	while((n > 1 || (no != 'C' && no != 'c' && no != '1' && no != '2')) && pole < 5) {
 		printf("Thou shalt choose 1 or 2\nChoose:");
-		n = readline(line, 16);
+		n = readline(line, 16, stdin);
 		pole++;
 	}
 
@@ -110,11 +115,12 @@ player_token get_player(char col) {
 	int n, pole = 0;
 	char cl;
 	printf("What art thou called? (Thy name shalt not exceed 15 characters)\n");
-	n = readline(tk.name, 16);
+	n = readline(tk.name, 16, stdin);
 	printf("%d\n", n);
-	while(n > 15) {
+	while(n > 15 && pole < 5) {
 		printf("THY NAME SHALT NOT EXCEED FIFTEEN CHARACTERS\n");
-		n = readline(tk.name, 16);
+		n = readline(tk.name, 16, stdin);
+		pole++;
 	}
 	tk.type = HUMAN;
 
@@ -125,11 +131,12 @@ player_token get_player(char col) {
 	}
 
 	printf("What color dost thou choose?\n w - white\tb - black\n(Psst- white gets to play first)\n");
-	n = readline(line, 8);
+	n = readline(line, 8, stdin);
 	cl = line[0];
+	pole = 0;
 	while((n > 1 || (cl != 'w' && cl != 'b')) && pole < 5) {
 		printf("Thou shalt choose w or b, thou descendent of the ape\n");
-		n = readline(line, 8);
+		n = readline(line, 8, stdin);
 		cl = line[0];
 		pole++;
 	}
