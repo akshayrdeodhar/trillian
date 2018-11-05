@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-
 #include "board.h"
 #include "pieces.h"
 #include "display.h"
@@ -22,20 +21,23 @@
 
 int main(int argc, char *argv[]) {
 
-	char command[32];
-	move mv, rook_castle;
+	char string[128];
 	int players;
 	player_token pw, pb, pt;
+	char command[32];
 	token ins;
-	int n, movecount, i;
-	n = movecount = 0;
+	move mv, rook_castle;
+	array a;
+	int n, i, movecount;
+	FILE *fp = NULL;
+	chessboard board;
+	chesset set;
+	special_move castle;
 
 	if (argc > 2) {
 		fprintf(stderr, "usage: ./chess <file.fen>\n");
 		return EINVAL;
 	}
-
-	FILE *fp = NULL;
 
 	if (argc == 1) {
 		fp = fopen(DEFAULT_PATH, "r");
@@ -52,36 +54,12 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	array a;
-	ainit(&a);
-	char string[128];
-	readline(string, 128, fp);
+	n = readline(string, 128, fp);
 	fclose(fp);
-	n = strlen(string);
-	if (string[n - 1] == '\n') {
-		string[n - 1] = '\0';
-	}
-	chessboard board;
-	chesset set;
-	special_move castle;
 
-	if (fenstring_to_board(&board, string)) {
-		printf("Impossible:\n");
-#if BIG_DISPLAY
-		filled_display(&board);
-#else
-		display(&board, READ_MODE);
-#endif
-	}
-	else {
-#if BIG_DISPLAY
-		filled_display(&board);
-#else
-		display(&board, READ_MODE);
-#endif
+	if (!fenstring_to_board(&board, string)) {
 		return 1;
 	}
-	string[0] = '\0';
 
 	players = get_gamemode();
 	if (!players) {
@@ -123,39 +101,27 @@ int main(int argc, char *argv[]) {
 		pb.color = 'b';
 	}
 
-
-
 	interface_board_set(&board, &set);
 
 #if (DEBUG & DEBUG_INTERFACE)
 	show_set(set); 
 	verify_interface(&board, &set);
 #endif
-
 	calculate_all(&set, &board);
-
 #if (DEBUG & DEBUG_CALCULATE)
 	debug_calculation(&set, &board);
 #endif
 	calculate_pins(&set, &board, 'w');
 	calculate_pins(&set, &board, 'b');
-
 	calculate_threats(&set, board.player);
 
-	if (is_checkmate(&board, &set) || is_stalemate(&board, &set)) {
+	if (is_checkmate(&board, &set) || is_draw(&board, &set)) {
 		fprintf(stderr, "Invalid game file, game has already ended\n");
 	}
 
 	if (DEBUG & DEBUG_THREAT) {
 		show_threats(&set, &board);
 	}
-#if 0
-	calculate_threats(&set, 'b');
-
-	if (DEBUG & DEBUG_THREAT) {
-		show_threats(set, board);
-	}
-#endif
 
 #if MAIN_LOOP
 	while(1) {
@@ -170,7 +136,6 @@ int main(int argc, char *argv[]) {
 		}
 		adestroy(&a);
 #endif
-
 
 		/* get command from user */
 		pt = (board.player == 'w') ? pw : pb;
@@ -204,6 +169,7 @@ int main(int argc, char *argv[]) {
 		else {
 			mv = zaphod(&board, &set);
 		}
+
 		if (!can_move(&board, &set, mv)) {
 			fprintf(stderr, "Invalid Move, %s\n", pt.name);
 			continue;
@@ -225,7 +191,7 @@ int main(int argc, char *argv[]) {
 		/* recalculate */
 		update_pieces(&board, &set, mv);
 		if (DEBUG & DEBUG_END) {
-		show_repetition(&board);
+			show_repetition(&board);
 		}
 		calculate_pins(&set, &board, 'w');
 		calculate_pins(&set, &board, 'b');
@@ -250,15 +216,12 @@ int main(int argc, char *argv[]) {
 		if (DEBUG & DEBUG_FEN) {
 			printf("Current .FEN string: %s\n", string);
 		}
-
 		/* show board */
 #if BIG_DISPLAY == 1
 		filled_display(&board);
 #else
 		display(&board, MOVES_MODE);
 #endif
-		printf("%s\n", string);
-
 		/* show previous move for clarity */
 		pt = (board.player == 'w') ? pb : pw;
 		printf("%s played  ", pt.name); print_move(mv);
