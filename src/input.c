@@ -21,22 +21,15 @@ unsigned readline(char string[], unsigned maxlen, FILE *fp) {
 	return i;
 }
 
+/* always run is_move before extract_move */
 move extract_move(char string[]) {
 	move mv;
-	mv.ini.rank = mv.fin.rank = mv.ini.file = mv.fin.file = 8;
-	int len = strlen(string);
-	if (len != 5 || string[2] != '-') {
-		return mv;
-	}
-	
+
 	usint r1, r2, f1, f2;
 	f1 = string[0] - 'a';
 	r1 = string[1] - '1';
 	f2 = string[3] - 'a';
 	r2 = string[4] - '1';
-	if (!(inrange(f1, r1) && inrange(f2, r2))) {
-		return mv;
-	}
 
 	mv.ini.rank = r1;
 	mv.ini.file = f1;
@@ -150,6 +143,50 @@ player_token get_player(char col) {
 
 	printf("Very well, %s\n", tk.name);
 	tk.color = cl;
+
+	return tk;
+}
+
+int is_move(char line[]) {
+	usint r1, r2, f1, f2;
+
+	if (strlen(line) != 5 || line[2] != '-') {
+		/* definitely not in format fr-fr */
+		return 0;
+	}
+
+	f1 = line[0] - 'a';
+	r1 = line[1] - '1';
+	f2 = line[3] - 'a';
+	r2 = line[4] - '1';
+	if (!(inrange(f1, r1) && inrange(f2, r2))) {
+		return 0;
+	}
+
+	return 1;
+}
+
+
+
+token get_command(char line[]) {
+	token tk;
+	tk.c = invalid_ins;
+	if (!(strcmp(line, "quit"))) {
+		tk.c = quit_ins;
+	}
+	else if (!strcmp(line, "save")) {
+		tk.c = save_ins;
+	}
+	else if (!strcmp(line, "draw")) {
+		tk.c = draw_ins;
+	}
+	else if (is_move(line)) {
+		tk.c = move_ins;
+		tk.mv = extract_move(line);
+	}
+	else {
+		tk.c = invalid_ins;
+	}
 
 	return tk;
 }

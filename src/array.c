@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include "array.h"
 
-#define MAX 128
+#define MAX 35
+/* average branching factor (wikipedia) */
 
 void ainit(array *a) {
 	a->arr = (move *)malloc(MAX * sizeof(move));

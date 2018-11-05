@@ -24,6 +24,10 @@
 #define OLD_STALEMATE (0)
 #define TRY_ENPASS (0)
 
+#define whitesquare(pos) (((pos.rank) + (pos.file)) & 1)
+#define blacksquare(pos) (!whitesquare(pos))
+#define same_color_square(pos1, pos2) ((whitesquare(pos1) && whitesquare(pos2)) || (blacksquare(pos1) && blacksquare(pos2)))
+
 #define EPSILON 1e-6
 
 #define isDifferent(p, q) ((isWhite(p) && isBlack(q)) || (isBlack(p) && isWhite(q))) /* p, q SAN chars */
@@ -778,9 +782,6 @@ void update_piece(chessboard *board, piece *p, move mv) {
 special_move make_move(chessboard *board, chesset *set, move mv) {
 
 	/* this is done only to shut the warning up. there is a guarentee that if castling happens, castle_rook WILL be set to a proper value */
-#if OLD_CASTLE
-	move castle_rook = mv;
-#endif
 	special_move castle;
 
 	square from = board->brd[mv.ini.rank][mv.ini.file];
@@ -788,41 +789,12 @@ special_move make_move(chessboard *board, chesset *set, move mv) {
 
 	castle = check_special(from, mv);
 
+	update_repetition(board, mv); /* for draw by repetition- requires final square intact. */
+
 	menial_move(board, set, mv);
 
 	/* move piece on board, update index on board, update piece position */
 
-#if OLD_CASTLE
-	/* castling is a king move, but the rook must also be moved 
-	 * Should I instead use a seperate function handle_castle() ? TODO
-	 * */
-	if (toupper(from.pc) == 'K' && (mv.fin.file == ('g' - 'a') || mv.fin.file == ('c' - 'a'))) {
-		/*printf("Castling is Happening\n");*/
-		/* TODO TODO TODO: king must be in home square for move to be detected as a castling move, otherwise, king could have been in f1 for all we know */
-		castle_rook.ini.rank = castle_rook.fin.rank = mv.ini.rank;
-		if (mv.fin.file == ('g' - 'a')) {
-			castle_rook.ini.file = 'h' - 'a';
-			castle_rook.fin.file = 'f' - 'a';
-		}
-		else if (mv.fin.file == ('c' - 'a')) {
-			castle_rook.ini.file = 'a' - 'a';
-			castle_rook.fin.file = 'd' - 'a';
-		}
-
-		/* move the rook */
-		menial_move(board, set, castle_rook);
-
-		if (isWhite(from.pc)) {
-			board->castling &= MASK_WHITE_CASTLE;
-		}
-		else {
-			board->castling &= MASK_BLACK_CASTLE;
-		}
-	}
-	else {
-		printf("Not Castling\n");
-	}
-#endif
 	position temp;
 	temp.rank = temp.file = 8;
 	if (toupper(from.pc) == 'P' && mkpositive(mv.ini.rank - mv.fin.rank) == 2) {
@@ -1240,22 +1212,24 @@ int is_stalemate(chessboard *board, chesset *set) {
 }
 
 int is_draw(chessboard *board, chesset *set) {
-	return ((board->white_reps == 6) && (board->black_reps == 6)) || is_stalemate(board, set);
+	return ((board->white_reps == 6) && (board->black_reps == 6)) || insufficient_mating_material(set) || is_stalemate(board, set);
 }
 
-
+/* call before move is made */
 void update_repetition(chessboard *board, move mv) {
+	square from = board->brd[mv.ini.rank][mv.ini.file];
+	square to = board->brd[mv.fin.rank][mv.fin.file];
 	move *pmv = NULL;
 	move temp;
 	usint *count = NULL;
-	/* as we are updating, move has already taken place, and colors have flipped */
+	/* called before colors are flipped */
 	if (board->player == 'w') {
-		pmv = &(board->blackrep);
-		count = &(board->black_reps);
-	}
-	else if (board->player == 'b') {
 		pmv = &(board->whiterep);
 		count = &(board->white_reps);
+	}
+	else if (board->player == 'b') {
+		pmv = &(board->blackrep);
+		count = &(board->black_reps);
 	}
 
 	/* opposite of last move */
@@ -1270,7 +1244,38 @@ void update_repetition(chessboard *board, move mv) {
 		/* new move made */
 		*count = 1;
 	}
-	*pmv = mv;
+	if ((to.pc) || (toupper(from.pc) == 'P')) {
+		/* if capture, make final position 'out of the board'. this way, opposite of this move cannot exist */
+		pmv->fin.rank = pmv->fin.file = 8;
+	}
+	else {
+		*pmv = mv;
+	}
+}
+
+int insufficient_mating_material(chesset *set) {
+	char p1;
+
+	if ((set->n_white + set->n_black) == 2) {
+		/* two kings */
+		return 1;
+	}
+
+	if ((set->n_white + set->n_black) == 3) {
+		/*king and N or B vs king */
+		p1 = (set->n_white == 2) ? set->whites[1].piece : set->blacks[1].piece;
+		p1 = toupper(p1);
+		if (p1 == 'B' || p1 == 'N') {
+			return 1;
+		}
+	}
+
+	if ((set->n_white == 2) && (set->n_black == 2) && (set->whites[1].piece == toupper(set->blacks[1].piece)) && (same_color_square(set->whites[1].ps, set->blacks[1].ps))) {
+			/* kings and same colored bishops */
+		return 1;
+	}
+
+	return 0;
 }
 
 void show_repetition(chessboard *board) {

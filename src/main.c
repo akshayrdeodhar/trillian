@@ -18,6 +18,7 @@
 #define DEBUG_FEN 16
 
 #define MAIN_LOOP 1
+#define BIG_DISPLAY 1
 
 int main(int argc, char *argv[]) {
 
@@ -25,6 +26,9 @@ int main(int argc, char *argv[]) {
 	move mv, rook_castle;
 	int players;
 	player_token pw, pb, pt;
+	token ins;
+	int n, movecount, i;
+	n = movecount = 0;
 
 	if (argc > 2) {
 		fprintf(stderr, "usage: ./chess <file.fen>\n");
@@ -48,14 +52,10 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-
-	int n, i;
-	int movecount;
 	array a;
 	ainit(&a);
 	char string[128];
 	readline(string, 128, fp);
-	n = 0;
 	fclose(fp);
 	n = strlen(string);
 	if (string[n - 1] == '\n') {
@@ -67,15 +67,20 @@ int main(int argc, char *argv[]) {
 
 	if (fenstring_to_board(&board, string)) {
 		printf("Impossible:\n");
+#if BIG_DISPLAY
 		filled_display(&board);
+#else
 		display(&board, READ_MODE);
+#endif
 	}
 	else {
+#if BIG_DISPLAY
 		filled_display(&board);
+#else
 		display(&board, READ_MODE);
+#endif
 		return 1;
 	}
-	filled_display(&board);
 	string[0] = '\0';
 
 	players = get_gamemode();
@@ -154,10 +159,8 @@ int main(int argc, char *argv[]) {
 
 #if MAIN_LOOP
 	while(1) {
-		filled_display(&board);
-
 		/* zaphod generates moves */
-#if 0
+#if 1
 		ainit(&a);
 		printf("Possible Moves:\n");
 		generate_moves(&board, &set, &a);
@@ -168,21 +171,34 @@ int main(int argc, char *argv[]) {
 		adestroy(&a);
 #endif
 
+
 		/* get command from user */
 		pt = (board.player == 'w') ? pw : pb;
 		if (pt.type == HUMAN) {
 			fprintf(stderr, "Your turn, %s\nCommand:", pt.name);
 			readline(command, 32, stdin);
-
-			if (!(strcmp(command, "quit"))) {
-				if (DEBUG & DEBUG_END) {
-					enumpins(&set);
-					moves_bitboard(&set, &board);
-				}
-				return 0;
+			ins = get_command(command);
+			switch(ins.c) {
+				case move_ins:
+					mv = ins.mv;
+					break;
+				case quit_ins:
+					return 0;
+					break;
+				case save_ins:
+					continue;
+					break;
+				case draw_ins:
+					continue;
+					break;
+				case invalid_ins:
+					fprintf(stderr, "'%s' is not a recognised instruction or move\n", command);
+					continue;
+					break;
+				default:
+					continue;
+					break;
 			}
-
-			mv = extract_move(command);
 			print_move(mv);
 		}
 		else {
@@ -208,8 +224,9 @@ int main(int argc, char *argv[]) {
 
 		/* recalculate */
 		update_pieces(&board, &set, mv);
-		update_repetition(&board, mv);
+		if (DEBUG & DEBUG_END) {
 		show_repetition(&board);
+		}
 		calculate_pins(&set, &board, 'w');
 		calculate_pins(&set, &board, 'b');
 		calculate_threats(&set, board.player);
@@ -233,6 +250,18 @@ int main(int argc, char *argv[]) {
 		if (DEBUG & DEBUG_FEN) {
 			printf("Current .FEN string: %s\n", string);
 		}
+
+		/* show board */
+#if BIG_DISPLAY == 1
+		filled_display(&board);
+#else
+		display(&board, MOVES_MODE);
+#endif
+		printf("%s\n", string);
+
+		/* show previous move for clarity */
+		pt = (board.player == 'w') ? pb : pw;
+		printf("%s played  ", pt.name); print_move(mv);
 	}
 #endif
 	return 0;

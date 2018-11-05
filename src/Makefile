@@ -36,3 +36,6 @@ zaphod.o: zaphod.c zaphod.h array.h moves.h pieces.h vector.h
 
 clean:
 	rm *~ *.o try
+
+purify:
+	rm *~

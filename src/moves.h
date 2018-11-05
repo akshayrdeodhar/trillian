@@ -64,6 +64,8 @@ int is_checkmate(chessboard *board, chesset *set); /* whether a king is in check
 
 int is_stalemate(chessboard *board, chesset *set); /* check whether stalemate */
 
+int insufficient_mating_material(chesset *set); /* checks for insufficient mating material */
+
 int is_draw(chessboard *board, chesset *set); /* checks all draw possibilites */
 
 void update_repetition(chessboard *board, move mv);
