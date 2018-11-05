@@ -60,7 +60,6 @@ int main(int argc, char *argv[]) {
 	if (!fenstring_to_board(&board, string)) {
 		return 1;
 	}
-
 	players = get_gamemode();
 	if (!players) {
 		printf("Begone, Cretin\n");
@@ -136,6 +135,7 @@ int main(int argc, char *argv[]) {
 		}
 		adestroy(&a);
 #endif
+
 
 		/* get command from user */
 		pt = (board.player == 'w') ? pw : pb;
