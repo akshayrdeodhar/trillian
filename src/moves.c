@@ -811,6 +811,7 @@ special_move make_move(chessboard *board, chesset *set, move mv) {
 
 	if (isBlack(from.pc)) {
 		board->fullmoves += 1;
+		board->halfmoves += 1;
 	}
 
 	if (to.pc) {
