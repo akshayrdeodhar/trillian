@@ -4,8 +4,8 @@ REDIRECT = #2> errors.err
 ASAN = #-fsanitize=address
 DEBUG = #-g
 
-try: main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o
-	gcc main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o $(FLAGS) $(MATH) $(ASAN) $(DEBUG) -o try $(REDIRECT)
+try: main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o trillian.o
+	gcc main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o trillian.o $(FLAGS) $(MATH) $(ASAN) $(DEBUG) -o try $(REDIRECT)
 
 main.o: main.c board.h pieces.h display.h moves.h vector.h zaphod.h
 	gcc -c main.c $(FLAGS) $(ASAN) $(DEBUG) $(REDIRECT)
@@ -33,6 +33,9 @@ array.o: array.c array.h vector.h
 
 zaphod.o: zaphod.c zaphod.h array.h moves.h pieces.h vector.h
 	gcc -c zaphod.c $(FLAGS) $(ASAN) $(DEBUG) $(REDIRECT)
+
+trillian.o: trillian.c zaphod.h trillian.h moves.h pieces.h vector.h array.h
+	gcc -c trillian.c $(FLAGS) $(ASAN) $(DEBUG) $(REDIRECT)
 
 clean:
 	rm *~ *.o try

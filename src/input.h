@@ -9,6 +9,7 @@ typedef enum commandtype {
 	quit_ins,
 	save_ins, 
 	draw_ins,
+	board_ins,
 	invalid_ins
 }command;
 

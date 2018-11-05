@@ -166,8 +166,6 @@ int is_move(char line[]) {
 	return 1;
 }
 
-
-
 token get_command(char line[]) {
 	token tk;
 	tk.c = invalid_ins;
@@ -179,6 +177,9 @@ token get_command(char line[]) {
 	}
 	else if (!strcmp(line, "draw")) {
 		tk.c = draw_ins;
+	}
+	else if (!strcmp(line, "board")) {
+		tk.c = board_ins;
 	}
 	else if (is_move(line)) {
 		tk.c = move_ins;

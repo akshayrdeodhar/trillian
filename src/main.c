@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 #if MAIN_LOOP
 	while(1) {
 		/* zaphod generates moves */
-#if 1
+#if 0
 		ainit(&a);
 		printf("Possible Moves:\n");
 		generate_moves(&board, &set, &a);
@@ -154,6 +154,10 @@ int main(int argc, char *argv[]) {
 					continue;
 					break;
 				case draw_ins:
+					continue;
+					break;
+				case board_ins:
+					filled_display(&board);
 					continue;
 					break;
 				case invalid_ins:
@@ -212,7 +216,9 @@ int main(int argc, char *argv[]) {
 			show_threats(&set, &board);
 		}
 
+		display(&board, READ_MODE);
 		board_to_fenstring(string, &board);
+		printf("%s\n", string);
 		if (DEBUG & DEBUG_FEN) {
 			printf("Current .FEN string: %s\n", string);
 		}
