@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <errno.h>
 #include "moves.h"
 #include "defs.h"
 #include "input.h"
@@ -191,3 +194,35 @@ token get_command(char line[]) {
 
 	return tk;
 }
+
+/* display contents of directory in which file is to be saved, get name of save file */
+int get_save(char string[], DIR *dirp) {
+	int n,pole;
+	pole = 0;
+	printf("Contents of 'save' folder:\n");
+	ls(dirp);
+	printf("Enter File Name:");
+	n = readline(string, 256, stdin);
+	while(n > 256 && pole < 5) {
+		printf("Invalid File Name, Retry:");
+		n = readline(string, 256, stdin);
+		pole++;
+	}
+	if (pole == 5) {
+		return -1;
+	}
+	return 0;
+}
+
+
+/* show contents of directory pointed to by dirp */
+int ls(DIR *dirp) {
+	struct dirent *l;
+	while((l = readdir(dirp)) != NULL) {
+		printf("%s\n", l->d_name);
+	}
+	putchar('\n');
+	return 0;
+}
+
+

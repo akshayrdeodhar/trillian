@@ -43,7 +43,6 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 	/* calculate king moves first, as routine for this does not change based on whether king is in check */
 	pc = zaphod[0]; 
 	mv.ini = pc.ps;
-	show_register(pc.pin_dir);
 	for (i = pc.dir_start; i <= pc.dir_end; i++) {
 		if ((!(pc.pin_dir & (1 << i))) && (!isSame(pc.piece, pc.end[i & 7]))) {
 			mv.fin.rank = pc.ps.rank + rankincr(i);
@@ -57,7 +56,6 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 	/* single check, calculate possible blocking or evasion moves */
 	if (set->threat_count == 1) {
 		king = zaphod[0];
-		printf("Threat from %c%c\n", set->threat_source.file + 'a', set->threat_source.rank + '1');
 		sl = find_movement(king.ps, set->threat_source);
 		direction = find_dir(sl);
 		rankinc = rankincr(direction);
@@ -73,7 +71,6 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 				mv.ini = pc.ps;
 				if (vanilla_can_move(pc, save)) {
 					mv.fin = save;
-					print_move(mv);
 					aappend(a, mv);
 					/* if can block or kill */
 				}
@@ -124,13 +121,9 @@ move zaphod(chessboard *board, chesset *set) {
 	gettimeofday(&random_time, NULL);
 	srand(random_time.tv_sec);
 	array a;
-	int x;
 	ainit(&a);
 	generate_moves(board, set, &a);
 	int n = alength(&a);
-	for (x = 0; x < n; x++) {
-		print_move(a.arr[x]);
-	}
 	int i = rand() % n;
 	move mv = a.arr[i];
 	adestroy(&a);

@@ -58,6 +58,8 @@ void display(chessboard *board, int mode) {
 	}
 }
 
+#define VBORDER '|'
+#define HBORDER '-'
 #define BORDER '#'
 #define WCHAR ' '
 #define BCHAR '.'
@@ -76,7 +78,7 @@ void printn(char c, unsigned n) {
 	}
 }
 
-void filled_display(chessboard *board) {
+void filled_display(chessboard *board, int mode) {
 	int i, j, rank, file;
 	rank = file = 8;
 	int ni, nj;
@@ -98,13 +100,13 @@ void filled_display(chessboard *board) {
 		}
 		state = CHANGESTATE(state); /* flipping is happening twice (once at end and beginning- make it thrice! */
 		if (i % HEIGHT == 0) {
-			printn(BORDER, nj);
+			printn(HBORDER, nj);
 		}
 		else {
 			for (j = 0; j < nj; j++) {
 				if (j % WIDTH == 0) {
 					state = CHANGESTATE(state); /* everytime you cross a border, flip */
-					putchar(BORDER);
+					putchar(VBORDER);
 				}
 				else if((i % HEIGHT == HEIGHT_BY_2) && (j % WIDTH == WIDTH_BY_2)) {
 					file = (player == 'b') ? 7 - (j / WIDTH) : (j / WIDTH);
@@ -135,4 +137,25 @@ void filled_display(chessboard *board) {
 		}
 	}
 	printn('\n', HEIGHT_BY_2);
+	if (mode == READ_MODE) {
+
+		printf("Meta:%c %c%c %d %d\n\n", board->player, board->enpass_target.file + 'a', board->enpass_target.rank + '1', board->halfmoves, board->fullmoves);
+		printf("Castling: ");
+		if (board->castling & (1 << white_kingside)) {
+			putchar('K');
+		}
+		if (board->castling & (1 << white_queenside)) {
+			putchar('Q');
+		}
+		if (board->castling & (1 << black_kingside)) {
+			putchar('k');
+		}
+		if (board->castling & (1 << black_queenside)) {
+			putchar('q');
+		}
+		if (!board->castling) {
+			putchar('-');
+		}
+		putchar('\n');
+	}
 }

@@ -5,3 +5,4 @@ save*.c
 *.o
 *.err
 try
+*.sv

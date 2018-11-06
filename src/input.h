@@ -24,6 +24,9 @@ char get_promotion(char player);
 int get_gamemode(void);
 player_token get_player(char col);
 token get_command(char line[]);
+int get_save(char string[], DIR *dirp);
+int ls(DIR *dirp);
+void player_info_string(char save_string[], player_token pw, player_token pb);
 
 #endif
 

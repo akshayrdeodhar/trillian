@@ -71,9 +71,11 @@ void handle_promotion(chessboard *board, chesset *set, move mv, char promoted) {
 	final = board->brd[mv.fin.rank][mv.ini.file];
 	if (final.pc == 'P') {
 		set_piece(&(set->whites[(usint)final.index]), promoted, mv.fin.rank, mv.fin.file);
+		calculate_piece(&(set->whites[(usint)final.index]), board);
 	}
 	else if (final.pc == 'p') {
 		set_piece(&(set->blacks[(usint)final.index]), promoted, mv.fin.rank, mv.fin.file);
+		calculate_piece(&(set->blacks[(usint)final.index]), board);
 	}
 	board->brd[mv.fin.rank][mv.fin.file].pc = promoted;
 }
@@ -147,11 +149,13 @@ void update_castling(chessboard *board, move mv) {
 			/* if that move is available and something is moving from the king initial square, or something is moving from or to the rook initial square, that particular move*/
 			if (DEBUG_MOVES & DEBUG_CASTLE) {
 				printf("Disabled Castle: %d\n", castle);
+				show_register(board->castling);
+				show_register(~(1 << (castle)));
 			}
-			show_register(board->castling);
-			show_register(~(1 << (castle)));
 			board->castling &= (~(1 << (castle))); /* that castling is disabled */
-			show_register(board->castling);
+			if (DEBUG_MOVES & DEBUG_CASTLE) {
+				show_register(board->castling);
+			}
 		}
 	}
 }
@@ -324,9 +328,10 @@ int vanilla_can_move(piece p, position ps) {
 
 	if (toupper(p.piece) == 'K') {
 		/* king moving into attacked square */
-		show_register(p.pin_dir);
+		if (DEBUG_MOVES & DEBUG_THREAT) {
+			show_register(p.pin_dir);
+		}
 		if (p.pin_dir & (1 << direction)) {
-			printf("King moving into attacked square\n");
 			return 0;
 		}
 	}
@@ -365,7 +370,9 @@ int can_move(chessboard *board, chesset *set, move mv) {
 			movement king_to_piece = find_movement(king.ps, mv.fin);
 			movement piece_to_threat = find_movement(mv.fin, set->threat_source);
 			movement king_to_threat = find_movement(king.ps, set->threat_source);
+			if (DEBUG_THREAT & DEBUG_MOVES) {
 			printf("king_to_piece: %lf\tpiece_to_threat: %lf\tking_to_threat: %lf\n", euclidian(king_to_piece), euclidian(piece_to_threat), euclidian(king_to_threat));
+			}
 			if (fabs(euclidian(king_to_piece) + euclidian(piece_to_threat) - euclidian(king_to_threat)) > EPSILON) {
 				/* if the king, the piece and the threat are not in a straight line :) :) :) */
 				fprintf(stderr, "King in check\n");
@@ -1015,8 +1022,10 @@ void show_threats(chesset *set, chessboard *board) {
 		}
 	}
 
-	printf("Threat To: %s\n", set->threat_to == 'w' ? "White" : "Black");
-	printf("Checks: %d\n", set->threat_count);
+	if (DEBUG_MOVES & DEBUG_THREAT) {
+		printf("Threat To: %s\n", set->threat_to == 'w' ? "White" : "Black");
+		printf("Checks: %d\n", set->threat_count);
+	}
 
 	if (set->threat_count == 1) {
 		printf("Single check from %c%c\n", set->threat_source.file + 'a', set->threat_source.rank + '1');
@@ -1121,7 +1130,9 @@ int is_checkmate(chessboard *board, chesset *set) {
 
 	for (i = king.dir_start; i <= king.dir_end; i += king.dir_incr) {
 		if ((!(king.pin_dir & (1 << i))) && king.dirs[i & 7] && (!isSame(king.piece, king.end[i & 7]))) {
-			printf("King can move in direction %d, not checkmate\n", i);
+			if (DEBUG_GAMEND & DEBUG_MOVES) {
+				printf("King can move in direction %d, not checkmate\n", i);
+			}
 			/* not attacked, not unavailable, and not friendly -> escape available */
 			return 0;
 		}
@@ -1272,7 +1283,7 @@ int insufficient_mating_material(chesset *set) {
 	}
 
 	if ((set->n_white == 2) && (set->n_black == 2) && (set->whites[1].piece == toupper(set->blacks[1].piece)) && (same_color_square(set->whites[1].ps, set->blacks[1].ps))) {
-			/* kings and same colored bishops */
+		/* kings and same colored bishops */
 		return 1;
 	}
 

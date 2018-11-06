@@ -261,11 +261,11 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 	}
 
 	free(current);
-	return 1;
+	return 0;
 
 handle:
 	free(current);
-	return 0;
+	return -1;
 }
 
 
