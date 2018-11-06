@@ -9,6 +9,7 @@
 #include "moves.h"
 #include "input.h"
 #include "zaphod.h"
+#include "trillian.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
 #define SAVE_DIR "../save/"
@@ -230,7 +231,7 @@ int main(int argc, char *argv[]) {
 			print_move(mv);
 		}
 		else {
-			mv = zaphod(&board, &set);
+			mv = trillian(&board, &set);
 			if (!can_move(&board, &set, mv)) {
 #if DEBUG_GENERATE
 				filled_display(&board, MOVES_MODE);
@@ -296,7 +297,8 @@ int main(int argc, char *argv[]) {
 
 		/* show previous move for clarity */
 		pt = (board.player == 'w') ? pb : pw;
-		/*fprintf(stderr, "%s played  ", pt.name); print_move(mv); */
+		fprintf(stderr, "%s played  ", pt.name); print_move(mv);
+		printf("Position Evaluation: %lf\n", position_evaluate(&set));
 	}
 #endif
 	return 0;
