@@ -11,7 +11,7 @@
 #include "input.h"
 #include "zaphod.h"
 #include "trillian.h"
-#include "defs.h"
+#include "limits.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
 #define SAVE_DIR "../save/"
@@ -27,8 +27,12 @@
 #define DEBUG_GENERATE 1
 #define ENUM_MOVES 0
 
+
+#define movesequal(mv1, mv2) (posequal(mv1.ini, mv2.ini) && posequal(mv1.fin, mv2.fin))
+
 int main(int argc, char *argv[]) {
 
+	double timereq;
 	char string[128];
 	char path[256];
 	char container[512];
@@ -37,11 +41,16 @@ int main(int argc, char *argv[]) {
 	char command[32];
 	char error[32];
 	token ins;
+	branch min;
+	min.score = INT_MIN;
+	branch max;
+	max.score = INT_MAX;
 	move mv, rook_castle;
 	int code, code_dash;
 	char promoted = '\0';
 	struct timeval performance1, performance2;
 	branch next;
+	branch prune;
 #if ENUM_MOVES
 	array a;
 	int n, i, movecount;
@@ -236,11 +245,12 @@ int main(int argc, char *argv[]) {
 		}
 		else {
 			gettimeofday(&performance1, NULL);
-			next = greater_trillian(board, set, 4);
+			prune = smarter_trillian(board, set, min, max, 4);
 			gettimeofday(&performance2, NULL);
-			double timereq = (performance2.tv_sec + performance2.tv_usec * 1e-6) - (performance1.tv_sec + performance1.tv_usec * 1e-6);
+			timereq = (performance2.tv_sec + performance2.tv_usec * 1e-6) - (performance1.tv_sec + performance1.tv_usec * 1e-6);
 			printf("Time required: %lfsec\n", timereq);
-			mv = next.mov;
+
+			mv = prune.mov;
 			if (!can_move(&board, &set, mv)) {
 #if DEBUG_GENERATE
 				filled_display(&board, MOVES_MODE);
@@ -307,7 +317,7 @@ int main(int argc, char *argv[]) {
 		/* show previous move for clarity */
 		pt = (board.player == 'w') ? pb : pw;
 		fprintf(stderr, "%s played  ", pt.name); print_move(mv);
-		printf("Position Evaluation: %lf\n", position_evaluate(&set));
+		printf("Position Evaluation: %d\n", position_evaluate(&set));
 	}
 #endif
 	return 0;

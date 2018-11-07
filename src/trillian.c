@@ -3,11 +3,12 @@
 #include <stdio.h>
 #include "moves.h"
 #include "display.h"
+#include <limits.h>
 
 #define DEBUG_EVAL 0
 #define DEBUG_DEEP 0
 
-double value(char pc) {
+int value(char pc) {
 	switch(toupper(pc)) {
 		case 'Q':
 			return 9;
@@ -32,10 +33,10 @@ double value(char pc) {
 #define VALCOEFF 10
 #define KINGCOEFF (-2)
 #define CTRLCOEFF (1)
-double color_evaluate(piece *side, int n) {
+int color_evaluate(piece *side, int n) {
 	int i, j;
 	piece pc;
-	double valsum, ctrlsum, kingsafety, ctrltemp;
+	int valsum, ctrlsum, kingsafety, ctrltemp;
 
 	kingsafety = 0;
 	pc = side[0];
@@ -73,8 +74,8 @@ double color_evaluate(piece *side, int n) {
 	return VALCOEFF * valsum + CTRLCOEFF * ctrlsum + KINGCOEFF * kingsafety;
 }
 
-double position_evaluate(chesset *set) {
-	double score, white, black;
+int position_evaluate(chesset *set) {
+	int score, white, black;
 	white = color_evaluate(set->whites, set->n_white);
 	black = color_evaluate(set->blacks, set->n_black);
 	score = white - black;
@@ -95,8 +96,8 @@ move trillian(chessboard *board, chesset *set) {
 	array b;
 	ainit(&b);
 	generate_moves(board, set, &a);
-	double score;
-	double minmax = ((board->player == 'w') ? -1e9 : 1e9);
+	int score;
+	int minmax = ((board->player == 'w') ? INT_MIN : INT_MAX);
 	move bestmove;
 	int n = alength(&a);
 	for (i = 0; i < n; i++) {
@@ -127,7 +128,7 @@ move trillian(chessboard *board, chesset *set) {
 
 		/* check for end of game */
 		if (is_checkmate(&sboard, &sset)) {
-			score = (board->player == 'w' ? 1e9 : -1e9);
+			score = (board->player == 'w' ? INT_MAX : INT_MIN);
 		}
 		else if (is_draw(&sboard, &sset)) {
 		}
@@ -145,8 +146,8 @@ move trillian(chessboard *board, chesset *set) {
 
 		score += position_evaluate(&sset);
 
-		printf("minmax: %lf\n", minmax);
-		printf("%c%c-%c%c: %lf\n", mv.ini.file + 'a', mv.ini.rank + '1', mv.fin.file + 'a', mv.fin.rank + '1', score);
+		printf("minmax: %d\n", minmax);
+		printf("%c%c-%c%c: %d\n", mv.ini.file + 'a', mv.ini.rank + '1', mv.fin.file + 'a', mv.fin.rank + '1', score);
 		if (MINMAX(score, minmax, board->player)) {
 			minmax = score;
 			bestmove = mv;
@@ -164,7 +165,7 @@ branch greater_trillian(chessboard board, chesset set, unsigned depth) {
 	chessboard sboard;
 	chesset sset;
 	special_move castle;
-	double score, minmax;
+	int score, minmax;
 	branch br;
 
 	array a;
@@ -176,7 +177,7 @@ branch greater_trillian(chessboard board, chesset set, unsigned depth) {
 		return br;
 	}
 
-	minmax = ((board.player == 'w') ? -1e9 : 1e9);
+	minmax = ((board.player == 'w') ? INT_MIN : INT_MAX);
 	generate_moves(&board, &set, &a);
 		br.score = minmax;
 	int n = alength(&a);
@@ -207,7 +208,7 @@ branch greater_trillian(chessboard board, chesset set, unsigned depth) {
 
 		/* check for end of game */
 		if (is_checkmate(&sboard, &sset)) {
-			score = (board.player == 'w' ? 1e9 : -1e9);
+			score = (board.player == 'w' ? INT_MAX : INT_MIN);
 			br.mov = mv;
 			br.score = score;
 			return br;
@@ -228,8 +229,8 @@ branch greater_trillian(chessboard board, chesset set, unsigned depth) {
 	return br;
 }
 
-#if 0
-branch greater_trillian(chessboard board, chesset set, branch bestforwhite, branch bestforblack, unsigned depth) {
+
+branch smarter_trillian(chessboard board, chesset set, branch bestwhite, branch bestblack, unsigned depth) {
 	int i;
 	move mv, rook_castle;
 	char promoted;
@@ -237,7 +238,7 @@ branch greater_trillian(chessboard board, chesset set, branch bestforwhite, bran
 	chessboard sboard;
 	chesset sset;
 	special_move castle;
-	double score, minmax;
+	int score, minmax;
 	branch br;
 
 	array a;
@@ -249,7 +250,7 @@ branch greater_trillian(chessboard board, chesset set, branch bestforwhite, bran
 		return br;
 	}
 
-	minmax = ((board.player == 'w') ? -1e9 : 1e9);
+	minmax = ((board.player == 'w') ? INT_MIN : INT_MAX);
 	generate_moves(&board, &set, &a);
 		br.score = minmax;
 	int n = alength(&a);
@@ -280,7 +281,7 @@ branch greater_trillian(chessboard board, chesset set, branch bestforwhite, bran
 
 		/* check for end of game */
 		if (is_checkmate(&sboard, &sset)) {
-			score = (board.player == 'w' ? 1e9 : -1e9);
+			score = (board.player == 'w' ? INT_MAX : INT_MIN);
 			br.mov = mv;
 			br.score = score;
 			return br;
@@ -294,14 +295,25 @@ branch greater_trillian(chessboard board, chesset set, branch bestforwhite, bran
 			temp.mov = mv;
 		}
 
-		if (MINMAX(temp.score, br.score, board.player)) {
-			br = temp;
+		if (board.player == 'w' && temp.score > bestwhite.score) {
+			bestwhite = temp;
+			/* black will never pick this */
+			if (bestwhite.score >= bestblack.score) {
+				return bestwhite;
+			}
 		}
-
-		if (board.player == 'b' && (br.score <= bestforwhite.score)) {
-			return br;
+		else if (board.player == 'b' && temp.score < bestblack.score) {
+			bestblack = temp;
+			/* white will never pick this */
+			if (bestblack.score <= bestwhite.score) {
+				return bestblack;
+			}
 		}
 	}
-	return br;
+	if (board.player == 'w') {
+		return bestwhite;
+	}
+	else if (board.player == 'b') {
+		return bestblack;
+	}
 }
-#endif
