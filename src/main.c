@@ -2,6 +2,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <dirent.h>
 #include "board.h"
 #include "pieces.h"
@@ -10,6 +11,7 @@
 #include "input.h"
 #include "zaphod.h"
 #include "trillian.h"
+#include "defs.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
 #define SAVE_DIR "../save/"
@@ -38,6 +40,8 @@ int main(int argc, char *argv[]) {
 	move mv, rook_castle;
 	int code, code_dash;
 	char promoted = '\0';
+	struct timeval performance1, performance2;
+	branch next;
 #if ENUM_MOVES
 	array a;
 	int n, i, movecount;
@@ -231,7 +235,12 @@ int main(int argc, char *argv[]) {
 			print_move(mv);
 		}
 		else {
-			mv = trillian(&board, &set);
+			gettimeofday(&performance1, NULL);
+			next = greater_trillian(board, set, 4);
+			gettimeofday(&performance2, NULL);
+			double timereq = (performance2.tv_sec + performance2.tv_usec * 1e-6) - (performance1.tv_sec + performance1.tv_usec * 1e-6);
+			printf("Time required: %lfsec\n", timereq);
+			mv = next.mov;
 			if (!can_move(&board, &set, mv)) {
 #if DEBUG_GENERATE
 				filled_display(&board, MOVES_MODE);

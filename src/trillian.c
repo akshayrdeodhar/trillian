@@ -84,7 +84,7 @@ double position_evaluate(chesset *set) {
 
 #define MINMAX(curr, minmax, color) ((color == 'w') ? ((curr) > (minmax)) : ((curr) < (minmax)))
 move trillian(chessboard *board, chesset *set) {
-	int i, k;
+	int i;
 	move mv, rook_castle;
 	char promoted;
 	chessboard sboard;
@@ -156,3 +156,152 @@ move trillian(chessboard *board, chesset *set) {
 	return bestmove;
 }
 
+branch greater_trillian(chessboard board, chesset set, unsigned depth) {
+	int i;
+	move mv, rook_castle;
+	char promoted;
+	branch temp;
+	chessboard sboard;
+	chesset sset;
+	special_move castle;
+	double score, minmax;
+	branch br;
+
+	array a;
+	ainit(&a);
+
+	if (depth == 0) {
+		score = position_evaluate(&set);
+		br.score = score;
+		return br;
+	}
+
+	minmax = ((board.player == 'w') ? -1e9 : 1e9);
+	generate_moves(&board, &set, &a);
+		br.score = minmax;
+	int n = alength(&a);
+	for (i = 0; i < n; i++) {
+		mv = a.arr[i];
+
+		sboard = board;
+		sset = set;
+
+		castle = make_move(&sboard, &sset, mv);
+		if (white_kingside <= castle && black_queenside >= castle) {
+			rook_castle = rook_move(castle);
+			menial_move(&sboard, &sset, rook_castle);
+			update_pieces(&sboard, &sset, rook_castle);
+		}
+		else if (castle == promotion) {
+			/* always promotes to queen, for lack of a better logic */
+			promoted = (sboard.player == 'w' ? 'q' : 'Q');
+			handle_promotion(&sboard, &sset, mv, promoted);
+
+		}
+
+		/* recalculate */
+		update_pieces(&sboard, &sset, mv);
+		calculate_pins(&sset, &sboard, 'w');
+		calculate_pins(&sset, &sboard, 'b');
+		calculate_threats(&sset, sboard.player);
+
+		/* check for end of game */
+		if (is_checkmate(&sboard, &sset)) {
+			score = (board.player == 'w' ? 1e9 : -1e9);
+			br.mov = mv;
+			br.score = score;
+			return br;
+		}
+		else if (is_draw(&sboard, &sset)) {
+			temp.score = 0;
+			temp.mov = mv;
+		}
+		else {
+			temp = greater_trillian(sboard, sset, depth - 1);
+			temp.mov = mv;
+		}
+
+		if (MINMAX(temp.score, br.score, board.player)) {
+			br = temp;
+		}
+	}
+	return br;
+}
+
+#if 0
+branch greater_trillian(chessboard board, chesset set, branch bestforwhite, branch bestforblack, unsigned depth) {
+	int i;
+	move mv, rook_castle;
+	char promoted;
+	branch temp;
+	chessboard sboard;
+	chesset sset;
+	special_move castle;
+	double score, minmax;
+	branch br;
+
+	array a;
+	ainit(&a);
+
+	if (depth == 0) {
+		score = position_evaluate(&set);
+		br.score = score;
+		return br;
+	}
+
+	minmax = ((board.player == 'w') ? -1e9 : 1e9);
+	generate_moves(&board, &set, &a);
+		br.score = minmax;
+	int n = alength(&a);
+	for (i = 0; i < n; i++) {
+		mv = a.arr[i];
+
+		sboard = board;
+		sset = set;
+
+		castle = make_move(&sboard, &sset, mv);
+		if (white_kingside <= castle && black_queenside >= castle) {
+			rook_castle = rook_move(castle);
+			menial_move(&sboard, &sset, rook_castle);
+			update_pieces(&sboard, &sset, rook_castle);
+		}
+		else if (castle == promotion) {
+			/* always promotes to queen, for lack of a better logic */
+			promoted = (sboard.player == 'w' ? 'q' : 'Q');
+			handle_promotion(&sboard, &sset, mv, promoted);
+
+		}
+
+		/* recalculate */
+		update_pieces(&sboard, &sset, mv);
+		calculate_pins(&sset, &sboard, 'w');
+		calculate_pins(&sset, &sboard, 'b');
+		calculate_threats(&sset, sboard.player);
+
+		/* check for end of game */
+		if (is_checkmate(&sboard, &sset)) {
+			score = (board.player == 'w' ? 1e9 : -1e9);
+			br.mov = mv;
+			br.score = score;
+			return br;
+		}
+		else if (is_draw(&sboard, &sset)) {
+			temp.score = 0;
+			temp.mov = mv;
+		}
+		else {
+			temp = greater_trillian(sboard, sset, depth - 1);
+			temp.mov = mv;
+		}
+
+		if (MINMAX(temp.score, br.score, board.player)) {
+			br = temp;
+		}
+
+		if (board.player == 'b' && (br.score <= bestforwhite.score)) {
+			return br;
+		}
+	}
+	return br;
+}
+#endif

@@ -82,12 +82,10 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 
 	if (can_castle(board, set, castle_k)) {
 		mv = king_castle(castle_k);
-		print_move(mv);
 		aappend(a, mv);
 	}
 	if (can_castle(board, set, castle_k + 1)) {
 		mv = king_castle(castle_k + 1);
-		print_move(mv);
 		aappend(a, mv);
 	}
 	

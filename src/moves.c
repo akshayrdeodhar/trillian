@@ -122,7 +122,6 @@ special_move check_special(square sq, move mv) {
 			temp = king_castle_moves[i - 1];
 			if (movesequal(mv, temp)) {
 				/* return castling code */
-				printf("Castling: %d\n", i);
 				return i;
 			}
 		}
@@ -211,11 +210,13 @@ int can_castle(chessboard *board, chesset *set, special_move castle) {
 
 	slide_square.rank = king_move.ini.rank;
 
-	for (slide_square.file = king_move.ini.file + fileinc; slide_square.file != (king_move.fin.file + fileinc); slide_square.file += fileinc) {
+	for (slide_square.file = king_move.ini.file + fileinc; slide_square.file != (rook_move.ini.file); slide_square.file += fileinc) {
 		if (board->brd[slide_square.rank][slide_square.file].pc) {
-			/* square blocked */
 			return 0;
 		}
+	}
+
+	for (slide_square.file = king_move.ini.file + fileinc; slide_square.file != (king_move.fin.file + fileinc); slide_square.file += fileinc) {
 		for (i = 0; i < n; ++i) {
 			if (can_attack(enemy[i], slide_square)) {
 				if (DEBUG_MOVES & DEBUG_CASTLE) {
@@ -1151,7 +1152,6 @@ int is_checkmate(chessboard *board, chesset *set) {
 			for (j = 0; j < n; j++) {
 				/* for each friendly piece */
 				if (vanilla_can_move(friendlies[j], save)) {
-					printf("%c can move to %c%c\n", friendlies[j].piece, save.file + 'a', save.rank + '1');
 					/* if can block or kill */
 					return 0;
 				}
