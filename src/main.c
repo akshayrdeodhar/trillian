@@ -24,7 +24,7 @@
 
 #define MAIN_LOOP 1
 #define BIG_DISPLAY 0
-#define DEBUG_GENERATE 1
+#define DEBUG_GENERATE 0
 #define ENUM_MOVES 0
 
 
@@ -164,17 +164,6 @@ int main(int argc, char *argv[]) {
 #if MAIN_LOOP
 	while(1) {
 		/* zaphod generates moves */
-#if ENUM_MOVES
-		ainit(&a);
-		printf("Possible Moves:\n");
-		generate_moves(&board, &set, &a);
-		movecount = alength(&a);
-		for (i = 0; i < movecount; i++) {
-			print_move(a.arr[i]);
-		}
-		adestroy(&a);
-#endif
-
 
 		/* get command from user */
 		pt = (board.player == 'w') ? pw : pb;
@@ -244,8 +233,19 @@ int main(int argc, char *argv[]) {
 			print_move(mv);
 		}
 		else {
+#if ENUM_MOVES
+			ainit(&a);
+			printf("Possible Moves:\n");
+			generate_moves(&board, &set, &a);
+			movecount = alength(&a);
+			for (i = 0; i < movecount; i++) {
+				print_move(a.arr[i]);
+			}
+			adestroy(&a);
+#endif
+
 			gettimeofday(&performance1, NULL);
-			prune = smarter_trillian(board, set, min, max, 4);
+			prune = smarter_trillian(board, set, min, max, 2);
 			gettimeofday(&performance2, NULL);
 			timereq = (performance2.tv_sec + performance2.tv_usec * 1e-6) - (performance1.tv_sec + performance1.tv_usec * 1e-6);
 			printf("Time required: %lfsec\n", timereq);
@@ -317,7 +317,7 @@ int main(int argc, char *argv[]) {
 		/* show previous move for clarity */
 		pt = (board.player == 'w') ? pb : pw;
 		fprintf(stderr, "%s played  ", pt.name); print_move(mv);
-		printf("Position Evaluation: %d\n", position_evaluate(&set));
+		printf("Position Evaluation: %lf\n", position_evaluate(&set));
 	}
 #endif
 	return 0;

@@ -199,6 +199,11 @@ int can_castle(chessboard *board, chesset *set, special_move castle) {
 		return 0;
 	}
 
+	if (set->threat_count) {
+		/* king in check */
+		return 0;
+	}
+
 	rook_move = rook_castle_moves[castle - 1];
 	char rook_color = board->brd[rook_move.ini.rank][rook_move.ini.file].pc;
 	if (toupper(rook_color) != 'R' || !isSame(king_color, rook_color)) {

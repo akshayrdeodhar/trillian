@@ -4,11 +4,12 @@
 #include "moves.h"
 #include "display.h"
 #include <limits.h>
+#include "display.h"
 
 #define DEBUG_EVAL 0
 #define DEBUG_DEEP 0
 
-int value(char pc) {
+double value(char pc) {
 	switch(toupper(pc)) {
 		case 'Q':
 			return 9;
@@ -31,12 +32,13 @@ int value(char pc) {
 
 
 #define VALCOEFF 10
-#define KINGCOEFF (-2)
+#define KINGCOEFF (-3)
 #define CTRLCOEFF (1)
-int color_evaluate(piece *side, int n) {
+#define SACOEFF (1)
+double color_evaluate(piece *side, int n) {
 	int i, j;
 	piece pc;
-	int valsum, ctrlsum, kingsafety, ctrltemp;
+	double valsum, ctrlsum, kingsafety, ctrltemp, supportattack, satemp;
 
 	kingsafety = 0;
 	pc = side[0];
@@ -45,37 +47,29 @@ int color_evaluate(piece *side, int n) {
 			kingsafety += 1;
 		}
 	}
-#if DEBUG_EVAL
-	printf("Kingsafety: %lf\n", kingsafety);
-#endif
 
 	valsum = 0;
-	for (i = 1; i < n; i++) {
-		pc = side[i];
-		valsum += value(pc.piece);
-	}
-#if DEBUG_EVAL
-	printf("Valsum: %lf\n", valsum);
-#endif
-
 	ctrlsum = 0;
+	supportattack = 0;
 	for (i = 1; i < n; i++) {
 		ctrltemp = 0;
+		satemp = 0;
 		pc = side[i];
+		valsum += value(pc.piece);
+
 		for (j = pc.dir_start; j <= pc.dir_end; j += pc.dir_incr) {
 			ctrltemp += pc.dirs[j & 7];
+			satemp += (0.5 + (value(pc.end[j & 7]) - value(pc.piece)) / 16); /* see end of file for equation */
 		}
 		ctrlsum += ctrltemp;
+		supportattack += satemp;
 	}
-#if DEBUG_EVAL
-	printf("Ctrlsum: %lf\n", ctrlsum);
-#endif
 
-	return VALCOEFF * valsum + CTRLCOEFF * ctrlsum + KINGCOEFF * kingsafety;
+	return VALCOEFF * valsum + CTRLCOEFF * ctrlsum + SACOEFF * supportattack + KINGCOEFF * kingsafety;
 }
 
-int position_evaluate(chesset *set) {
-	int score, white, black;
+double position_evaluate(chesset *set) {
+	double score, white, black;
 	white = color_evaluate(set->whites, set->n_white);
 	black = color_evaluate(set->blacks, set->n_black);
 	score = white - black;
@@ -165,7 +159,7 @@ branch greater_trillian(chessboard board, chesset set, unsigned depth) {
 	chessboard sboard;
 	chesset sset;
 	special_move castle;
-	int score, minmax;
+	double score, minmax;
 	branch br;
 
 	array a;
@@ -208,7 +202,7 @@ branch greater_trillian(chessboard board, chesset set, unsigned depth) {
 
 		/* check for end of game */
 		if (is_checkmate(&sboard, &sset)) {
-			score = (board.player == 'w' ? INT_MAX : INT_MIN);
+			score = (board.player == 'w' ? (INT_MAX - 1) : (INT_MIN + 1)); /* to prevent collisions with 'INF values */
 			br.mov = mv;
 			br.score = score;
 			return br;
@@ -252,8 +246,11 @@ branch smarter_trillian(chessboard board, chesset set, branch bestwhite, branch 
 
 	minmax = ((board.player == 'w') ? INT_MIN : INT_MAX);
 	generate_moves(&board, &set, &a);
-		br.score = minmax;
 	int n = alength(&a);
+	for (i = 0; i < n; i++) {
+		printn(' ', depth);
+		print_move(a.arr[i]);
+	}
 	for (i = 0; i < n; i++) {
 		mv = a.arr[i];
 
@@ -313,7 +310,14 @@ branch smarter_trillian(chessboard board, chesset set, branch bestwhite, branch 
 	if (board.player == 'w') {
 		return bestwhite;
 	}
-	else if (board.player == 'b') {
+	else {
 		return bestblack;
 	}
+
 }
+
+/* support-attack:
+ * it is good for a piece of low value to attack or support a piece of hig value:
+ * linear equation thatt maps (-8, 8) to (0, 1)
+ * y = (0.5) + (x) / 16
+ * */

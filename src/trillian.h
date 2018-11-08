@@ -7,14 +7,14 @@
 
 typedef struct {
 	move mov;
-	int score;
+	double score;
 }branch;
 
-int value(char pc); 
+double value(char pc); 
 
-int color_evaluate(piece *side, int n); 
+double color_evaluate(piece *side, int n); 
 
-int position_evaluate(chesset *set); 
+double position_evaluate(chesset *set); 
 
 move trillian(chessboard *board, chesset *set);
 
