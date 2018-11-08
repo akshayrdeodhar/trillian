@@ -492,6 +492,8 @@ void calculate_direction(piece *p, chessboard *ch, usint direction) {
 			printf("  %c%c OOB\n", file + 'a', rank + '1');
 		}
 	}
+	end = ch->brd[rank][file].pc;
+#if 0
 	else if (oppKing(p->piece) == ch->brd[rank][file].pc) {
 		/*i |= (1 << 5);*/
 		end = ch->brd[rank][file].pc;
@@ -526,6 +528,7 @@ void calculate_direction(piece *p, chessboard *ch, usint direction) {
 			}
 		}
 	}
+#endif
 
 	p->end[direction & 7] = end;
 	p->dirs[direction & 7] = (usint)i;

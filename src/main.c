@@ -245,7 +245,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 			gettimeofday(&performance1, NULL);
-			prune = smarter_trillian(board, set, min, max, 2);
+			prune = smarter_trillian(board, set, min, max, 4);
 			gettimeofday(&performance2, NULL);
 			timereq = (performance2.tv_sec + performance2.tv_usec * 1e-6) - (performance1.tv_sec + performance1.tv_usec * 1e-6);
 			printf("Time required: %lfsec\n", timereq);
