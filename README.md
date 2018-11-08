@@ -17,4 +17,6 @@ Supports Forsyth Edwards Format for storing board position
 
 Will validate moves done done by player
 
-Rudimentary computer player that does 'correct' moves
+Fairly competent computer player which uses a naive implementation of MiniMax
+
+Allows storing board position and player info
