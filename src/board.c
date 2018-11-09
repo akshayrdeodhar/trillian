@@ -217,8 +217,6 @@ int fenstring_to_board(chessboard *board, char fenstring[]) {
 
 	length = get_fentok(current, fenstring, 0);
 
-	fprintf(stderr, "En Passe: %s\n", current);
-
 	if ((length == 2 && valid_enpass_square(current)) || (length == 1 && current[0] == '-')) {
 		if (length == 2) {
 			board->enpass_target.file = current[0] - 'a';

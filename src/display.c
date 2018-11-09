@@ -78,20 +78,23 @@ void printn(char c, unsigned n) {
 	}
 }
 
-void filled_display(chessboard *board, int mode) {
+void filled_display(chessboard *board, int mode, char color) {
 	int i, j, rank, file;
 	rank = file = 8;
 	int ni, nj;
 	char state;
 	char pc;
-	char player = board->player;
 	state = BCHAR;
+	if (color != 'w' && color != 'b') {
+		fprintf(stderr, "Invalid perspective: color should be white or black\n");
+		return;
+	}
 	ni = HEIGHT * 8 + 1;
 	nj = 8 * WIDTH + 1;
 	for (i = 0; i < ni; i++) {
 		if (i % HEIGHT == HEIGHT_BY_2) {
 			printn(BLANK, WIDTH_BY_2 - 1);
-			rank = (player == 'w') ? 7 - (i / HEIGHT) : (i / HEIGHT);
+			rank = (color == 'w') ? 7 - (i / HEIGHT) : (i / HEIGHT);
 			putchar('1' + rank);
 			printn(BLANK, WIDTH_BY_2 - 1);
 		}
@@ -109,7 +112,7 @@ void filled_display(chessboard *board, int mode) {
 					putchar(VBORDER);
 				}
 				else if((i % HEIGHT == HEIGHT_BY_2) && (j % WIDTH == WIDTH_BY_2)) {
-					file = (player == 'b') ? 7 - (j / WIDTH) : (j / WIDTH);
+					file = (color == 'b') ? 7 - (j / WIDTH) : (j / WIDTH);
 					if ((pc = (board->brd[rank][file].pc))) {
 						putchar(pc);
 					}
@@ -129,7 +132,7 @@ void filled_display(chessboard *board, int mode) {
 	printn(BLANK, WIDTH - 1);
 	for (j = 0; j < nj; j++) {
 		if (j % WIDTH == WIDTH_BY_2) {
-			file = (player == 'b') ? 7 - (j / WIDTH) : (j / WIDTH);
+			file = (color == 'b') ? 7 - (j / WIDTH) : (j / WIDTH);
 			putchar('a' + file);
 		}
 		else {

@@ -21,15 +21,12 @@ void player_info_string(char save_string[], player_token pw, player_token pb) {
 /* because save files are created by program, no modification is required */
 
 int string_to_players(char save_string[], player_token *ppw, player_token *ppb) {
-	printf("%s\n", save_string);
 	char *tokw, *tokb;
 	int code1, code2;
 	tokw = strtok(save_string, "\t");
 	tokb = strtok(NULL, "\t");
-	printf("%s\n", tokw);
 	code1 = extract_token(ppw, tokw);
 	ppw->color = 'w';
-	printf("%s\n", tokb);
 	code2 = extract_token(ppb, tokb);
 	ppb->color = 'b';
 

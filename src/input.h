@@ -10,7 +10,8 @@ typedef enum commandtype {
 	save_ins, 
 	draw_ins,
 	board_ins,
-	invalid_ins
+	invalid_ins,
+	help_ins
 }command;
 
 typedef struct {

@@ -10,8 +10,6 @@
 #include "vector.h"
 #include "display.h"
 
-#define DEBUG_BOARD 1
-
 void generate_moves(chessboard *board, chesset *set, array *a) {
 	piece *zaphod = NULL;
 	piece pc, king;
@@ -112,7 +110,6 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 	}
 }
 
-
 /* takes board and set with all calculations done, returns a random move, beeblebrox style */
 move zaphod(chessboard *board, chesset *set) {
 	struct timeval random_time;
@@ -127,4 +124,3 @@ move zaphod(chessboard *board, chesset *set) {
 	adestroy(&a);
 	return mv;
 }
-

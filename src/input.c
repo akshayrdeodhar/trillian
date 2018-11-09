@@ -184,6 +184,9 @@ token get_command(char line[]) {
 	else if (!strcmp(line, "board")) {
 		tk.c = board_ins;
 	}
+	else if (!strcmp(line, "help")) {
+		tk.c = help_ins;
+	}
 	else if (is_move(line)) {
 		tk.c = move_ins;
 		tk.mv = extract_move(line);
