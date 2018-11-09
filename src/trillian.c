@@ -76,80 +76,14 @@ double position_evaluate(chesset *set) {
 }
 
 #define MINMAX(curr, minmax, color) ((color == 'w') ? ((curr) > (minmax)) : ((curr) < (minmax)))
-branch greater_trillian(chessboard board, chesset set, unsigned depth) {
-	int i;
-	move mv, rook_castle;
-	char promoted;
-	branch temp;
-	chessboard sboard;
-	chesset sset;
-	special_move castle;
-	double score, minmax;
-	branch br;
 
-	array a;
-	ainit(&a);
+/* support-attack:
+ * it is good for a piece of low value to attack or support a piece of hig value:
+ * linear equation thatt maps (-8, 8) to (0, 1)
+ * y = (0.5) + (x) / 16
+ * */
 
-	if (depth == 0) {
-		score = position_evaluate(&set);
-		br.score = score;
-		return br;
-	}
-
-	minmax = ((board.player == 'w') ? INT_MIN : INT_MAX);
-	generate_moves(&board, &set, &a);
-		br.score = minmax;
-	int n = alength(&a);
-	for (i = 0; i < n; i++) {
-		mv = a.arr[i];
-
-		sboard = board;
-		sset = set;
-
-		castle = make_move(&sboard, &sset, mv);
-		if (white_kingside <= castle && black_queenside >= castle) {
-			rook_castle = rook_move(castle);
-			menial_move(&sboard, &sset, rook_castle);
-			update_pieces(&sboard, &sset, rook_castle);
-		}
-		else if (castle == promotion) {
-			/* always promotes to queen, for lack of a better logic */
-			promoted = (sboard.player == 'w' ? 'q' : 'Q');
-			handle_promotion(&sboard, &sset, mv, promoted);
-
-		}
-
-		/* recalculate */
-		update_pieces(&sboard, &sset, mv);
-		calculate_pins(&sset, &sboard, 'w');
-		calculate_pins(&sset, &sboard, 'b');
-		calculate_threats(&sset, sboard.player);
-
-		/* check for end of game */
-		if (is_checkmate(&sboard, &sset)) {
-			score = (board.player == 'w' ? (INT_MAX - 1) : (INT_MIN + 1)); /* to prevent collisions with 'INF values */
-			br.mov = mv;
-			br.score = score;
-			return br;
-		}
-		else if (is_draw(&sboard, &sset)) {
-			temp.score = 0;
-			temp.mov = mv;
-		}
-		else {
-			temp = greater_trillian(sboard, sset, depth - 1);
-			temp.mov = mv;
-		}
-
-		if (MINMAX(temp.score, br.score, board.player)) {
-			br = temp;
-		}
-	}
-	return br;
-}
-
-
-branch smarter_trillian(chessboard board, chesset set, branch bestwhite, branch bestblack, unsigned depth) {
+branch maximise(chessboard board, chesset set, branch alphawhite, branch betablack, unsigned depth) {
 	int i;
 	move mv, rook_castle;
 	char promoted;
@@ -158,15 +92,14 @@ branch smarter_trillian(chessboard board, chesset set, branch bestwhite, branch 
 	chesset sset;
 	special_move castle;
 	int score;
-	branch br;
 
 	array a;
 	ainit(&a);
 
 	if (depth == 0) {
 		score = position_evaluate(&set);
-		br.score = score;
-		return br;
+		temp.score = score;
+		return temp;
 	}
 
 	generate_moves(&board, &set, &a);
@@ -199,46 +132,122 @@ branch smarter_trillian(chessboard board, chesset set, branch bestwhite, branch 
 
 		/* check for end of game */
 		if (is_checkmate(&sboard, &sset)) {
-			score = (board.player == 'w' ? INT_MAX : INT_MIN);
-			br.mov = mv;
-			br.score = score;
-			return br;
+			score = (board.player == 'w' ? 1e9 : -1e9);
+			temp.mov = mv;
+			temp.score = score;
+			return temp;
 		}
 		else if (is_draw(&sboard, &sset)) {
 			temp.score = 0;
 			temp.mov = mv;
+			return temp;
 		}
 		else {
-			temp = greater_trillian(sboard, sset, depth - 1);
+			temp = minimise(sboard, sset, alphawhite, betablack, depth - 1);
 			temp.mov = mv;
 		}
 
-		if (board.player == 'w' && temp.score > bestwhite.score) {
-			bestwhite = temp;
-			/* black will never pick this */
-			if (bestwhite.score >= bestblack.score) {
-				return bestwhite;
-			}
+		if (temp.score > alphawhite.score) {
+			alphawhite = temp;
 		}
-		else if (board.player == 'b' && temp.score < bestblack.score) {
-			bestblack = temp;
-			/* white will never pick this */
-			if (bestblack.score <= bestwhite.score) {
-				return bestblack;
-			}
-		}
-	}
-	if (board.player == 'w') {
-		return bestwhite;
-	}
-	else {
-		return bestblack;
-	}
 
+		if (alphawhite.score >= betablack.score) {
+			/* in this subtree, afinal >= acurr
+			 * black has a subtree with betablack < acurr
+			 * so why will black descend?
+			 * */
+			return alphawhite;
+		}
+	}
+	return alphawhite;
 }
 
-/* support-attack:
- * it is good for a piece of low value to attack or support a piece of hig value:
- * linear equation thatt maps (-8, 8) to (0, 1)
- * y = (0.5) + (x) / 16
- * */
+branch minimise(chessboard board, chesset set, branch alphawhite, branch betablack, unsigned depth) {
+	int i;
+	move mv, rook_castle;
+	char promoted;
+	branch temp;
+	chessboard sboard;
+	chesset sset;
+	special_move castle;
+	int score;
+
+	array a;
+	ainit(&a);
+
+	if (depth == 0) {
+		score = position_evaluate(&set);
+		temp.score = score;
+		return temp;
+	}
+
+	generate_moves(&board, &set, &a);
+	int n = alength(&a);
+
+	for (i = 0; i < n; i++) {
+		mv = a.arr[i];
+
+		sboard = board;
+		sset = set;
+
+		castle = make_move(&sboard, &sset, mv);
+		if (white_kingside <= castle && black_queenside >= castle) {
+			rook_castle = rook_move(castle);
+			menial_move(&sboard, &sset, rook_castle);
+			update_pieces(&sboard, &sset, rook_castle);
+		}
+		else if (castle == promotion) {
+			/* always promotes to queen, for lack of a better logic */
+			promoted = (sboard.player == 'w' ? 'q' : 'Q');
+			handle_promotion(&sboard, &sset, mv, promoted);
+
+		}
+
+		/* recalculate */
+		update_pieces(&sboard, &sset, mv);
+		calculate_pins(&sset, &sboard, 'w');
+		calculate_pins(&sset, &sboard, 'b');
+		calculate_threats(&sset, sboard.player);
+
+		/* check for end of game */
+		if (is_checkmate(&sboard, &sset)) {
+			score = (board.player == 'w' ? 1e9 : -1e9);
+			temp.mov = mv;
+			temp.score = score;
+			return temp;
+		}
+		else if (is_draw(&sboard, &sset)) {
+			temp.score = 0;
+			temp.mov = mv;
+			return temp;
+		}
+		else {
+			temp = maximise(sboard, sset, alphawhite, betablack, depth - 1);
+			temp.mov = mv;
+		}
+
+		if (temp.score < betablack.score) {
+			betablack = temp;
+		}
+
+		if (betablack.score <= alphawhite.score) {
+			/* betablack with comprehensive anylisis
+			 * bfinal <= bcurr
+			 * But white has a alphawhite >= bcurr
+			 * So why descend?
+			 * In the end, bfinal < alphawhite, so white won't chose this anyway!
+			 * */
+			return betablack;
+		}
+	}
+	return betablack;
+}
+
+branch distributed_trillian(chessboard board, chesset set, branch alphawhite, branch betablack, unsigned depth) {
+	if (board.player == 'w') {
+		return maximise(board, set, alphawhite, betablack, depth);
+	}
+	else {
+		return minimise(board, set, alphawhite, betablack, depth);
+	}
+}

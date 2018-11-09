@@ -1,5 +1,6 @@
 #include "display.h"
 #include <stdio.h>
+/* to be removed: display */
 void display(chessboard *board, int mode) {
 	int i, j;
 	for (i = 7; i > -1; --i) {

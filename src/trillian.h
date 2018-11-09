@@ -16,10 +16,9 @@ double color_evaluate(piece *side, int n);
 
 double position_evaluate(chesset *set); 
 
-move trillian(chessboard *board, chesset *set);
-
-branch greater_trillian(chessboard board, chesset set, unsigned depth);
-
-branch smarter_trillian(chessboard board, chesset set, branch bestwhite, branch bestblack, unsigned depth);
+/* minmax with alpha-beta pruning */
+branch distributed_trillian(chessboard board, chesset set, branch alphawhite, branch betablack, unsigned depth);
+branch maximise(chessboard board, chesset set, branch alphawhite, branch betablack, unsigned depth);
+branch minimise(chessboard board, chesset set, branch alphawhite, branch betablack,  unsigned depth);
 
 #endif

@@ -304,16 +304,16 @@ void board_to_fenstring(char fenstring[], chessboard *board) {
 	fenstring[index++] = board->player;
 	fenstring[index++] = ' ';
 
-	if (board->castling && (1 << (white_queenside))) {
+	if (board->castling & (1 << (white_queenside))) {
 		fenstring[index++] = 'Q';
 	}
-	if (board->castling && (1 << (black_queenside))) {
+	if (board->castling & (1 << (black_queenside))) {
 		fenstring[index++] = 'q';
 	}
-	if (board->castling && (1 << (white_queenside))) {
+	if (board->castling & (1 << (white_queenside))) {
 		fenstring[index++] = 'K';
 	}
-	if (board->castling && (1 << black_kingside)) {
+	if (board->castling & (1 << black_kingside)) {
 		fenstring[index++] = 'k';
 	}
 

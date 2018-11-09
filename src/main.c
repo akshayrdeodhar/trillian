@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 	special_move castle; /* check and do corresponding rook movement for castling */
 	char promoted = '\0'; /* to recieve promotion */
 
-	branch aimove; /* branch chosen by AI */
+	branch otherai;
 
 #if ENUM_MOVES
 	array a;
@@ -257,11 +257,11 @@ int main(int argc, char *argv[]) {
 			adestroy(&a);
 #endif
 			gettimeofday(&performance1, NULL);
-			aimove = smarter_trillian(board, set, min, max, 4);
+			otherai = distributed_trillian(board, set, min, max, 4);
 			gettimeofday(&performance2, NULL);
 			timereq = (performance2.tv_sec + performance2.tv_usec * 1e-6) - (performance1.tv_sec + performance1.tv_usec * 1e-6);
 
-			mv = aimove.mov;
+			mv = otherai.mov;
 			if (!can_move(&board, &set, mv)) {
 				printf("Invalid Move, %s\n", pt.name);
 				continue;
@@ -310,6 +310,7 @@ int main(int argc, char *argv[]) {
 		}
 
 #if (DEBUG & DEBUG_FEN) 
+		show_register(board.castling);
 		display(&board, READ_MODE);
 		board_to_fenstring(string, &board);
 		printf("%s\n", string);

@@ -1010,6 +1010,7 @@ int insufficient_mating_material(chesset *set) {
 /* DEBUGGING Functions
  * Mostly for programmatically checking another function
  * */
+/* TODO: REMOVE THESE ONCE JOB DONE */
 
 void check_manually(chesset s) {
 	int i, j;

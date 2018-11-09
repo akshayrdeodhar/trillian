@@ -9,4 +9,6 @@ b8-c6
 f1-c4
 f8-c5
 e1-g1
+save
+castlefen
 quit
