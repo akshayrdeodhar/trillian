@@ -1,3 +1,5 @@
+/* random move AI, move generation */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/time.h>
@@ -36,6 +38,7 @@ void generate_moves(chessboard *board, chesset *set, array *a) {
 	else {
 		zaphod = NULL;
 		zn = 0;
+		castle_k = none;
 	}
 
 	/* calculate king moves first, as routine for this does not change based on whether king is in check */

@@ -1,3 +1,5 @@
+/* pieces initialisation, manipulation, interfacing with board */
+
 #include "pieces.h"
 #include "defs.h"
 #include <ctype.h>

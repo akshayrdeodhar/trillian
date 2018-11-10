@@ -1,3 +1,5 @@
+/* player info exrtraction, saving */
+
 #include "player.h"
 #include <stdio.h> 
 #include <string.h>

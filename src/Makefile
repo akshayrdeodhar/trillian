@@ -1,7 +1,7 @@
-FLAGS = -Wall -O2 #-std=c89
+FLAGS = -Wall -O2 #-Wextra #-std=c89
 MATH = -lm
 REDIRECT = #2> errors.err
-ASAN = -fsanitize=address
+ASAN = #-fsanitize=address #-fsanitize=leak -fsanitize=undefined
 DEBUG = #-g
 
 try: main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o player.o trillian.o

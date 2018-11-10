@@ -1,3 +1,5 @@
+/* user input functions, some output too */
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>

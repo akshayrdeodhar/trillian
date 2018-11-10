@@ -1,3 +1,5 @@
+/* board state, FEN functions */
+
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>

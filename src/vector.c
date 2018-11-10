@@ -1,3 +1,5 @@
+/* position, displacement and direction */
+
 #include "vector.h"
 #include <limits.h>
 
@@ -84,7 +86,7 @@ usint find_dir(movement sl) {
 }
 
 ssint fileincr(usint direction) {
-	const static ssint file_incr[16] = {-1, -1, 0, 1, 1, 1, 0, -1, -2, -1, 1, 2, 2, 1, -1, -2};
+	static const ssint file_incr[16] = {-1, -1, 0, 1, 1, 1, 0, -1, -2, -1, 1, 2, 2, 1, -1, -2};
 
 	if (direction < 16) {
 		return file_incr[direction];
@@ -97,7 +99,7 @@ ssint fileincr(usint direction) {
 }
 
 ssint rankincr(usint direction) {
-	const static ssint rank_incr[16] = {0, 1, 1, 1, 0, -1, -1, -1, 1, 2, 2, 1, -1, -2, -2, -1};
+	static const ssint rank_incr[16] = {0, 1, 1, 1, 0, -1, -1, -1, 1, 2, 2, 1, -1, -2, -2, -1};
 
 	if (direction < 16) {
 		return rank_incr[direction];

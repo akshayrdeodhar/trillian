@@ -1,3 +1,5 @@
+/* the *smart* bot, static evaluation, minimax! */ 
+
 #include "trillian.h"
 #include "zaphod.h"
 #include <stdio.h>
@@ -110,6 +112,7 @@ branch maximise(chessboard board, chesset set, branch alphawhite, branch betabla
 	if (depth == 0) {
 		score = position_evaluate(&set, board.fullmoves);
 		temp.score = score;
+		adestroy(&a);
 		return temp;
 	}
 
@@ -146,11 +149,13 @@ branch maximise(chessboard board, chesset set, branch alphawhite, branch betabla
 			score = (board.player == 'w' ? 1e9 : -1e9);
 			temp.mov = mv;
 			temp.score = score;
+			adestroy(&a);
 			return temp;
 		}
 		else if (is_draw(&sboard, &sset)) {
 			temp.score = 0;
 			temp.mov = mv;
+			adestroy(&a);
 			return temp;
 		}
 		else {
@@ -167,9 +172,12 @@ branch maximise(chessboard board, chesset set, branch alphawhite, branch betabla
 			 * black has a subtree with betablack < acurr
 			 * so why will black descend?
 			 * */
+			adestroy(&a);
 			return alphawhite;
 		}
 	}
+
+	adestroy(&a);
 	return alphawhite;
 }
 
@@ -189,6 +197,7 @@ branch minimise(chessboard board, chesset set, branch alphawhite, branch betabla
 	if (depth == 0) {
 		score = position_evaluate(&set, board.fullmoves);
 		temp.score = score;
+		adestroy(&a);
 		return temp;
 	}
 
@@ -225,11 +234,13 @@ branch minimise(chessboard board, chesset set, branch alphawhite, branch betabla
 			score = (board.player == 'w' ? 1e9 : -1e9);
 			temp.mov = mv;
 			temp.score = score;
+			adestroy(&a);
 			return temp;
 		}
 		else if (is_draw(&sboard, &sset)) {
 			temp.score = 0;
 			temp.mov = mv;
+			adestroy(&a);
 			return temp;
 		}
 		else {
@@ -248,9 +259,11 @@ branch minimise(chessboard board, chesset set, branch alphawhite, branch betabla
 			 * So why descend?
 			 * In the end, bfinal < alphawhite, so white won't chose this anyway!
 			 * */
+			adestroy(&a);
 			return betablack;
 		}
 	}
+	adestroy(&a);
 	return betablack;
 }
 

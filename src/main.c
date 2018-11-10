@@ -1,3 +1,5 @@
+/* The main game loop which calls everything */
+
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>

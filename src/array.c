@@ -1,3 +1,5 @@
+/* extensible array used for storing moves */
+
 #include <stdlib.h>
 #include "array.h"
 
