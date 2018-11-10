@@ -471,12 +471,18 @@ void calculate_direction(piece *p, chessboard *ch, usint direction) {
 	}
 
 	if (!inrange(rank, file)) {
+		/* GO BACK ONE SQUARE */
 		i--;
+		rank -= rankinc;
+		file -= fileinc;
+		end = 0;
 		if (DEBUG_MOVES & DEBUG_CALCULATE) {
 			printf("  %c%c OOB\n", file + 'a', rank + '1');
 		}
 	}
-	end = ch->brd[rank][file].pc;
+	else {
+		end = ch->brd[rank][file].pc;
+	}
 
 	p->end[direction & 7] = end;
 	p->dirs[direction & 7] = (usint)i;
