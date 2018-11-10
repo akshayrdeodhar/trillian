@@ -12,9 +12,9 @@ typedef struct {
 
 double value(char pc); 
 
-double color_evaluate(piece *side, int n); 
+double color_evaluate(piece *side, int n, int moves); 
 
-double position_evaluate(chesset *set); 
+double position_evaluate(chesset *set, int moves); 
 
 /* minmax with alpha-beta pruning */
 branch distributed_trillian(chessboard board, chesset set, branch alphawhite, branch betablack, unsigned depth);

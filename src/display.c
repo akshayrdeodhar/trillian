@@ -1,5 +1,53 @@
 #include "display.h"
 #include <stdio.h>
+#include "chessescape.h"
+
+#define COOL_PIECE 1
+
+void printpiece(char pc) {
+	switch(pc) {
+		case 'P':
+			printf(white_pawn);
+			break;
+		case 'p':
+			printf(black_pawn);
+			break;
+		case 'B':
+			printf(white_bishop);
+			break;
+		case 'b':
+			printf(black_bishop);
+			break;
+		case 'N':
+			printf(white_knight);
+			break;
+		case 'n':
+			printf(black_knight);
+			break;
+		case 'R':
+			printf(white_rook);
+			break;
+		case 'r':
+			printf(black_rook);
+			break;
+		case 'Q':
+			printf(white_queen);
+			break;
+		case 'q':
+			printf(black_queen);
+			break;
+		case 'K':
+			printf(white_king);
+			break;
+		case 'k':
+			printf(black_king);
+			break;
+		default:
+			printf("That Was not a Piece\n");
+			break;
+	}
+}
+
 /* to be removed: display */
 void display(chessboard *board, int mode) {
 	int i, j;
@@ -115,7 +163,12 @@ void filled_display(chessboard *board, int mode, char color) {
 				else if((i % HEIGHT == HEIGHT_BY_2) && (j % WIDTH == WIDTH_BY_2)) {
 					file = (color == 'b') ? 7 - (j / WIDTH) : (j / WIDTH);
 					if ((pc = (board->brd[rank][file].pc))) {
-						putchar(pc);
+						if (COOL_PIECE) {
+							printpiece(pc);
+						}
+						else {
+							putchar(pc);
+						}
 					}
 					else {
 						putchar(state);
@@ -163,3 +216,4 @@ void filled_display(chessboard *board, int mode, char color) {
 		putchar('\n');
 	}
 }
+

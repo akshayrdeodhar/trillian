@@ -1,4 +1,4 @@
-FLAGS = -Wall -std=c89 -O2
+FLAGS = -Wall -O2 #-std=c89
 MATH = -lm
 REDIRECT = #2> errors.err
 ASAN = #-fsanitize=address
@@ -13,7 +13,7 @@ main.o: main.c board.h pieces.h display.h moves.h vector.h zaphod.h trillian.h p
 board.o: board.c board.h defs.h vector.h
 	gcc -c board.c $(FLAGS) $(ASAN) $(DEBUG) $(REDIRECT)
 
-display.o: display.c display.h board.h defs.h
+display.o: display.c display.h board.h defs.h chessescape.h
 	gcc -c display.c $(FLAGS) $(ASAN) $(DEBUG) $(REDIRECT)
 
 pieces.o: pieces.c pieces.h board.h defs.h

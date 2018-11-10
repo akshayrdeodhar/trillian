@@ -655,10 +655,9 @@ void calculate_pins(chesset *set, chessboard *ch, char color) {
 
 /* UPDATE Functions:
  * When a move is made, only those pieces in whose range the affected squares are, have their moves recalculated, in those specific directions
- * update_pieces() (updates attack moves and end_piece data for all affected pieces (simply a caller for update_piece()
- * update_piece() checks which directions of piece are affected, recalculates them 
  * */
 
+/* update_pieces() (updates attack moves and end_piece data for all affected pieces (simply a caller for update_piece()) */
 void update_pieces(chessboard *board, chesset *set, move mv) {
 	usint i;
 	square sq;
@@ -690,6 +689,7 @@ void update_pieces(chessboard *board, chesset *set, move mv) {
 
 }
 
+/* update_piece() checks which directions of piece are affected, recalculates them  */
 void update_piece(chessboard *board, piece *p, move mv) {
 	movement sl1, sl2;
 	usint dir1, dir2;

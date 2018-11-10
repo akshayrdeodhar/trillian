@@ -22,9 +22,8 @@
 #define DEBUG_END 8
 #define DEBUG_FEN 16
 #define MAIN_LOOP 1
-#define BIG_DISPLAY 0
-#define DEBUG_GENERATE 0
 #define ENUM_MOVES 0
+#define DEPTH 4
 
 #define movesequal(mv1, mv2) (posequal(mv1.ini, mv2.ini) && posequal(mv1.fin, mv2.fin))
 int main(int argc, char *argv[]) {
@@ -171,7 +170,6 @@ int main(int argc, char *argv[]) {
 		show_threats(&set, &board);
 	}
 
-#if MAIN_LOOP
 	while(1) {
 		/* zaphod generates moves */
 
@@ -257,7 +255,7 @@ int main(int argc, char *argv[]) {
 			adestroy(&a);
 #endif
 			gettimeofday(&performance1, NULL);
-			otherai = distributed_trillian(board, set, min, max, 4);
+			otherai = distributed_trillian(board, set, min, max, DEPTH);
 			gettimeofday(&performance2, NULL);
 			timereq = (performance2.tv_sec + performance2.tv_usec * 1e-6) - (performance1.tv_sec + performance1.tv_usec * 1e-6);
 
@@ -328,8 +326,7 @@ int main(int argc, char *argv[]) {
 		if (pt.type == COMPUTER) {
 			printf("Time Taken: %lf sec\n", timereq);
 		}
-		printf("Position Evaluation: %lf\n", position_evaluate(&set));
+		printf("Position Evaluation: %lf\n", position_evaluate(&set, board.fullmoves));
 	}
-#endif
 	return 0;
 }

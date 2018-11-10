@@ -6,6 +6,8 @@
 #include <limits.h>
 #include "display.h"
 
+#define piece_homerow(p) (isWhite(p) ? 0 : 7)
+
 #define DEBUG_EVAL 0
 #define DEBUG_DEEP 0
 
@@ -34,10 +36,13 @@ double value(char pc) {
 #define KINGCOEFF (-3)
 #define CTRLCOEFF (1)
 #define SACOEFF (1)
-double color_evaluate(piece *side, int n) {
+#define UNDEVELOPED (-3)
+double color_evaluate(piece *side, int n, int moves) {
 	int i, j;
 	piece pc;
 	double valsum, ctrlsum, kingsafety, ctrltemp, supportattack, satemp;
+	int undeveloped = 0;
+	char pcdash;
 
 	kingsafety = 0;
 	pc = side[0];
@@ -62,15 +67,21 @@ double color_evaluate(piece *side, int n) {
 		}
 		ctrlsum += ctrltemp;
 		supportattack += satemp;
+
+		/* development of minor pieces */
+		pcdash = toupper(pc.piece);
+		if ((pcdash == 'N' || pcdash == 'B') && (moves < 10) && (piece_homerow(pc.piece) == pc.ps.rank)) {
+			undeveloped++;
+		}
 	}
 
-	return VALCOEFF * valsum + CTRLCOEFF * ctrlsum + SACOEFF * supportattack + KINGCOEFF * kingsafety;
+	return VALCOEFF * valsum + CTRLCOEFF * ctrlsum + SACOEFF * supportattack + KINGCOEFF * kingsafety + UNDEVELOPED * undeveloped;
 }
 
-double position_evaluate(chesset *set) {
+double position_evaluate(chesset *set, int moves) {
 	double score, white, black;
-	white = color_evaluate(set->whites, set->n_white);
-	black = color_evaluate(set->blacks, set->n_black);
+	white = color_evaluate(set->whites, set->n_white, moves);
+	black = color_evaluate(set->blacks, set->n_black, moves);
 	score = white - black;
 	return score;
 }
@@ -97,7 +108,7 @@ branch maximise(chessboard board, chesset set, branch alphawhite, branch betabla
 	ainit(&a);
 
 	if (depth == 0) {
-		score = position_evaluate(&set);
+		score = position_evaluate(&set, board.fullmoves);
 		temp.score = score;
 		return temp;
 	}
@@ -176,7 +187,7 @@ branch minimise(chessboard board, chesset set, branch alphawhite, branch betabla
 	ainit(&a);
 
 	if (depth == 0) {
-		score = position_evaluate(&set);
+		score = position_evaluate(&set, board.fullmoves);
 		temp.score = score;
 		return temp;
 	}
