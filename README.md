@@ -17,10 +17,14 @@ FEN is a format which stores the state of the chessboard as a string.
 The string is of form:
 
                   end of row
+
                         |
+
   r3k2r/pppppppp/8/8/8/8/PPPPPPPP/1KR5
+
     |            |                  |
-rank 8        8 blank square       rook 
+
+ rank 8        8 blank square       rook 
 
 The program takes a filename as commandline arguement. 
 

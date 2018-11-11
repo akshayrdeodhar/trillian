@@ -1,3 +1,5 @@
+/* unicode code points for chess pieces */
+
 #define white_king  "\u2654"
 #define white_queen  "\u2655"
 #define white_rook  "\u2656"

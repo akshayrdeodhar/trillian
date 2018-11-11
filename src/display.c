@@ -114,7 +114,7 @@ void display(chessboard *board, int mode) {
 #define HBORDER '-'
 #define BORDER '#'
 #define WCHAR ' '
-#define BCHAR '.'
+#define BCHAR '#'
 #define BLANK ' '
 #define CHANGESTATE(state) (((state) == WCHAR) ? BCHAR : WCHAR)
 #define WIDTH  8

@@ -356,6 +356,7 @@ int can_move(chessboard *board, chesset *set, move mv) {
 	else if (!sq.pc) {
 		/* no piece or trying to control opponents piece */
 		fprintf(stderr, "No piece at that square\n");
+		return 0;
 	}
 	else {
 		fprintf(stderr, "Trying to control opponent's piece\n");
@@ -757,25 +758,6 @@ special_move make_move(chessboard *board, chesset *set, move mv) {
 	square to = board->brd[mv.fin.rank][mv.fin.file];
 
 	castle = check_special(from, mv);
-
-	if (castle == enpass) {
-		/* break up the enpass into two parts! elegant?? */
-		move p1;
-		move p2;
-		/* the kill */
-		p1.ini = mv.ini;
-		p1.fin.rank = mv.ini.rank;
-		p1.fin.file = mv.fin.file;
-
-		/* the advance */
-		p2.ini = p1.fin;
-		p2.fin = mv.fin;
-
-		make_move(board, set, p1);
-		menial_move(board, set, p2);
-		return enpass;
-	}
-
 
 
 	update_repetition(board, mv); /* for draw by repetition- requires final square intact. */
