@@ -5,8 +5,8 @@ Wikipedia FEN:
 This blog post by Peter Ellis Jones:https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/
 (NOTE: I read this post twice, but DID NOT 'refer' to it while designing the
 calculation functions, nor did I use his code)
-The post however was very useful in giving me a direction
-Also, these board position FEN strings from Jones: https://gist.github.com/peterellisjones/8c46c28141c162d1d8a0f0badbc9cff9
+The post however was very useful in putting things into perspective
+Also, these board position FEN strings from Jones, used for testing: https://gist.github.com/peterellisjones/8c46c28141c162d1d8a0f0badbc9cff9
 
 Used following resources for learning Minimax:
 Lecture py Patrick Winston: https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-034-artificial-intelligence-fall-2010/lecture-videos/lecture-6-search-games-minimax-and-alpha-beta/
@@ -23,4 +23,7 @@ was sometimes allowed to castle while in check.
 ASCII art for title screen generated using:
 http://patorjk.com/software/taag/#p=display&v=0&f=Doom&t=Trillian
 
-To learn about autotools: https://dwheeler.com/autotools/, https://www.gnu.org/software/automake/manual/html_node/Hello-World.html#Hello-World
+For Unicode chess pieces, escape sequences found direct U+hhhh codepoints on
+wikipedia:
+https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
+https://en.wikipedia.org/wiki/Escape_sequences_in_C
