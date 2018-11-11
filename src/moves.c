@@ -96,7 +96,7 @@ move king_castle(special_move castle) {
 }
 
 /* check whether move is a nonstandard move */
-special_move check_special(chessboard *board, square sq, move mv) {
+special_move check_special(square sq, move mv) {
 	move temp;
 	char pc = toupper(sq.pc);
 	int i;
@@ -119,9 +119,6 @@ special_move check_special(chessboard *board, square sq, move mv) {
 		if (mv.fin.rank == 7 || mv.fin.rank == 0) {
 			/*promotion */
 			return promotion;
-		}
-		if (posequal(mv.fin, board->enpass_target)) {
-			return enpasss;
 		}
 	}
 
@@ -356,8 +353,11 @@ int can_move(chessboard *board, chesset *set, move mv) {
 		p = set->blacks[(usint)sq.index];
 		king = set->blacks[0];
 	}
-	else {
+	else if (!sq.pc) {
 		/* no piece or trying to control opponents piece */
+		fprintf(stderr, "No piece at that square\n");
+	}
+	else {
 		fprintf(stderr, "Trying to control opponent's piece\n");
 		return 0;
 	}
@@ -757,6 +757,26 @@ special_move make_move(chessboard *board, chesset *set, move mv) {
 	square to = board->brd[mv.fin.rank][mv.fin.file];
 
 	castle = check_special(from, mv);
+
+	if (castle == enpass) {
+		/* break up the enpass into two parts! elegant?? */
+		move p1;
+		move p2;
+		/* the kill */
+		p1.ini = mv.ini;
+		p1.fin.rank = mv.ini.rank;
+		p1.fin.file = mv.fin.file;
+
+		/* the advance */
+		p2.ini = p1.fin;
+		p2.fin = mv.fin;
+
+		make_move(board, set, p1);
+		menial_move(board, set, p2);
+		return enpass;
+	}
+
+
 
 	update_repetition(board, mv); /* for draw by repetition- requires final square intact. */
 
