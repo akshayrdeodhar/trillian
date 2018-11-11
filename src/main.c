@@ -299,17 +299,6 @@ int main(int argc, char *argv[]) {
 		calculate_pins(&set, &board, 'b');
 		calculate_threats(&set, board.player);
 
-		/* check for end of game */
-		if (is_checkmate(&board, &set)) {
-			fprintf(stderr, "Checkmate!\n");
-			fprintf(stderr, "%s Wins!\n", board.player == 'w' ? pb.name : pw.name);
-			break;
-		}
-		else if (is_draw(&board, &set)) {
-			fprintf(stderr, "Draw!\n");
-			break;
-		}
-
 		if (DEBUG & DEBUG_THREAT) {
 			show_threats(&set, &board);
 		}
@@ -320,7 +309,6 @@ int main(int argc, char *argv[]) {
 		board_to_fenstring(string, &board);
 		printf("%s\n", string);
 #endif
-
 		/* show board */
 		pt = (board.player == 'w' ? pw : pb);
 		/* if computer playing always keep perspective from human side */
@@ -334,6 +322,19 @@ int main(int argc, char *argv[]) {
 			printf("Time Taken: %lf sec\n", timereq);
 		}
 		printf("Position Evaluation: %lf\n", position_evaluate(&set, board.fullmoves));
+		/* check for end of game */
+
+		if (is_checkmate(&board, &set)) {
+			fprintf(stderr, "Checkmate!\n");
+			fprintf(stderr, "%s Wins!\n", board.player == 'w' ? pb.name : pw.name);
+			break;
+		}
+		else if (is_draw(&board, &set)) {
+			fprintf(stderr, "Draw!\n");
+			break;
+		}
+
+
 	}
 	return 0;
 }
