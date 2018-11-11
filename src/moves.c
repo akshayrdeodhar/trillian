@@ -1,3 +1,5 @@
+/* move calculation and validation */
+
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
@@ -64,20 +66,23 @@ void handle_promotion(chessboard *board, chesset *set, move mv, char promoted) {
 	board->brd[mv.fin.rank][mv.fin.file].pc = promoted;
 }
 
+/* ENPASS functions:
+ * */
+
 /* CASTLING FUNCTIONS:
  * castle_move() checks whether move is castling, and returns typed
  * can_castle() checks whether particular castling move is allowed
  * */
 
 /* the 4 castle moves. also used for validation */
-const static move king_castle_moves[] = {
+static const move king_castle_moves[] = {
 	{{0, 4}, {0, 6}},
 	{{0, 4}, {0, 2}},
 	{{7, 4}, {7, 6}}, 
 	{{7, 4}, {7, 2}}
 };
 
-const static move rook_castle_moves[] = {
+static const move rook_castle_moves[] = {
 	{{0, 7}, {0, 5}},
 	{{0, 0}, {0, 3}},
 	{{7, 7}, {7, 5}}, 
@@ -91,7 +96,7 @@ move king_castle(special_move castle) {
 }
 
 /* check whether move is a nonstandard move */
-special_move check_special(square sq, move mv) {
+special_move check_special(chessboard *board, square sq, move mv) {
 	move temp;
 	char pc = toupper(sq.pc);
 	int i;
@@ -114,6 +119,9 @@ special_move check_special(square sq, move mv) {
 		if (mv.fin.rank == 7 || mv.fin.rank == 0) {
 			/*promotion */
 			return promotion;
+		}
+		if (posequal(mv.fin, board->enpass_target)) {
+			return enpasss;
 		}
 	}
 

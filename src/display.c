@@ -1,6 +1,9 @@
+/* board and metainfo display functions */
+
 #include "display.h"
 #include <stdio.h>
 #include "chessescape.h"
+#include "player.h"
 
 #define COOL_PIECE 1
 

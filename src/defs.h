@@ -12,6 +12,7 @@ typedef enum special_move {
 	black_kingside = 3,
 	black_queenside = 4,
 	promotion = 5,
+	enpass = 6
 }special_move;
 
 

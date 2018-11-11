@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 	chesset set; /* the pieces */
 
 	token ins; /* user instrunction */
-	
+
 	struct timeval performance1, performance2; /* for trillian's performance measurement */
 	double timereq;
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 			return errno;
 		}
 	}
-	
+
 	code = readline(string, 128, fp);
 	if (fenstring_to_board(&board, string) == -1) {
 		fprintf(stderr, "corrupt FEN string\n");
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 		code_dash = string_to_players(string, &pw, &pb);
 	}
 	fclose(fp);
-		
+
 	/* show title screen art */
 	fp = fopen("../dat/titlescreen.txt", "r");
 	char c;
@@ -171,6 +171,11 @@ int main(int argc, char *argv[]) {
 	if (DEBUG & DEBUG_THREAT) {
 		show_threats(&set, &board);
 	}
+
+	pt = (board.player == 'w' ? pw : pb);
+	/* if computer playing always keep perspective from human side */
+	color = (pt.type == COMPUTER) ? ((pt.color == 'w') ? 'b' : 'w') : pt.color;
+	filled_display(&board, MOVES_MODE, color);
 
 	while(1) {
 		/* zaphod generates moves */
