@@ -95,7 +95,7 @@ Alpha beta pruning eliminates those moves in search using information about best
 
 The algorithm works fairly fast upto depth 4, but takes more than 1.5 minutes for depth 6. Odd depths are unreliable, as do not end with opponent's move.
 
-* NOTE: The only interface with through 2 functions- distrib function and 
+* NOTE: The only interface with through 2 functions- trillian(), and a (possible- chose promotion). so the loop, generation and checking functions could be used as a library for a bot, which would directly link to the code! (though if .o are given, name will always have to be trillian)
 
 ### Problems
 
