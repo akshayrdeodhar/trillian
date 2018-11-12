@@ -1,17 +1,30 @@
-"Chess"
+# Chess
 
-# DSA Project
+## DSA Project
 
 111703013
 Akshay Deodhar
 SY BTech
 Computer Engineering
 
+## Usage
+
 Usage: ./project <file.sv OR file.fen>
 
-Chess program.
+Enter game mode (1 or 2) *
 
-# Board State
+Enter names of player, choice of color
+
+Moves specified as [a-h][1-8]-[a-h][1-8] (initial square and final square. this works for castling too)
+
+Promotion of pawn spawns a seperate prompt
+
+* entering 'C' and 'c' quickstarts a single player game as white or black respectively
+
+## The Program
+
+## Board State
+
 Supports Forsyth Edwards Format for storing board position
 FEN is a format which stores the state of the chessboard as a string.
 The string is of form:
@@ -39,7 +52,7 @@ If invalid, program exits
 
 Alternately, if no filename is specified, game starts from default starting position of board
 
-# Game Loop
+## Game Loop
 Once the game starts, the game waits for user input. The input can be
 
 [a-h][1-8]-[a-h][1-8]: a move which specifies the initial square (from) and the final square (to)
@@ -65,7 +78,7 @@ The program uses a set of number codes which represent a direction
 
 There are static arrays which store the delta-x and delta-y for that direction (which are used for move generation)
 
-# Computer Player - Trillian
+## Computer Player - Trillian
 There is a way to update the state of the board and possible moves of the piece for each move made
 The Computer player uses the minmax algorithm, with alpha-beta pruning. 
 Minmax uses a static evaluation function. The function has 3 main parameters-
