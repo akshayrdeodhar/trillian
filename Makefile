@@ -1,4 +1,4 @@
-FLAGS = -Wall -O2 
+FLAGS = -Wall -O2 -M
 MATH = -lm
 ASAN = #-fsanitize=address #-fsanitize=leak -fsanitize=undefined
 DEBUG = #-g
@@ -34,7 +34,7 @@ project: $(OBJECT)
 	$(CC) $(OBJECT) $(MATH) -o project
 
 # Compiles to .o
-$(OBJECT) : %.o : %.c Makefile
+$(OBJECT) : %.o : %.c Makefile 
 	$(CC) -c $< -o $@
 
 # Makes a distribution with source

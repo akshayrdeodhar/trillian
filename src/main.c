@@ -1,3 +1,22 @@
+/*  chess
+    Copyright (C) 2018  Akshay
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+
 /* The main game loop which calls everything */
 
 #include <stdio.h>
@@ -271,7 +290,7 @@ int main(int argc, char *argv[]) {
 #if SPECS
 			gettimeofday(&performance1, NULL);
 #endif
-			otherai = distributed_trillian(board, set, min, max, DEPTH);
+			otherai = trillian(board, set, min, max, DEPTH);
 #if SPECS
 			gettimeofday(&performance2, NULL);
 			timereq = (performance2.tv_sec + performance2.tv_usec * 1e-6) - (performance1.tv_sec + performance1.tv_usec * 1e-6);

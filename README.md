@@ -94,3 +94,26 @@ White tries ALL moves, and then for each move, calculates all possible moves for
 Alpha beta pruning eliminates those moves in search using information about best move for black or white till that point.
 
 The algorithm works fairly fast upto depth 4, but takes more than 1.5 minutes for depth 6. Odd depths are unreliable, as do not end with opponent's move.
+
+* NOTE: The only interface with through 2 functions- distrib function and 
+
+### Problems
+
+This does NOT implement *En-Passe*, due to complications arising out of using en-passe to kill a checking pawn, due to the final square not being the same as the square of the piece which is killed
+
+Uses the old rule for draws- instead of repetition of position, consecutive repetition of moves is the rule implemented
+
+The static evaluation function gives points for number of squares controlled. This causes trillian to bring the queen into the game very early.
+This has been fixed to some extent using a modification which assigns penalties for not developing minor pieces in the opening
+
+### Possible Extension:
+
+Build a better static evaluation function by anylisis of board position<-> win data
+
+Interface with Xboard
+
+En-Passe- try to find an elegant fix, rather than a lot of if-else
+
+Some kind of lookup table for fast checking of draw by repetition of *position*
+
+Variable tree depth- when situation is dynamic(king in check or exchange going on) , look ahead more (modify the code in if (depth == 0))

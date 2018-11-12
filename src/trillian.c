@@ -272,7 +272,7 @@ branch minimise(chessboard board, chesset set, branch alphawhite, branch betabla
 	return betablack;
 }
 
-branch distributed_trillian(chessboard board, chesset set, branch alphawhite, branch betablack, unsigned depth) {
+branch trillian(chessboard board, chesset set, branch alphawhite, branch betablack, unsigned depth) {
 	if (board.player == 'w') {
 		return maximise(board, set, alphawhite, betablack, depth);
 	}

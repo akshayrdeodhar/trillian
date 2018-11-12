@@ -6,8 +6,8 @@ DEBUG = #-g
 
 CFLAGS=$(FLAGS) $(MATH) $(ASAN) $(DEBUG)
 
-try: main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o player.o trillian.o
-	gcc main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o player.o trillian.o $(FLAGS) $(MATH) $(ASAN) $(DEBUG) -o try $(REDIRECT)
+project: main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o player.o trillian.o
+	gcc main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o player.o trillian.o $(FLAGS) $(MATH) $(ASAN) $(DEBUG) -o project $(REDIRECT)
 
 main.o: main.c board.h pieces.h display.h moves.h vector.h zaphod.h trillian.h player.h array.h config.h
 	gcc -c main.c $(FLAGS) $(ASAN) $(DEBUG) $(REDIRECT)

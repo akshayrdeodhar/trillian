@@ -22,31 +22,13 @@ void update_pieces(chessboard *board, chesset *set, move mv); /* if move affects
 
 void update_piece(chessboard *board, piece *p, move mv); /* if move affects a sliding piece, update it's slide */
 
-void debug_calculation(chesset *set, chessboard *board); /* enumerate stored sliding moves for checking- not to be used in main() */
-
-void debug_piece_calculations(chessboard *moves, piece p); /* enumerate moves of piece 'p' for visual checking- called from debug_calculations */
-
 special_move make_move(chessboard *board, chesset *set, move mv); /* make move, modify state of board, set metadata modify indexes in case of kill*/
 
 void menial_move(chessboard *board, chesset *set, move mv); /* simply move piece on board, set position in piece (called by make_move) */
 
-void check_manually(chesset s); /* check whether knight moves are calculated accurately, DEBUGGING, REMOVE */
-
 void calculate_pins(chesset *set, chessboard *ch, char color); /* calculate pin directions of all pieces in set */
 
 void calculate_threats(chesset *set, char color); /* calculate which neightbouring squares of king are attcked, and checks to king */
-
-void enumpins(chesset *set); /* enumerate pins */
-
-void show_threats(chesset *set, chessboard *board); /* display which squares around king are attacked, check information */
-
-void attack_moves(piece p, chessboard *board); /* show all squares attacked by piece on board */
-
-void attack_bitboard(chesset *set, chessboard *board); /* show all squares attacked by all pieces */
-
-void moves(piece p, chessboard *board); /* show all squares to which piece can move on board */
-
-void moves_bitboard(chesset *set, chessboard *board); /* show all squares to which all pieces in set can move on bitboard */
 
 move rook_move(special_move king_castle); /* return rook move for castle */
 
@@ -69,7 +51,5 @@ int insufficient_mating_material(chesset *set); /* checks for insufficient matin
 int is_draw(chessboard *board, chesset *set); /* checks all draw possibilites */
 
 void update_repetition(chessboard *board, move mv);
-
-void show_repetition(chessboard *board);
 
 #endif
