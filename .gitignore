@@ -4,5 +4,5 @@ save*.c
 *.txt
 *.o
 *.err
-try
+project
 *.sv
