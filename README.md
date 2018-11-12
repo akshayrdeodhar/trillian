@@ -15,11 +15,11 @@ Enter game mode (1 or 2) *
 
 Enter names of player, choice of color
 
-Moves specified as [a-h][1-8]-[a-h][1-8] (initial square and final square. this works for castling too)
+Moves specified as [a-h][1-8]-[a-h][1-8] (initial square and final square. This works for castling too)
 
-Promotion of pawn spawns a seperate prompt
+Promotion of pawn spawns a separate prompt
 
-* entering 'C' and 'c' quickstarts a single player game as white or black respectively
+* entering 'C' and 'c' quick-starts a single player game as white or black respectively
 
 ## The Program
 
@@ -29,17 +29,11 @@ Supports Forsyth Edwards Format for storing board position
 FEN is a format which stores the state of the chessboard as a string.
 The string is of form:
 
-                  end of row
-
-                        |
-
   r3k2r/pppppppp/8/8/8/8/PPPPPPPP/1KR5
 
-    |            |                  |
+ Each row between two '/'s represents one row on the board. The numbers act as black square padding
 
- rank 8        8 blank square       rook 
-
-The program takes a filename as commandline arguement. 
+The program takes a filename as command-line argument. 
 
 The file is in format
 
@@ -51,6 +45,8 @@ The program checks whether the string is a valid FEN, converts it to board state
 If invalid, program exits
 
 Alternately, if no filename is specified, game starts from default starting position of board
+
+The savegames produced by the game are also in above format.
 
 ## Game Loop
 Once the game starts, the game waits for user input. The input can be
