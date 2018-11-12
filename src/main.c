@@ -17,12 +17,22 @@
 #include "trillian.h"
 #include "limits.h"
 
-#define DEFAULT_PATH "../dat/default.fen"
+#ifndef CONF_DEFAULT
+#define DEFAULT_PATH "./dat/default.fen"
+#else
+#define DEFAULT_PATH CONF_DEFAULT
+#endif 
+
+#ifndef CONF_TITLE
+#define DEFAULT_TITLE "./dat/titlescreen.txt"
+#else
+#define DEFAULT_TITLE CONF_TITLE
+#endif
 
 #ifdef CONF_SAVES
 #define SAVE_DIR CONF_SAVES
 #else
-#define SAVE_DIR "../save"
+#define SAVE_DIR "./save/"
 #endif
 
 #ifdef CONF_SPECS
@@ -90,7 +100,7 @@ int main(int argc, char *argv[]) {
 			return errno;
 		}
 	}
-	if (argc >= 2) {
+	else {
 		fp = fopen(argv[1], "r");
 		if(fp == NULL) {
 			sprintf(error, "'%s'", argv[1]);
@@ -112,7 +122,12 @@ int main(int argc, char *argv[]) {
 	fclose(fp);
 
 	/* show title screen art */
-	fp = fopen("../dat/titlescreen.txt", "r");
+	fp = fopen(DEFAULT_TITLE, "r");
+	if (fp == NULL) {
+		sprintf(error, "'%s'", DEFAULT_TITLE);
+		perror(error);
+		return errno;
+	}
 	char c;
 	while((c = getc(fp)) != EOF) fputc(c, stderr);
 	fclose(fp);

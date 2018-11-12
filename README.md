@@ -9,6 +9,8 @@ Computer Engineering
 
 ## Usage
 
+**You can configure the program to some extent by modifying config.h in src/**
+
 Usage: ./project <file.sv OR file.fen>
 
 Enter game mode (1 or 2) *

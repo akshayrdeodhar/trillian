@@ -4,6 +4,8 @@ REDIRECT = #2> errors.err
 ASAN = #-fsanitize=address #-fsanitize=leak -fsanitize=undefined
 DEBUG = #-g
 
+CFLAGS=$(FLAGS) $(MATH) $(ASAN) $(DEBUG)
+
 try: main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o player.o trillian.o
 	gcc main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o player.o trillian.o $(FLAGS) $(MATH) $(ASAN) $(DEBUG) -o try $(REDIRECT)
 
