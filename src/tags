@@ -5,60 +5,59 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 ARRAY_H	array.h	3;"	d
-ASAN	Makefile	/^ASAN = #-fsanitize=address$/;"	m
-BCHAR	display.c	114;"	d	file:
-BIG_DISPLAY	main.c	25;"	d	file:
-BLANK	display.c	115;"	d	file:
+ASAN	Makefile	/^ASAN = #-fsanitize=address #-fsanitize=leak -fsanitize=undefined$/;"	m
+BCHAR	display.c	117;"	d	file:
+BLANK	display.c	118;"	d	file:
 BOARD_H	board.h	2;"	d
-BORDER	display.c	112;"	d	file:
-CHANGESTATE	display.c	116;"	d	file:
+BORDER	display.c	115;"	d	file:
+CHANGESTATE	display.c	119;"	d	file:
 COMPUTER	player.h	5;"	d
 COMP_NAME	zaphod.h	4;"	d
-COOL_PIECE	display.c	5;"	d	file:
-CTRLCOEFF	trillian.c	37;"	d	file:
+COOL_PIECE	display.c	8;"	d	file:
+CTRLCOEFF	trillian.c	39;"	d	file:
 DEBUG	Makefile	/^DEBUG = #-g$/;"	m
-DEBUG	main.c	18;"	d	file:
-DEBUG_CALCULATE	main.c	20;"	d	file:
-DEBUG_CALCULATE	moves.c	15;"	d	file:
-DEBUG_CASTLE	moves.c	20;"	d	file:
-DEBUG_DEEP	trillian.c	12;"	d	file:
-DEBUG_END	main.c	22;"	d	file:
-DEBUG_EVAL	trillian.c	11;"	d	file:
-DEBUG_FEN	main.c	23;"	d	file:
-DEBUG_GAMEND	moves.c	21;"	d	file:
-DEBUG_GENERATE	main.c	26;"	d	file:
-DEBUG_INTERFACE	main.c	19;"	d	file:
-DEBUG_KILL	pieces.c	7;"	d	file:
-DEBUG_MOVES	moves.c	14;"	d	file:
-DEBUG_PIECES	pieces.c	6;"	d	file:
-DEBUG_PIN	moves.c	17;"	d	file:
-DEBUG_THREAT	main.c	21;"	d	file:
-DEBUG_THREAT	moves.c	19;"	d	file:
-DEBUG_UPDATE	moves.c	16;"	d	file:
-DEBUG_VALID	moves.c	18;"	d	file:
-DEFAULT_PATH	main.c	16;"	d	file:
+DEBUG	main.c	20;"	d	file:
+DEBUG_CALCULATE	main.c	22;"	d	file:
+DEBUG_CALCULATE	moves.c	17;"	d	file:
+DEBUG_CASTLE	moves.c	22;"	d	file:
+DEBUG_DEEP	trillian.c	14;"	d	file:
+DEBUG_END	main.c	24;"	d	file:
+DEBUG_EVAL	trillian.c	13;"	d	file:
+DEBUG_FEN	main.c	25;"	d	file:
+DEBUG_GAMEND	moves.c	23;"	d	file:
+DEBUG_INTERFACE	main.c	21;"	d	file:
+DEBUG_KILL	pieces.c	9;"	d	file:
+DEBUG_MOVES	moves.c	16;"	d	file:
+DEBUG_PIECES	pieces.c	8;"	d	file:
+DEBUG_PIN	moves.c	19;"	d	file:
+DEBUG_THREAT	main.c	23;"	d	file:
+DEBUG_THREAT	moves.c	21;"	d	file:
+DEBUG_UPDATE	moves.c	18;"	d	file:
+DEBUG_VALID	moves.c	20;"	d	file:
+DEFAULT_PATH	main.c	18;"	d	file:
 DEFS_H	defs.h	2;"	d
-DIR_NONE	pieces.c	10;"	d	file:
+DEPTH	main.c	28;"	d	file:
+DIR_NONE	pieces.c	12;"	d	file:
 DIR_NONE	vector.h	6;"	d
 DISPLAY_h	display.h	2;"	d
 ENUM_MOVES	main.c	27;"	d	file:
-EPSILON	moves.c	29;"	d	file:
-FEN_TOKENS	board.c	8;"	d	file:
-FLAGS	Makefile	/^FLAGS = -Wall -O2 #-std=c89$/;"	m
-HBORDER	display.c	111;"	d	file:
-HEIGHT	display.c	118;"	d	file:
-HEIGHT_BY_2	display.c	120;"	d	file:
+EPSILON	moves.c	31;"	d	file:
+FEN_TOKENS	board.c	10;"	d	file:
+FLAGS	Makefile	/^FLAGS = -Wall -O2 #-Wextra #-std=c89$/;"	m
+HBORDER	display.c	114;"	d	file:
+HEIGHT	display.c	121;"	d	file:
+HEIGHT_BY_2	display.c	123;"	d	file:
 HUMAN	player.h	4;"	d
 INPUT_H	input.h	2;"	d
-INVALID_CASTLE	moves.c	221;"	d	file:
-KINGCOEFF	trillian.c	36;"	d	file:
-MAIN_LOOP	main.c	24;"	d	file:
+INVALID_CASTLE	moves.c	210;"	d	file:
+KINGCOEFF	trillian.c	38;"	d	file:
+MAIN_LOOP	main.c	26;"	d	file:
 MATH	Makefile	/^MATH = -lm$/;"	m
-MAX	array.c	4;"	d	file:
+MAX	array.c	6;"	d	file:
 MAX	input.h	5;"	d
 MAXMAG	defs.h	19;"	d
 MAX_PIECES	pieces.h	6;"	d
-MINMAX	trillian.c	90;"	d	file:
+MINMAX	trillian.c	91;"	d	file:
 MOVES_H	moves.h	2;"	d
 MOVES_MODE	display.h	7;"	d
 NONE	board.h	8;"	d
@@ -66,17 +65,17 @@ NONE_CO_ORD	board.h	9;"	d
 PIECES_H	pieces.h	2;"	d
 PLAYER_H	player.h	2;"	d
 READ_MODE	display.h	6;"	d
-REDIRECT	Makefile	/^REDIRECT = 2> errors.err$/;"	m
-SACOEFF	trillian.c	38;"	d	file:
-SAVE_DIR	main.c	17;"	d	file:
+REDIRECT	Makefile	/^REDIRECT = #2> errors.err$/;"	m
+SACOEFF	trillian.c	40;"	d	file:
+SAVE_DIR	main.c	19;"	d	file:
 TRILLIAN_H	trillian.h	2;"	d
-UNDEVELOPED	trillian.c	39;"	d	file:
-VALCOEFF	trillian.c	35;"	d	file:
-VBORDER	display.c	110;"	d	file:
+UNDEVELOPED	trillian.c	41;"	d	file:
+VALCOEFF	trillian.c	37;"	d	file:
+VBORDER	display.c	113;"	d	file:
 VECTOR_H	vector.h	2;"	d
-WCHAR	display.c	113;"	d	file:
-WIDTH	display.c	117;"	d	file:
-WIDTH_BY_2	display.c	119;"	d	file:
+WCHAR	display.c	116;"	d	file:
+WIDTH	display.c	120;"	d	file:
+WIDTH_BY_2	display.c	122;"	d	file:
 ZAPHOD_H	zaphod.h	2;"	d
 aappend	array.c	/^void aappend(array *a, move mv) {$/;"	f
 adestroy	array.c	/^void adestroy(array *a) {$/;"	f
@@ -84,20 +83,18 @@ ainit	array.c	/^void ainit(array *a) {$/;"	f
 alength	array.c	/^int alength(array *a) {$/;"	f
 arr	array.h	/^	move *arr;$/;"	m	struct:__anon7
 array	array.h	/^}array;$/;"	t	typeref:struct:__anon7
-attack_bitboard	moves.c	/^void attack_bitboard(chesset *set, chessboard *board) {$/;"	f
-attack_moves	moves.c	/^void attack_moves(piece p, chessboard *board) {$/;"	f
-black_bishop	chessescape.h	10;"	d
-black_king	chessescape.h	7;"	d
+black_bishop	chessescape.h	12;"	d
+black_king	chessescape.h	9;"	d
 black_kingside	defs.h	/^	black_kingside = 3,$/;"	e	enum:special_move
-black_knight	chessescape.h	11;"	d
-black_pawn	chessescape.h	12;"	d
-black_queen	chessescape.h	8;"	d
+black_knight	chessescape.h	13;"	d
+black_pawn	chessescape.h	14;"	d
+black_queen	chessescape.h	10;"	d
 black_queenside	defs.h	/^	black_queenside = 4,$/;"	e	enum:special_move
 black_reps	board.h	/^	usint black_reps;$/;"	m	struct:__anon2
-black_rook	chessescape.h	9;"	d
+black_rook	chessescape.h	11;"	d
 blackrep	board.h	/^	move blackrep;$/;"	m	struct:__anon2
 blacks	pieces.h	/^	piece blacks[MAX_PIECES];$/;"	m	struct:__anon4
-blacksquare	moves.c	25;"	d	file:
+blacksquare	moves.c	27;"	d	file:
 board_ins	input.h	/^	board_ins,$/;"	e	enum:commandtype
 board_position	board.c	/^square board_position(chessboard *board, position p) {$/;"	f
 board_to_fenstring	board.c	/^void board_to_fenstring(char fenstring[], chessboard *board) {$/;"	f
@@ -113,7 +110,6 @@ can_attack	moves.c	/^int can_attack(piece p, position ps) {$/;"	f
 can_castle	moves.c	/^int can_castle(chessboard *board, chesset *set, special_move castle) {$/;"	f
 can_move	moves.c	/^int can_move(chessboard *board, chesset *set, move mv) {$/;"	f
 castling	board.h	/^	usint castling; \/* X X X B-queenside B-kingside W-queenside W-kingside X*\/$/;"	m	struct:__anon2
-check_manually	moves.c	/^void check_manually(chesset s) {$/;"	f
 check_special	moves.c	/^special_move check_special(square sq, move mv) {$/;"	f
 chessboard	board.h	/^}chessboard;$/;"	t	typeref:struct:__anon2
 chesset	pieces.h	/^}chesset;$/;"	t	typeref:struct:__anon4
@@ -122,9 +118,7 @@ color_evaluate	trillian.c	/^double color_evaluate(piece *side, int n, int moves)
 command	input.h	/^}command;$/;"	t	typeref:enum:commandtype
 commandtype	input.h	/^typedef enum commandtype {$/;"	g
 current	array.h	/^	int current;$/;"	m	struct:__anon7
-debug_calculation	moves.c	/^void debug_calculation(chesset *set, chessboard *board) {$/;"	f
-debug_piece_calculations	moves.c	/^void debug_piece_calculations(chessboard *moves, piece p) {$/;"	f
-deltarank	moves.c	35;"	d	file:
+deltarank	moves.c	37;"	d	file:
 dfile	vector.h	/^	ssint dfile, drank;$/;"	m	struct:__anon9
 dir_end	pieces.h	/^	usint dir_start, dir_incr, dir_end; \/*Q-> 0, 1. R-> 0, 2. B-> 1, 2 *\/$/;"	m	struct:__anon3
 dir_incr	pieces.h	/^	usint dir_start, dir_incr, dir_end; \/*Q-> 0, 1. R-> 0, 2. B-> 1, 2 *\/$/;"	m	struct:__anon3
@@ -137,8 +131,7 @@ drank	vector.h	/^	ssint dfile, drank;$/;"	m	struct:__anon9
 draw_ins	input.h	/^	draw_ins,$/;"	e	enum:commandtype
 end	pieces.h	/^	char end[8]; \/* stores piece at the end of movement in direction *\/$/;"	m	struct:__anon3
 enpass_target	board.h	/^	position enpass_target; \/* the square to which enpass is allowed (there is only one) *\/$/;"	m	struct:__anon2
-enumpins	moves.c	/^void enumpins(chesset *set) {$/;"	f
-euclidian	moves.c	39;"	d	file:
+euclidian	moves.c	41;"	d	file:
 extract_move	input.c	/^move extract_move(char string[]) {$/;"	f
 extract_token	player.c	/^int extract_token(player_token *ptk, char pstring[]) {$/;"	f
 fenstring_to_board	board.c	/^int fenstring_to_board(chessboard *board, char fenstring[]) {$/;"	f
@@ -159,7 +152,7 @@ get_save	input.c	/^int get_save(char string[], DIR *dirp) {$/;"	f
 halfmoves	board.h	/^	usint halfmoves; \/* number of non-pawn and non capture moves (for 50 move rule) *\/$/;"	m	struct:__anon2
 handle_promotion	moves.c	/^void handle_promotion(chessboard *board, chesset *set, move mv, char promoted) {$/;"	f
 help_ins	input.h	/^	help_ins$/;"	e	enum:commandtype
-homerow	moves.c	37;"	d	file:
+homerow	moves.c	39;"	d	file:
 index	board.h	/^	ssint index; \/* index in piece array in set *\/$/;"	m	struct:__anon1
 ini	vector.h	/^	position ini;$/;"	m	struct:__anon10
 inrange	defs.h	23;"	d
@@ -167,7 +160,7 @@ insufficient_mating_material	moves.c	/^int insufficient_mating_material(chesset 
 interface_board_set	pieces.c	/^void interface_board_set(chessboard *board, chesset *set) {$/;"	f
 invalid_ins	input.h	/^	invalid_ins,$/;"	e	enum:commandtype
 isBlack	defs.h	21;"	d
-isDifferent	moves.c	31;"	d	file:
+isDifferent	moves.c	33;"	d	file:
 isSame	defs.h	24;"	d
 isWhite	defs.h	20;"	d
 is_checkmate	moves.c	/^int is_checkmate(chessboard *board, chesset *set) {$/;"	f
@@ -176,7 +169,7 @@ is_move	input.c	/^int is_move(char line[]) {$/;"	f
 is_stalemate	moves.c	/^int is_stalemate(chessboard *board, chesset *set) {$/;"	f
 kill_piece	pieces.c	/^void kill_piece(chessboard *board, chesset *set, square sq) {$/;"	f
 king_castle	moves.c	/^move king_castle(special_move castle) {$/;"	f
-king_castle_moves	moves.c	/^const static move king_castle_moves[] = {$/;"	v	file:
+king_castle_moves	moves.c	/^static const move king_castle_moves[] = {$/;"	v	file:
 ls	input.c	/^int ls(DIR *dirp) {$/;"	f
 main	main.c	/^int main(int argc, char *argv[]) {$/;"	f
 make_move	moves.c	/^special_move make_move(chessboard *board, chesset *set, move mv) {$/;"	f
@@ -190,26 +183,26 @@ move_ins	input.h	/^	move_ins,$/;"	e	enum:commandtype
 movement	vector.h	/^}movement;$/;"	t	typeref:struct:__anon9
 moves	moves.c	/^void moves(piece p, chessboard *board) {$/;"	f
 moves_bitboard	moves.c	/^void moves_bitboard(chesset *set, chessboard *board) {$/;"	f
-movesequal	main.c	29;"	d	file:
-movesequal	moves.c	46;"	d	file:
+movesequal	main.c	30;"	d	file:
+movesequal	moves.c	48;"	d	file:
 mv	input.h	/^	move mv;$/;"	m	struct:__anon11
 n_black	pieces.h	/^	int n_black;$/;"	m	struct:__anon4
 n_white	pieces.h	/^	int n_white;$/;"	m	struct:__anon4
 name	player.h	/^	char name[16];$/;"	m	struct:__anon5
 none	defs.h	/^	none = 0,$/;"	e	enum:special_move
-oppDir	moves.c	42;"	d	file:
-oppKing	moves.c	34;"	d	file:
-pawndir	moves.c	36;"	d	file:
+oppDir	moves.c	44;"	d	file:
+oppKing	moves.c	36;"	d	file:
+pawndir	moves.c	38;"	d	file:
 pc	board.h	/^	char pc; \/* representation of piece *\/$/;"	m	struct:__anon1
 piece	pieces.h	/^	char piece;$/;"	m	struct:__anon3
 piece	pieces.h	/^}piece;$/;"	t	typeref:struct:__anon3
-piece_homerow	trillian.c	9;"	d	file:
+piece_homerow	trillian.c	11;"	d	file:
 pin_dir	pieces.h	/^	usint pin_dir;$/;"	m	struct:__anon3
 player	board.h	/^	char player; \/* 'w' white 'b' black to move *\/$/;"	m	struct:__anon2
 player_info_string	player.c	/^void player_info_string(char save_string[], player_token pw, player_token pb) {$/;"	f
 player_token	player.h	/^}player_token;$/;"	t	typeref:struct:__anon5
 posequal	defs.h	26;"	d
-posequal	moves.c	45;"	d	file:
+posequal	moves.c	47;"	d	file:
 position	vector.h	/^}position;$/;"	t	typeref:struct:__anon8
 position_evaluate	trillian.c	/^double position_evaluate(chesset *set, int moves) {$/;"	f
 print_move	defs.h	22;"	d
@@ -221,19 +214,16 @@ quit_ins	input.h	/^	quit_ins,$/;"	e	enum:commandtype
 rank	vector.h	/^	usint rank, file;$/;"	m	struct:__anon8
 rankincr	vector.c	/^ssint rankincr(usint direction) {$/;"	f
 readline	input.c	/^unsigned readline(char string[], unsigned maxlen, FILE *fp) {$/;"	f
-rook_castle_moves	moves.c	/^const static move rook_castle_moves[] = {$/;"	v	file:
+rook_castle_moves	moves.c	/^static const move rook_castle_moves[] = {$/;"	v	file:
 rook_move	moves.c	/^move rook_move(special_move king_castle) {$/;"	f
 safe_atoi	board.c	/^int safe_atoi(char string[]) {$/;"	f
-same_color_square	moves.c	26;"	d	file:
+same_color_square	moves.c	28;"	d	file:
 save_ins	input.h	/^	save_ins, $/;"	e	enum:commandtype
 score	trillian.h	/^	double score;$/;"	m	struct:__anon6
 set_piece	pieces.c	/^void set_piece(piece *p, char pc, int rank, int file) {$/;"	f
-show_register	moves.c	/^void show_register(usint word) {$/;"	f
-show_repetition	moves.c	/^void show_repetition(chessboard *board) {$/;"	f
 show_set	pieces.c	/^void show_set(chesset set) {$/;"	f
-show_threats	moves.c	/^void show_threats(chesset *set, chessboard *board) {$/;"	f
 size	array.h	/^	int size;$/;"	m	struct:__anon7
-slidingPiece	moves.c	32;"	d	file:
+slidingPiece	moves.c	34;"	d	file:
 special_move	defs.h	/^typedef enum special_move {$/;"	g
 special_move	defs.h	/^}special_move;$/;"	t	typeref:enum:special_move
 square	board.h	/^}square;$/;"	t	typeref:struct:__anon1
@@ -249,20 +239,20 @@ update_piece	moves.c	/^void update_piece(chessboard *board, piece *p, move mv) {
 update_pieces	moves.c	/^void update_pieces(chessboard *board, chesset *set, move mv) {$/;"	f
 update_repetition	moves.c	/^void update_repetition(chessboard *board, move mv) {$/;"	f
 usint	defs.h	/^typedef unsigned char usint; \/* for rank and file, slide words *\/$/;"	t
-valid_enpass_square	board.c	9;"	d	file:
+valid_enpass_square	board.c	11;"	d	file:
 value	trillian.c	/^double value(char pc) {$/;"	f
 vanilla_can_move	moves.c	/^int vanilla_can_move(piece p, position ps) {$/;"	f
 verify_interface	pieces.c	/^void verify_interface(chessboard board, chesset set) {$/;"	f
-white_bishop	chessescape.h	4;"	d
-white_king	chessescape.h	1;"	d
+white_bishop	chessescape.h	6;"	d
+white_king	chessescape.h	3;"	d
 white_kingside	defs.h	/^	white_kingside = 1,$/;"	e	enum:special_move
-white_knight	chessescape.h	5;"	d
-white_pawn	chessescape.h	6;"	d
-white_queen	chessescape.h	2;"	d
+white_knight	chessescape.h	7;"	d
+white_pawn	chessescape.h	8;"	d
+white_queen	chessescape.h	4;"	d
 white_queenside	defs.h	/^	white_queenside = 2,$/;"	e	enum:special_move
 white_reps	board.h	/^	usint white_reps;$/;"	m	struct:__anon2
-white_rook	chessescape.h	3;"	d
+white_rook	chessescape.h	5;"	d
 whiterep	board.h	/^	move whiterep;$/;"	m	struct:__anon2
 whites	pieces.h	/^	piece whites[MAX_PIECES];$/;"	m	struct:__anon4
-whitesquare	moves.c	24;"	d	file:
+whitesquare	moves.c	26;"	d	file:
 zaphod	zaphod.c	/^move zaphod(chessboard *board, chesset *set) {$/;"	f

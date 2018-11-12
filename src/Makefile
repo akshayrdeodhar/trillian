@@ -7,13 +7,13 @@ DEBUG = #-g
 try: main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o player.o trillian.o
 	gcc main.o board.o display.o pieces.o moves.o input.o vector.o zaphod.o array.o player.o trillian.o $(FLAGS) $(MATH) $(ASAN) $(DEBUG) -o try $(REDIRECT)
 
-main.o: main.c board.h pieces.h display.h moves.h vector.h zaphod.h trillian.h player.h array.h
+main.o: main.c board.h pieces.h display.h moves.h vector.h zaphod.h trillian.h player.h array.h config.h
 	gcc -c main.c $(FLAGS) $(ASAN) $(DEBUG) $(REDIRECT)
 
 board.o: board.c board.h defs.h vector.h
 	gcc -c board.c $(FLAGS) $(ASAN) $(DEBUG) $(REDIRECT)
 
-display.o: display.c display.h board.h defs.h chessescape.h
+display.o: display.c display.h board.h defs.h chessescape.h config.h
 	gcc -c display.c $(FLAGS) $(ASAN) $(DEBUG) $(REDIRECT)
 
 pieces.o: pieces.c pieces.h board.h defs.h

@@ -1,11 +1,12 @@
 /* the *smart* bot, static evaluation, minimax! */ 
 
+#include <stdio.h>
+#include <limits.h>
+
 #include "trillian.h"
 #include "zaphod.h"
-#include <stdio.h>
 #include "moves.h"
 #include "display.h"
-#include <limits.h>
 #include "display.h"
 
 #define piece_homerow(p) (isWhite(p) ? 0 : 7)
@@ -37,8 +38,18 @@ double value(char pc) {
 #define VALCOEFF 15
 #define KINGCOEFF (-3)
 #define CTRLCOEFF (1)
-#define SACOEFF (1)
 #define UNDEVELOPED (-3)
+
+#ifdef CONF_SUPPORT_ATTACK
+#if (!CONF_SUPPORT_ATTACK)
+#define SACOEFF (0)
+#else
+#define SACOEFF (1)
+#endif
+#else
+#define SACOEFF (1)
+#endif
+
 double color_evaluate(piece *side, int n, int moves) {
 	int i, j;
 	piece pc;
@@ -89,12 +100,6 @@ double position_evaluate(chesset *set, int moves) {
 }
 
 #define MINMAX(curr, minmax, color) ((color == 'w') ? ((curr) > (minmax)) : ((curr) < (minmax)))
-
-/* support-attack:
- * it is good for a piece of low value to attack or support a piece of hig value:
- * linear equation thatt maps (-8, 8) to (0, 1)
- * y = (0.5) + (x) / 16
- * */
 
 branch maximise(chessboard board, chesset set, branch alphawhite, branch betablack, unsigned depth) {
 	int i;
@@ -275,3 +280,11 @@ branch distributed_trillian(chessboard board, chesset set, branch alphawhite, br
 		return minimise(board, set, alphawhite, betablack, depth);
 	}
 }
+
+/* support-attack:
+ * it is good for a piece of low value to attack or support a piece of hig value:
+ * linear equation thatt maps (-8, 8) to (0, 1)
+ * y = (0.5) + (x) / 16
+ * */
+
+

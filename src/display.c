@@ -1,11 +1,16 @@
 /* board and metainfo display functions */
+#include <stdio.h>
 
 #include "display.h"
-#include <stdio.h>
+#include "config.h"
 #include "chessescape.h"
 #include "player.h"
 
-#define COOL_PIECE 1
+#ifdef CONF_UNICODE_PIECES
+#define COOL_PIECE CONF_UNICODE_PIECES
+#else
+#define COOL_PIECE 0
+#endif
 
 void printpiece(char pc) {
 	switch(pc) {
@@ -51,74 +56,33 @@ void printpiece(char pc) {
 	}
 }
 
-/* to be removed: display */
-void display(chessboard *board, int mode) {
-	int i, j;
-	for (i = 7; i > -1; --i) {
-		putchar(i + '1');
-		putchar(' ');
-		putchar('|');
-		for (j = 0; j < 8; ++j) {
-			if(board->brd[i][j].pc) {
-				putchar(board->brd[i][j].pc);
-			}
-			else {
-				putchar('.');
-			}
-			putchar(' ');
-		}
-		putchar('\n');
-	}
-	putchar(' ');
-	putchar(' ');
-	putchar(' ');
-	for (i = 0; i < 8; ++i) {
-		putchar('_');
-		putchar(' ');
-	}
-	putchar('\n');
-	putchar(' ');
-	putchar(' ');
-	putchar(' ');
-	for (i = 0; i < 8; ++i) {
-		putchar(i + 'a');
-		putchar(' ');
-	}
-	putchar('\n');
-	putchar('\n');
-
-	if (mode == READ_MODE) {
-
-		printf("Meta:%c %c%c %d %d\n\n", board->player, board->enpass_target.file + 'a', board->enpass_target.rank + '1', board->halfmoves, board->fullmoves);
-		printf("Castling: ");
-		if (board->castling & (1 << white_kingside)) {
-			putchar('K');
-		}
-		if (board->castling & (1 << white_queenside)) {
-			putchar('Q');
-		}
-		if (board->castling & (1 << black_kingside)) {
-			putchar('k');
-		}
-		if (board->castling & (1 << black_queenside)) {
-			putchar('q');
-		}
-		if (!board->castling) {
-			putchar('-');
-		}
-		putchar('\n');
-	}
-}
-
 #define VBORDER '|'
 #define HBORDER '-'
 #define BORDER '#'
 #define WCHAR ' '
-#define BCHAR '#'
+
+#ifdef CONF_BLACKSQUARE
+#define BCHAR CONF_BLACKSQUARE
+#else
+#define BCHAR '.'
+#endif
+
 #define BLANK ' '
 #define CHANGESTATE(state) (((state) == WCHAR) ? BCHAR : WCHAR)
-#define WIDTH  8
-#define HEIGHT  4
+
+#ifdef CONF_SIZE /* configured */
+#if (CONF_SIZE == 1) /* small */
+#define WIDTH 4
+#define HEIGHT 2
+#else
+#define WIDTH 8 /* large */
+#define HEIGHT 4
+#endif /* not configured */
+#else /* default */
+#define WIDTH  4
+#define HEIGHT  2
+#endif
+
 #define WIDTH_BY_2 ((WIDTH) / 2)
 #define HEIGHT_BY_2 ((HEIGHT) / 2)
 
@@ -166,12 +130,11 @@ void filled_display(chessboard *board, int mode, char color) {
 				else if((i % HEIGHT == HEIGHT_BY_2) && (j % WIDTH == WIDTH_BY_2)) {
 					file = (color == 'b') ? 7 - (j / WIDTH) : (j / WIDTH);
 					if ((pc = (board->brd[rank][file].pc))) {
-						if (COOL_PIECE) {
-							printpiece(pc);
-						}
-						else {
-							putchar(pc);
-						}
+#if COOL_PIECE
+						printpiece(pc);
+#else
+						putchar(pc);
+#endif
 					}
 					else {
 						putchar(state);

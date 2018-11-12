@@ -44,14 +44,19 @@ int string_to_players(char save_string[], player_token *ppw, player_token *ppb) 
 
 int extract_token(player_token *ptk, char pstring[]) {
 	char *t1, *t2;
+	int type;
 	t1 = strtok(pstring, " ");
 	t2 = strtok(NULL, " ");
 
 	if (strlen(t1) != 1) {
 		return -1;
 	}
-	ptk->type = atoi(t1);
+	type = ptk->type = atoi(t1);
 	strcpy(ptk->name, t2);
+
+	if (type > 2 || type < 1) {
+		return -1;
+	}
 
 	return 0;
 }

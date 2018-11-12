@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <dirent.h>
+
+#include "config.h"
 #include "board.h"
 #include "pieces.h"
 #include "display.h"
@@ -16,16 +18,24 @@
 #include "limits.h"
 
 #define DEFAULT_PATH "../dat/default.fen"
-#define SAVE_DIR "../save/"
-#define DEBUG (0)
-#define DEBUG_INTERFACE 1
-#define DEBUG_CALCULATE 2
-#define DEBUG_THREAT 4
-#define DEBUG_END 8
-#define DEBUG_FEN 16
-#define MAIN_LOOP 1
-#define ENUM_MOVES 0
+
+#ifdef CONF_SAVES
+#define SAVE_DIR CONF_SAVES
+#else
+#define SAVE_DIR "../save"
+#endif
+
+#ifdef CONF_SPECS
+#define SPECS CONF_SPECS
+#else
+#define SPECS 1
+#endif
+
+#ifdef CONF_DEPTH
+#define DEPTH CONF_DEPTH
+#else
 #define DEPTH 4
+#endif
 
 #define movesequal(mv1, mv2) (posequal(mv1.ini, mv2.ini) && posequal(mv1.fin, mv2.fin))
 int main(int argc, char *argv[]) {
@@ -47,29 +57,25 @@ int main(int argc, char *argv[]) {
 	chesset set; /* the pieces */
 
 	token ins; /* user instrunction */
-
+#if SPECS
 	struct timeval performance1, performance2; /* for trillian's performance measurement */
 	double timereq;
+#endif
 
 	int players; /* no. of players */
 	player_token pw, pb, pt; /* white, black, and temp */
 	char color; /* to specify side from which board is to be printed */
 
 	branch min; /* for alpha-beta pruning */
-	min.score = INT_MIN;
+	min.score = -1e10;
 	branch max;
-	max.score = INT_MAX;
+	max.score = 1e10;
 
 	move mv, rook_castle; /* the move from the user, for special case of castling */
 	special_move castle; /* check and do corresponding rook movement for castling */
 	char promoted = '\0'; /* to recieve promotion */
 
 	branch otherai;
-
-#if ENUM_MOVES
-	array a;
-	int n, i, movecount;
-#endif
 
 	if (argc > 2) {
 		fprintf(stderr, "usage: ./chess [<file.fen> or <file.sv>]\n");
@@ -84,7 +90,7 @@ int main(int argc, char *argv[]) {
 			return errno;
 		}
 	}
-	else if (argc == 2) {
+	if (argc >= 2) {
 		fp = fopen(argv[1], "r");
 		if(fp == NULL) {
 			sprintf(error, "'%s'", argv[1]);
@@ -108,7 +114,7 @@ int main(int argc, char *argv[]) {
 	/* show title screen art */
 	fp = fopen("../dat/titlescreen.txt", "r");
 	char c;
-	while((c = getc(fp)) != EOF) putchar(c);
+	while((c = getc(fp)) != EOF) fputc(c, stderr);
 	fclose(fp);
 
 
@@ -116,7 +122,7 @@ int main(int argc, char *argv[]) {
 		/* file does not contain player info */
 		players = get_gamemode();
 		if (!players) {
-			printf("Begone, Cretin\n");
+			fprintf(stderr, "Begone, Cretin\n");
 			return 0;
 		}
 
@@ -165,11 +171,7 @@ int main(int argc, char *argv[]) {
 	calculate_threats(&set, board.player);
 
 	if (is_checkmate(&board, &set) || is_draw(&board, &set)) {
-		fprintf(stdin, "Invalid game file, game has already ended\n");
-	}
-
-	if (DEBUG & DEBUG_THREAT) {
-		show_threats(&set, &board);
+		fprintf(stderr, "Invalid game file, game has already ended\n");
 	}
 
 	pt = (board.player == 'w' ? pw : pb);
@@ -183,14 +185,14 @@ int main(int argc, char *argv[]) {
 		/* get command from user */
 		pt = (board.player == 'w') ? pw : pb;
 		if (pt.type == HUMAN) {
-			fprintf(stderr, "Your turn, %s\nCommand:", pt.name);
+			printf("Your turn, %s\nCommand:", pt.name);
 			readline(command, 32, stdin);
 			ins = get_command(command);
 			switch(ins.c) {
 				case move_ins:
 					mv = ins.mv;
 					if (!can_move(&board, &set, mv)) {
-						printf("Invalid Move: %s\n", pt.name);
+						fprintf(stderr, "Invalid Move: %s\n", pt.name);
 						continue;
 					}
 					break;
@@ -238,7 +240,7 @@ int main(int argc, char *argv[]) {
 					continue;
 					break;
 				case help_ins:
-					printf("Overview of Commands:\nmove: [a-h][1-8]-[a-h][1-8] (initial and final squares of move)\nsave: save current position of board to file\nboard: Re-Draw board\nquit: exits (without saying)\nhelp: this instruction! (I am a strange loop)\n");
+					fprintf(stderr, "Overview of Commands:\nmove: [a-h][1-8]-[a-h][1-8] (initial and final squares of move)\nsave: save current position of board to file\nboard: Re-Draw board\nquit: exits (without saying)\nhelp: this instruction! (I am a strange loop)\n");
 					continue;
 					break;
 				case invalid_ins:
@@ -251,24 +253,18 @@ int main(int argc, char *argv[]) {
 			}
 		}
 		else {
-#if ENUM_MOVES
-			ainit(&a);
-			printf("Possible Moves:\n");
-			generate_moves(&board, &set, &a);
-			movecount = alength(&a);
-			for (i = 0; i < movecount; i++) {
-				print_move(a.arr[i]);
-			}
-			adestroy(&a);
-#endif
+#if SPECS
 			gettimeofday(&performance1, NULL);
+#endif
 			otherai = distributed_trillian(board, set, min, max, DEPTH);
+#if SPECS
 			gettimeofday(&performance2, NULL);
 			timereq = (performance2.tv_sec + performance2.tv_usec * 1e-6) - (performance1.tv_sec + performance1.tv_usec * 1e-6);
+#endif
 
 			mv = otherai.mov;
 			if (!can_move(&board, &set, mv)) {
-				printf("Invalid Move, %s\n", pt.name);
+				fprintf(stderr, "Invalid Move, %s\n", pt.name);
 				continue;
 			}
 		}
@@ -299,16 +295,6 @@ int main(int argc, char *argv[]) {
 		calculate_pins(&set, &board, 'b');
 		calculate_threats(&set, board.player);
 
-		if (DEBUG & DEBUG_THREAT) {
-			show_threats(&set, &board);
-		}
-
-#if (DEBUG & DEBUG_FEN) 
-		show_register(board.castling);
-		display(&board, READ_MODE);
-		board_to_fenstring(string, &board);
-		printf("%s\n", string);
-#endif
 		/* show board */
 		pt = (board.player == 'w' ? pw : pb);
 		/* if computer playing always keep perspective from human side */
@@ -318,10 +304,12 @@ int main(int argc, char *argv[]) {
 		/* show previous move for clarity */
 		pt = (board.player == 'w') ? pb : pw;
 		fprintf(stderr, "%s played  ", pt.name); print_move(mv);
+#if SPECS
 		if (pt.type == COMPUTER) {
-			printf("Time Taken: %lf sec\n", timereq);
+			fprintf(stderr, "Time Taken: %lf sec\n", timereq);
 		}
 		printf("Position Evaluation: %lf\n", position_evaluate(&set, board.fullmoves));
+#endif
 		/* check for end of game */
 
 		if (is_checkmate(&board, &set)) {
