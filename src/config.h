@@ -4,7 +4,7 @@
 /* REMEMBER: run 'make' after you modify config to see it's effects */
 
 /* use 2 or 4. 6 takes too much time, odd depths give misguided moves. 2 is extremely weak */
-#define CONF_DEPTH 4 
+#define CONF_DEPTH 2 
 
 /* experimental feature in evaluation function- turn off with 0 */
 #define CONF_SUPPORT_ATTACK 1
@@ -22,7 +22,6 @@
 #define CONF_TITLE "./dat/titlescreen.txt"
 
 /* default starting position to be  used when no arguement is specified. same advise as CONF_TITLE */
-#define CONF_DEFAULT "./dat/default.fen"
 
 /* 1 is small and cute, 2 looks like a board. everything else is considered as 2 */
 #define CONF_SIZE 2

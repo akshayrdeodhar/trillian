@@ -67,6 +67,7 @@
 #endif
 
 #define movesequal(mv1, mv2) (posequal(mv1.ini, mv2.ini) && posequal(mv1.fin, mv2.fin))
+
 int main(int argc, char *argv[]) {
 
 	/* strings for files and commands */

@@ -1,4 +1,4 @@
-FLAGS = -Wall -O2 -M
+FLAGS = -Wall -O2
 MATH = -lm
 ASAN = #-fsanitize=address #-fsanitize=leak -fsanitize=undefined
 DEBUG = #-g
