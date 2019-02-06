@@ -106,6 +106,8 @@ Uses the old rule for draws- instead of repetition of position, consecutive repe
 The static evaluation function gives points for number of squares controlled. This causes trillian to bring the queen into the game very early.
 This has been fixed to some extent using a modification which assigns penalties for not developing minor pieces in the opening
 
+Savegame format is does not allow usernames with spaces, wheras the program does.
+
 ### Possible Extension:
 
 Build a better static evaluation function by anylisis of board position<-> win data
@@ -117,3 +119,5 @@ En-Passe- try to find an elegant fix, rather than a lot of if-else
 Some kind of lookup table for fast checking of draw by repetition of *position*
 
 Variable tree depth- when situation is dynamic(king in check or exchange going on) , look ahead more (modify the code in if (depth == 0))
+
+Use GNU Readline for user input.
