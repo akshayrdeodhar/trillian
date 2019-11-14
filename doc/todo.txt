@@ -1,0 +1,28 @@
+Think about enpass
+Try to eliminate the common code outside the loop
+Remove needless printing
+Start pruning the code to remove needless functions
+Supress early queen movement
+Try writing two functions-maximise and minimize instead of a single
+multitasking function
+Improve heuristic
+Start writing README and help- maybe LaTeX
+Start removing all needless printing
+
+Rearrange main() so that board is displayed only when required (want in
+beginning, not when AI is thinking --follows code outside loop
+Try to improve speed by replacing if (DEBUG)  by #if (DEBUG) -- follows remove
+printing
+Replace the end[] array by flags in dir[] --dangerous
+Add castling ability to zaphod #DONE
+Add draw by repetition #DONE
+Make I/O watertight #DONE -eat up all characters till carriage return
+Pass pointers instead of structs for checking functions #DONE
+Draw a better board #DONE
+Board-display file? (customizable board) #NO
+Insufficient mating material draw #DONE
+Trillian Rises#DONE
+Better savegame format #DONE
+Write a position evaluator #DONE
+Remove printing #DONE
+ASCII art for welcome screen? #DONE

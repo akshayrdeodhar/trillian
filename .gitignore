@@ -1,0 +1,11 @@
+*~
+*.o
+saves/*
+README.html
+tests/
+flowcharts/
+snapshots/
+src/errors.err
+tags
+project
+
