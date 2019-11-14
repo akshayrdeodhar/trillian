@@ -15,12 +15,6 @@
 /* if nonzero, shows time taken by computer to make a move , position evaluation */
 #define CONF_SPECS 1
 
-/* the directory where you wish to put savegame files */
-#define CONF_SAVES "./saves/"
-
-/* file to be displayed as title screen- location wrt location of executable OR absolute location */
-#define CONF_TITLE "./dat/titlescreen.txt"
-
 /* default starting position to be  used when no arguement is specified. same advise as CONF_TITLE */
 
 /* 1 is small and cute, 2 looks like a board. everything else is considered as 2 */

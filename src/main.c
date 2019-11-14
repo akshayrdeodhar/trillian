@@ -17,6 +17,8 @@
 
 
 
+
+
 /* The main game loop which calls everything */
 
 #include <stdio.h>
@@ -35,6 +37,15 @@
 #include "zaphod.h"
 #include "trillian.h"
 #include "limits.h"
+
+
+/* the directory where you wish to put savegame files */
+#define CONF_SAVES "./"
+
+/* file to be displayed as title screen- location wrt location of executable OR absolute location */
+#define CONF_TITLE DATADIR"/trillian/titlescreen.txt"
+
+
 
 #ifndef CONF_DEFAULT
 #define DEFAULT_PATH "./dat/default.fen"

@@ -8,4 +8,20 @@ snapshots/
 src/errors.err
 tags
 project
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache/
+compile
+config.log
+config.status
+configure
+depcomp
+install-sh
+missing
+new.sv
+src/.deps/
+src/Makefile
+src/Makefile.in
+src/trillian
 
