@@ -7,6 +7,28 @@ Akshay Deodhar
 SY BTech
 Computer Engineering
 
+## Installation
+
+	./configure
+	# generates makefile
+	sudo make install
+	# installs in /usr/bin
+
+	trillian
+	# runs program installed in /usr/bin
+
+## Automake
+
+	autoreconf -vfi
+	# generates 'configure' script
+	./configure
+	# generates makefile
+	sudo make install
+	# installs in /usr/bin
+
+	make dist
+	# creates a distributble tar.gz 
+
 ## Usage
 
 **You can configure the program to some extent by modifying config.h in src/**
