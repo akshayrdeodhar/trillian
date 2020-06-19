@@ -1,5 +1,7 @@
 # Chess
 
+[![Build Status](https://travis-ci.com/akshayrdeodhar/trillian.svg?branch=master)](https://travis-ci.com/akshayrdeodhar/trillian)
+
 ## DSA Project
 
 111703013
