@@ -1,5 +1,12 @@
-addons:
-  apt:
-    automake
+language: c
+
+before_install:
+    - sudo apt-get update
+
 install:
-  autoreconf -vfi && ./configure && make
+    - sudo apt-get install automake
+    
+script:
+    - autoreconf -vfi
+    - ./configure
+    - make
