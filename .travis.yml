@@ -6,4 +6,4 @@ addons:
   apt:
     cmake
 install:
-  ./configure && make
+  autoreconf -vfi && ./configure && make
