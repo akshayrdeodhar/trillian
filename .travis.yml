@@ -1,0 +1,9 @@
+language: ruby
+compiler:
+ - gcc
+ - clang
+addons:
+  apt:
+    cmake
+install:
+  ./configure && make
